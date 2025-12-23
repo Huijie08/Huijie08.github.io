@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<! DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -11,8 +11,11 @@
     
     <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic. com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🎨 ICONOS (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all. min.css">
     
     <!-- 🎨 ESTILOS -->
     <style>
@@ -25,8 +28,12 @@
         body {
             font-family:  'Poppins', sans-serif;
             line-height: 1.6;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: #0a0a0a;
+            color:  #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
         
@@ -37,10 +44,141 @@
         p {
             font-weight: 400;
         }
+        
+        /* 📦 CONTENEDOR PRINCIPAL */
+        . social-section {
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        . social-section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .social-section p {
+            color: #888888;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        /* 🔗 GRID DE REDES SOCIALES */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        /* 🎯 CADA TARJETA DE RED SOCIAL */
+        .social-card {
+            background: #151515;
+            border:  1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items:  center;
+            gap: 12px;
+        }
+        
+        . social-card:hover {
+            transform: translateY(-5px);
+            border-color: #e63946;
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+        }
+        
+        .social-card i {
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-card:hover i {
+            color: #e63946;
+        }
+        
+        . social-card span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color:  #cccccc;
+        }
+        
+        /* 🎨 COLORES ESPECÍFICOS POR RED (hover) */
+        .social-card. youtube: hover i { color: #ff0000; }
+        .social-card. youtube:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2); }
+        
+        .social-card.twitter:hover i { color: #ffffff; }
+        . social-card.twitter:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+        
+        .social-card.instagram:hover i { color: #e1306c; }
+        . social-card.instagram:hover { border-color: #e1306c; box-shadow: 0 10px 30px rgba(225, 48, 108, 0.2); }
+        
+        .social-card.github:hover i { color: #ffffff; }
+        . social-card.github:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+        
+        .social-card. anilist:hover i { color: #02a9ff; }
+        .social-card.anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
+        
+        /* 📱 RESPONSIVE */
+        @media (max-width: 500px) {
+            .social-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            . social-card {
+                padding: 25px 15px;
+            }
+            
+            .social-card i {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>¡Bienvenido a mi sitio! </h1>
-    <p>Esta es mi primera página web con la tipografía Poppins. </p>
+
+    <section class="social-section">
+        <h2>Mis Redes</h2>
+        <p>Sígueme o stalkéame, tú decides 👀</p>
+        
+        <div class="social-grid">
+            
+            <!-- 📺 YOUTUBE -->
+            <a href="https://www.youtube.com/@Granjerito20" target="_blank" class="social-card youtube">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube</span>
+            </a>
+            
+            <!-- 🐦 TWITTER/X -->
+            <a href="https://x.com/Granjerito20" target="_blank" class="social-card twitter">
+                <i class="fab fa-x-twitter"></i>
+                <span>Twitter</span>
+            </a>
+            
+            <!-- 📷 INSTAGRAM -->
+            <a href="https://www.instagram.com/huijiel_/" target="_blank" class="social-card instagram">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
+            
+            <!-- 💻 GITHUB -->
+            <a href="https://github.com/Huijie08" target="_blank" class="social-card github">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+            
+            <!-- 🎬 ANILIST -->
+            <a href="https://anilist.co/user/Granjerito/" target="_blank" class="social-card anilist">
+                <i class="fa-solid fa-list"></i>
+                <span>AniList</span>
+            </a>
+            
+        </div>
+    </section>
+
 </body>
 </html>
