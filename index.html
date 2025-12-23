@@ -20,14 +20,14 @@
     <!-- 🎨 ESTILOS -->
     <style>
         * {
-            margin: 0;
-            padding:  0;
+            margin:  0;
+            padding: 0;
             box-sizing: border-box;
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            line-height:  1.6;
+            font-family:  'Poppins', sans-serif;
+            line-height: 1.6;
             background-color: #0a0a0a;
             color:  #ffffff;
             min-height: 100vh;
@@ -62,7 +62,7 @@
         }
         
         . navbar-links {
-            display: flex;
+            display:  flex;
             gap: 30px;
             list-style: none;
         }
@@ -76,22 +76,22 @@
             position: relative;
         }
         
-        .navbar-links a:hover {
+        .navbar-links a: hover {
             color: #ffffff;
         }
         
-        . navbar-links a:: after {
-            content: '';
-            position: absolute;
+        . navbar-links a::after {
+            content:  '';
+            position:  absolute;
             bottom: -5px;
-            left:  0;
+            left: 0;
             width: 0;
             height:  2px;
             background: #e63946;
             transition: width 0.3s ease;
         }
         
-        .navbar-links a:hover:: after {
+        .navbar-links a:hover::after {
             width: 100%;
         }
         
@@ -99,7 +99,7 @@
             color: #ffffff;
         }
         
-        . navbar-links a. active::after {
+        . navbar-links a.active::after {
             width: 100%;
         }
         
@@ -112,7 +112,7 @@
         }
         
         /* 📦 CONTENIDO PRINCIPAL */
-        .main-content {
+        . main-content {
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -147,7 +147,7 @@
         }
         
         /* 🎯 CADA TARJETA DE RED SOCIAL */
-        .social-card {
+        . social-card {
             background: #151515;
             border:  1px solid #2a2a2a;
             border-radius: 16px;
@@ -168,7 +168,7 @@
         }
         
         .social-card i {
-            font-size: 2.5rem;
+            font-size: 2. 5rem;
             transition: all 0.3s ease;
         }
         
@@ -176,7 +176,7 @@
             color: #e63946;
         }
         
-        .social-card span {
+        . social-card span {
             font-size: 0.9rem;
             font-weight: 500;
             color:  #cccccc;
@@ -195,11 +195,11 @@
         .social-card.github:hover i { color: #ffffff; }
         . social-card.github:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
         
-        . social-card. anilist:hover i { color: #02a9ff; }
-        . social-card. anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
+        .social-card. anilist:hover i { color: #02a9ff; }
+        .social-card.anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
         
         /* 📱 RESPONSIVE */
-        @media (max-width: 600px) {
+        @media (max-width:  600px) {
             .navbar {
                 padding: 15px 20px;
             }
