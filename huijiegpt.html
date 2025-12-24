@@ -1013,13 +1013,10 @@ Recuerda: Tu objetivo es ser el asistente más útil, preciso y agradable posibl
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        contents: [
-                            {
-                                role: 'user',
-                                parts: [{ text: SYSTEM_PROMPT }]
-                            },
-                            ...conversationHistory
-                        ],
+                        contents: conversationHistory,
+                        systemInstruction: {
+                            parts: [{ text: SYSTEM_PROMPT }]
+                        },
                         generationConfig: {
                             temperature: 0.9,
                             topK: 40,
@@ -1030,7 +1027,9 @@ Recuerda: Tu objetivo es ser el asistente más útil, preciso y agradable posibl
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Error en la API');
+                    const errorData = await response.json();
+                    console.error('Error de la API:', errorData);
+                    throw new Error(`Error ${response.status}: ${errorData.error?.message || 'Error desconocido'}`);
                 }
                 
                 const data = await response.json();
@@ -1049,9 +1048,20 @@ Recuerda: Tu objetivo es ser el asistente más útil, preciso y agradable posibl
                 });
                 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error completo:', error);
                 hideTypingIndicator();
-                displayMessage('Ups, algo salió mal. Por favor, intenta de nuevo.', 'bot');
+                
+                // Mostrar mensaje de error más específico
+                let errorMessage = 'Ups, algo salió mal. ';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'Verifica tu conexión a internet.';
+                } else if (error.message.includes('40')) {
+                    errorMessage += 'Verifica que tu API key sea correcta.';
+                } else {
+                    errorMessage += 'Por favor, intenta de nuevo. Error: ' + error.message;
+                }
+                
+                displayMessage(errorMessage, 'bot');
             } finally {
                 // Rehabilitar input
                 sendButton.disabled = false;
