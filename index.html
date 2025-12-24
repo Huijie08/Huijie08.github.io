@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- 🔍 SEO - Lo que aparece en Google -->
-    <title>Huijie Lin - Home</title>
-    <meta name="description" content="Bienvenido a mi portfolio personal. Soy Huijie Lin, desarrollador web apasionado por la tecnología y el anime.">
+    <title>Huijie Lin - Estudiante & Creador de Contenido</title>
+    <meta name="description" content="Hola! Soy Huijie, tengo 17 años y vivo en Barcelona. Estudiante de 2.º de Bachillerato Tecnológico, amante del anime y los videojuegos.">
     <meta name="author" content="Huijie Lin">
     
     <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
@@ -159,6 +159,34 @@
             text-align: left;
         }
         
+        /* 📷 PROFILE PHOTO */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .profile-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 3px solid #2a2a2a;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .profile-photo:hover {
+            border-color: #e63946;
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(230, 57, 70, 0.3);
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
         .about-section h2 {
             font-size: 2rem;
             font-weight: 600;
@@ -246,6 +274,16 @@
                 padding: 30px 20px;
             }
             
+            .profile-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-photo {
+                width: 150px;
+                height: 150px;
+            }
+            
             .cta-buttons {
                 flex-direction: column;
             }
@@ -297,33 +335,39 @@
     <!-- 🏠 HERO SECTION -->
     <section class="hero-section">
         <h1>¡Hola! Soy Huijie Lin 👋</h1>
-        <p class="subtitle">Desarrollador Web & Entusiasta del Anime</p>
+        <p class="subtitle">Estudiante de Bachillerato Tecnológico en Barcelona</p>
         <p class="description">
-            Bienvenido a mi espacio personal en la web. Aquí comparto mi pasión por la programación, 
-            mis proyectos y mis intereses, incluyendo mi amor por el anime.
+            Tengo 17 años y estoy en 2.º de Bachillerato Tecnológico. Me encanta explorar el mundo de la tecnología, 
+            jugar videojuegos, ver anime y hacer cosas creativas. Bienvenido a mi espacio personal.
         </p>
         
         <!-- 📖 ABOUT ME -->
         <div class="about-section">
-            <h2>Sobre Mí</h2>
+            <div class="profile-container">
+                <img src="images/huijie-lin.jpeg" alt="Huijie Lin" class="profile-photo">
+                <div class="profile-info">
+                    <h2>Sobre Mí</h2>
+                    <p>
+                        Soy Huijie, tengo 17 años y vivo en Barcelona. Actualmente estoy cursando 2.º de Bachillerato Tecnológico, 
+                        explorando el fascinante mundo de la tecnología y aprendiendo cada día algo nuevo.
+                    </p>
+                </div>
+            </div>
+            
             <p>
-                Soy un desarrollador web con pasión por crear experiencias digitales únicas y funcionales. 
-                Me encanta aprender nuevas tecnologías y aplicarlas en proyectos creativos.
-            </p>
-            <p>
-                Cuando no estoy programando, probablemente esté viendo anime, explorando nuevas series 
-                o compartiendo contenido en mis redes sociales. Me fascina la intersección entre tecnología 
-                y entretenimiento.
+                Mis pasiones son los videojuegos, el anime y hacer cosas creativas. Me gusta experimentar con proyectos 
+                nuevos y descubrir diferentes formas de expresar mis ideas. Cuando no estoy estudiando, probablemente 
+                esté jugando, viendo anime o creando contenido para mis redes sociales.
             </p>
             
-            <h2 style="margin-top: 30px;">Tecnologías</h2>
+            <h2 style="margin-top: 30px;">Mis Intereses</h2>
             <div class="skills-grid">
-                <div class="skill-tag">HTML & CSS</div>
-                <div class="skill-tag">JavaScript</div>
-                <div class="skill-tag">React</div>
-                <div class="skill-tag">Node.js</div>
-                <div class="skill-tag">Git & GitHub</div>
-                <div class="skill-tag">Responsive Design</div>
+                <div class="skill-tag">🎮 Videojuegos</div>
+                <div class="skill-tag">📺 Anime</div>
+                <div class="skill-tag">🎨 Creatividad</div>
+                <div class="skill-tag">💻 Tecnología</div>
+                <div class="skill-tag">🎬 Crear Contenido</div>
+                <div class="skill-tag">📚 Aprender</div>
             </div>
         </div>
         
