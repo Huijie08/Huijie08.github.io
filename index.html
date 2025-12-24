@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- 🔍 SEO - Lo que aparece en Google -->
-    <title>HUIJIE LIN</title>
-    <meta name="description" content="Soy Huijie, desarrollador web.  Aquí encontrarás mis proyectos, habilidades y redes sociales.  ¡Bienvenido a mi portfolio!">
+    <title>Huijie Lin - Home</title>
+    <meta name="description" content="Bienvenido a mi portfolio personal. Soy Huijie Lin, desarrollador web apasionado por la tecnología y el anime.">
     <meta name="author" content="Huijie Lin">
     
     <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
@@ -117,110 +117,145 @@
         }
         
         /* 📦 CONTENEDOR PRINCIPAL */
-        .social-section {
+        .hero-section {
             text-align: center;
-            max-width: 600px;
+            max-width: 800px;
             margin-top: 80px;
+            padding: 40px 20px;
         }
         
-        .social-section h2 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #ffffff;
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .social-section p {
+        .hero-section .subtitle {
+            font-size: 1.3rem;
+            color: #cccccc;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+        
+        .hero-section .description {
+            font-size: 1rem;
             color: #888888;
+            line-height: 1.8;
             margin-bottom: 40px;
             font-weight: 300;
         }
         
-        /* 🔗 GRID DE REDES SOCIALES */
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        /* 🎯 CADA TARJETA DE RED SOCIAL */
-        .social-card {
+        /* 🎯 ABOUT ME SECTION */
+        .about-section {
             background: #151515;
-            border:  1px solid #2a2a2a;
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-decoration: none;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .about-section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
             color: #ffffff;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items:  center;
-            gap: 12px;
         }
         
-        .social-card:hover {
-            transform: translateY(-5px);
+        .about-section p {
+            color: #cccccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .skill-tag {
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: #cccccc;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-tag:hover {
             border-color: #e63946;
-            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+            color: #ffffff;
+            transform: translateY(-3px);
         }
         
-        .social-card i {
-            font-size: 2.5rem;
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        .cta-button {
+            background: #e63946;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            font-weight: 600;
             transition: all 0.3s ease;
+            display: inline-block;
         }
         
-        .social-card:hover i {
+        .cta-button:hover {
+            background: #d62839;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.3);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            border: 2px solid #e63946;
             color: #e63946;
         }
         
-        .social-card span {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #cccccc;
-        }
-        
-        /* 🎨 COLORES ESPECÍFICOS POR RED (hover) */
-        .social-card.youtube:hover i { color: #ff0000; }
-        .social-card.youtube:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2); }
-        
-        .social-card.twitter:hover i { color: #ffffff; }
-        .social-card.twitter:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
-        
-        .social-card.instagram:hover i { color: #e1306c; }
-        .social-card.instagram:hover { border-color: #e1306c; box-shadow: 0 10px 30px rgba(225, 48, 108, 0.2); }
-        
-        .social-card.github:hover i { color: #ffffff; }
-        .social-card.github:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
-        
-        .social-card.anilist:hover i { color: #02a9ff; }
-        .social-card.anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
-        
-        /* 🎬 CUSTOM IMAGE ICON FOR ANILIST */
-        .social-card img.icon-img {
-            width: 2.5rem;
-            height: 2.5rem;
-            object-fit: contain;
-            transition: all 0.3s ease;
-        }
-        
-        .social-card:hover img.icon-img {
-            filter: brightness(1.2);
+        .cta-button.secondary:hover {
+            background: #e63946;
+            color: #ffffff;
         }
         
         /* 📱 RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-section .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .about-section {
+                padding: 30px 20px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .cta-button {
+                width: 100%;
+            }
+        }
+        
         @media (max-width: 500px) {
-            .social-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .social-card {
-                padding: 25px 15px;
-            }
-            
-            .social-card i {
-                font-size: 2rem;
-            }
-            
             .navbar {
                 padding: 15px 20px;
             }
@@ -230,11 +265,19 @@
             }
             
             .navbar-links {
-                gap: 20px;
+                gap: 15px;
             }
             
             .navbar-links a {
                 font-size: 0.85rem;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -245,47 +288,49 @@
     <nav class="navbar">
         <a href="index.html" class="navbar-logo">HUIJIE LIN</a>
         <ul class="navbar-links">
-            <li><a href="index.html" class="active">Redes Sociales</a></li>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="redes-sociales.html">Redes Sociales</a></li>
             <li><a href="animes.html">Animes</a></li>
         </ul>
     </nav>
 
-    <section class="social-section">
-        <h2>Mis Redes</h2>
-        <p>Sígueme o stalkéame, tú decides 👀</p>
+    <!-- 🏠 HERO SECTION -->
+    <section class="hero-section">
+        <h1>¡Hola! Soy Huijie Lin 👋</h1>
+        <p class="subtitle">Desarrollador Web & Entusiasta del Anime</p>
+        <p class="description">
+            Bienvenido a mi espacio personal en la web. Aquí comparto mi pasión por la programación, 
+            mis proyectos y mis intereses, incluyendo mi amor por el anime.
+        </p>
         
-        <div class="social-grid">
+        <!-- 📖 ABOUT ME -->
+        <div class="about-section">
+            <h2>Sobre Mí</h2>
+            <p>
+                Soy un desarrollador web con pasión por crear experiencias digitales únicas y funcionales. 
+                Me encanta aprender nuevas tecnologías y aplicarlas en proyectos creativos.
+            </p>
+            <p>
+                Cuando no estoy programando, probablemente esté viendo anime, explorando nuevas series 
+                o compartiendo contenido en mis redes sociales. Me fascina la intersección entre tecnología 
+                y entretenimiento.
+            </p>
             
-            <!-- 📺 YOUTUBE -->
-            <a href="https://www.youtube.com/@Granjerito20" target="_blank" class="social-card youtube">
-                <i class="fab fa-youtube"></i>
-                <span>YouTube</span>
-            </a>
-            
-            <!-- 🐦 TWITTER/X -->
-            <a href="https://x.com/Granjerito20" target="_blank" class="social-card twitter">
-                <i class="fab fa-x-twitter"></i>
-                <span>Twitter</span>
-            </a>
-            
-            <!-- 📷 INSTAGRAM -->
-            <a href="https://www.instagram.com/huijiel_/" target="_blank" class="social-card instagram">
-                <i class="fab fa-instagram"></i>
-                <span>Instagram</span>
-            </a>
-            
-            <!-- 💻 GITHUB -->
-            <a href="https://github.com/Huijie08" target="_blank" class="social-card github">
-                <i class="fab fa-github"></i>
-                <span>GitHub</span>
-            </a>
-            
-            <!-- 🎬 ANILIST -->
-            <a href="https://anilist.co/user/Granjerito/" target="_blank" class="social-card anilist">
-                <img src="https://cdn-1.webcatalog.io/catalog/anilist/anilist-icon-filled-256.png?v=1714773219581" alt="AniList" class="icon-img">
-                <span>AniList</span>
-            </a>
-            
+            <h2 style="margin-top: 30px;">Tecnologías</h2>
+            <div class="skills-grid">
+                <div class="skill-tag">HTML & CSS</div>
+                <div class="skill-tag">JavaScript</div>
+                <div class="skill-tag">React</div>
+                <div class="skill-tag">Node.js</div>
+                <div class="skill-tag">Git & GitHub</div>
+                <div class="skill-tag">Responsive Design</div>
+            </div>
+        </div>
+        
+        <!-- 🔗 CTA BUTTONS -->
+        <div class="cta-buttons">
+            <a href="redes-sociales.html" class="cta-button">Mis Redes Sociales</a>
+            <a href="animes.html" class="cta-button secondary">Mi Top Animes</a>
         </div>
     </section>
 
