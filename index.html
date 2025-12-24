@@ -36,6 +36,19 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 🌌 ANTIGRAVITY BACKGROUND */
+        #antigravity-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
         
         h1 {
@@ -122,6 +135,8 @@
             max-width: 800px;
             margin-top: 80px;
             padding: 40px 20px;
+            position: relative;
+            z-index: 1;
         }
         
         .hero-section h1 {
@@ -132,6 +147,25 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        /* 🎭 BLUR TEXT ANIMATION */
+        .hero-section h1 .char {
+            display: inline-block;
+            filter: blur(10px);
+            opacity: 0;
+            animation: blurReveal 0.8s ease-out forwards;
+        }
+        
+        @keyframes blurReveal {
+            0% {
+                filter: blur(10px);
+                opacity: 0;
+            }
+            100% {
+                filter: blur(0px);
+                opacity: 1;
+            }
         }
         
         .hero-section .subtitle {
@@ -321,6 +355,8 @@
     </style>
 </head>
 <body>
+    <!-- 🌌 ANTIGRAVITY CANVAS BACKGROUND -->
+    <canvas id="antigravity-canvas"></canvas>
 
     <!-- 🧭 NAVBAR -->
     <nav class="navbar">
@@ -335,7 +371,7 @@
 
     <!-- 🏠 HERO SECTION -->
     <section class="hero-section">
-        <h1>¡Hola! Soy Huijie Lin 👋</h1>
+        <h1 id="blur-text-title">¡Hola! Soy Huijie Lin 👋</h1>
         <p class="subtitle">Estudiante de Bachillerato Tecnológico en Barcelona</p>
         <p class="description">
             Tengo 17 años y estoy en 2.º de Bachillerato Tecnológico. Me encanta explorar el mundo de la tecnología, 
@@ -378,6 +414,129 @@
             <a href="animes.html" class="cta-button secondary">Mi Top Animes</a>
         </div>
     </section>
+
+    <!-- ⚡ JAVASCRIPT FOR ANIMATIONS -->
+    <script>
+        // ===========================================
+        // 🎭 BLUR TEXT ANIMATION
+        // ===========================================
+        function initBlurTextAnimation() {
+            const title = document.getElementById('blur-text-title');
+            if (!title) return;
+            
+            const text = title.textContent;
+            title.innerHTML = '';
+            
+            // Split text into characters and wrap each in a span
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces
+                span.style.animationDelay = `${index * 0.05}s`; // Stagger animation
+                title.appendChild(span);
+            });
+        }
+        
+        // ===========================================
+        // 🌌 ANTIGRAVITY BACKGROUND PARTICLES
+        // ===========================================
+        function initAntigravityBackground() {
+            const canvas = document.getElementById('antigravity-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Particle class
+            class Particle {
+                constructor() {
+                    this.reset();
+                    // Start particles at random heights instead of just bottom
+                    this.y = Math.random() * canvas.height;
+                }
+                
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + Math.random() * 100;
+                    this.size = Math.random() * 3 + 1;
+                    this.speedY = Math.random() * 0.5 + 0.2;
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.opacity = Math.random() * 0.3 + 0.1;
+                    
+                    // Random colors: gray tones or subtle red
+                    const colorChoice = Math.random();
+                    if (colorChoice < 0.7) {
+                        // Gray tones
+                        const grayValue = Math.floor(Math.random() * 100 + 100);
+                        this.color = `rgba(${grayValue}, ${grayValue}, ${grayValue}, ${this.opacity})`;
+                    } else {
+                        // Subtle red (#e63946 with low opacity)
+                        this.color = `rgba(230, 57, 70, ${this.opacity * 0.5})`;
+                    }
+                }
+                
+                update() {
+                    this.y -= this.speedY;
+                    this.x += this.speedX;
+                    
+                    // Reset particle when it goes off screen
+                    if (this.y < -10) {
+                        this.reset();
+                    }
+                    
+                    // Keep particles within horizontal bounds
+                    if (this.x < -10 || this.x > canvas.width + 10) {
+                        this.x = Math.random() * canvas.width;
+                    }
+                }
+                
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Create particles
+            const particleCount = 80;
+            const particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            
+            // Animation loop
+            function animate() {
+                // Semi-transparent black to create trail effect
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        // ===========================================
+        // 🚀 INITIALIZE ON PAGE LOAD
+        // ===========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            initBlurTextAnimation();
+            initAntigravityBackground();
+        });
+    </script>
 
 </body>
 </html>
