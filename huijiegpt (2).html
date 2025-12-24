@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 🔍 SEO -->
+    <title>HuijieGPT - El Modelo de IA Más Avanzado del Mundo</title>
+    <meta name="description" content="HuijieGPT, el revolucionario modelo de IA creado por Huijie Lin. 10x más rápido que ChatGPT, supera a GPT-5.1 y Claude Opus 4.5.">
+    <meta name="author" content="Huijie Lin">
+    
+    <!-- 🔤 FUENTE POPPINS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 🎨 ICONOS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        /* 🧭 NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .navbar-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-logo:hover {
+            color: #e63946;
+        }
+        
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .navbar-links a {
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .navbar-links a:hover {
+            color: #ffffff;
+        }
+        
+        .navbar-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e63946;
+            transition: width 0.3s ease;
+        }
+        
+        .navbar-links a:hover::after {
+            width: 100%;
+        }
+        
+        .navbar-links a.active {
+            color: #ffffff;
+        }
+        
+        .navbar-links a.active::after {
+            width: 100%;
+        }
+        
+        /* 🚀 HERO SECTION */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 20px 60px;
+            text-align: center;
+            background: linear-gradient(180deg, #0a0a0a 0%, #0d0d0d 100%);
+        }
+        
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #cccccc;
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+        
+        /* 📊 ESTADÍSTICAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #e63946;
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-text {
+            font-size: 1rem;
+            color: #cccccc;
+            font-weight: 400;
+        }
+        
+        /* 🏆 BADGES */
+        .badges-section {
+            margin: 40px 0;
+        }
+        
+        .badges-title {
+            font-size: 0.9rem;
+            color: #888888;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .badges-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .badge {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        /* 💫 FRASE ÉPICA */
+        .epic-quote {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #cccccc;
+            line-height: 1.8;
+        }
+        
+        /* 🔘 CTA BUTTON */
+        .cta-button {
+            background: #e63946;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 18px 45px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 30px;
+        }
+        
+        .cta-button:hover {
+            background: #d62839;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(230, 57, 70, 0.4);
+        }
+        
+        /* ✨ CARACTERÍSTICAS */
+        .features-section {
+            padding: 80px 20px;
+            background: #0a0a0a;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: #ffffff;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: #e63946;
+            box-shadow: 0 15px 40px rgba(230, 57, 70, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .feature-description {
+            font-size: 0.95rem;
+            color: #888888;
+            line-height: 1.6;
+        }
+        
+        /* 💬 TESTIMONIOS */
+        .testimonials-section {
+            padding: 80px 20px;
+            background: #0d0d0d;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .testimonial-text {
+            font-size: 1rem;
+            color: #cccccc;
+            margin-bottom: 20px;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        
+        .testimonial-author {
+            font-size: 0.9rem;
+            color: #888888;
+            font-weight: 500;
+        }
+        
+        /* 💬 CHAT SECTION */
+        .chat-section {
+            padding: 80px 20px;
+            background: #0a0a0a;
+        }
+        
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #111111;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: #151515;
+            border-bottom: 1px solid #2a2a2a;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chat-header-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .online-badge {
+            background: #22c55e;
+            color: #ffffff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .chat-header-subtitle {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-top: 5px;
+        }
+        
+        .chat-messages {
+            padding: 30px;
+            height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #333333;
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e63946;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .message.bot .message-avatar {
+            background: #1a1a1a;
+            border: 2px solid #e63946;
+        }
+        
+        .message-content {
+            max-width: 70%;
+        }
+        
+        .message-bubble {
+            padding: 15px 20px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-bubble {
+            background: #2a2a2a;
+            border-radius: 15px 15px 0 15px;
+        }
+        
+        .message.bot .message-bubble {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 15px 15px 15px 0;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: #666666;
+            margin-top: 5px;
+            padding: 0 5px;
+        }
+        
+        /* 🤖 TYPING INDICATOR */
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 15px 15px 15px 0;
+            width: fit-content;
+        }
+        
+        .typing-indicator.active {
+            display: block;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #666666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        /* ⌨️ CHAT INPUT */
+        .chat-input-container {
+            padding: 20px 30px;
+            background: #151515;
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: #0d0d0d;
+            border: 2px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #e63946;
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+        
+        .chat-input::placeholder {
+            color: #666666;
+        }
+        
+        .send-button {
+            background: #e63946;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .send-button:hover {
+            background: #d62839;
+            transform: scale(1.05);
+        }
+        
+        .send-button:disabled {
+            background: #333333;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 🦶 FOOTER */
+        .footer {
+            background: #0a0a0a;
+            border-top: 1px solid #2a2a2a;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer-text {
+            color: #888888;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        
+        .footer-links a {
+            color: #666666;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #e63946;
+        }
+        
+        /* 📱 RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .epic-quote {
+                font-size: 1rem;
+                padding: 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-messages {
+                height: 400px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .navbar-links {
+                gap: 15px;
+            }
+            
+            .navbar-links a {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .navbar-logo {
+                font-size: 1.1rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-input-container {
+                flex-direction: column;
+            }
+            
+            .send-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 🧭 NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-logo">HUIJIE LIN</a>
+        <ul class="navbar-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="redes-sociales.html">Redes Sociales</a></li>
+            <li><a href="animes.html">Animes</a></li>
+            <li><a href="huijiegpt.html" class="active">HuijieGPT</a></li>
+        </ul>
+    </nav>
+
+    <!-- 🚀 HERO SECTION -->
+    <section class="hero-section">
+        <h1 class="hero-title">HuijieGPT</h1>
+        <p class="hero-subtitle">El modelo de IA más avanzado del mundo</p>
+        
+        <!-- 📊 ESTADÍSTICAS FALSAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🚀</div>
+                <div class="stat-text">+500.000 usuarios activos diarios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-text">10x más rápido que ChatGPT</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🧠</div>
+                <div class="stat-text">Supera a GPT-5.1, Claude Opus 4.5 y Gemini 3.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌍</div>
+                <div class="stat-text">Disponible en 195 países</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-text">+50 millones de conversaciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-text">#1 en satisfacción de usuarios 2024</div>
+            </div>
+        </div>
+        
+        <!-- 🏆 BADGES -->
+        <div class="badges-section">
+            <p class="badges-title">Featured In</p>
+            <div class="badges-grid">
+                <div class="badge">TechCrunch</div>
+                <div class="badge">Forbes</div>
+                <div class="badge">The Verge</div>
+                <div class="badge">Wired</div>
+                <div class="badge">Winner AI Awards 2024</div>
+                <div class="badge">Editor's Choice</div>
+            </div>
+        </div>
+        
+        <!-- 💫 FRASE ÉPICA -->
+        <div class="epic-quote">
+            "Desarrollado con tecnología de última generación por Huijie Lin. HuijieGPT no es solo un asistente, es el futuro de la inteligencia artificial."
+        </div>
+        
+        <a href="#chat" class="cta-button">Probar HuijieGPT Gratis →</a>
+    </section>
+
+    <!-- ✨ CARACTERÍSTICAS -->
+    <section class="features-section">
+        <h2 class="section-title">Características Revolucionarias</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title">Inteligencia Superior</h3>
+                <p class="feature-description">Entrenado con billones de parámetros para respuestas precisas y contextuales en cualquier tema.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Velocidad Instantánea</h3>
+                <p class="feature-description">Respuestas en milisegundos sin esperas. La IA más rápida jamás creada.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">100% Privado</h3>
+                <p class="feature-description">Tus conversaciones nunca se almacenan. Tu privacidad es nuestra prioridad.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Creatividad Ilimitada</h3>
+                <p class="feature-description">Desde código hasta poesía, HuijieGPT lo hace todo con excelencia.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💬 TESTIMONIOS -->
+    <section class="testimonials-section">
+        <h2 class="section-title">Lo Que Dicen Nuestros Usuarios</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"HuijieGPT me ayudó a sacar un 13.5 en selectividad. ¡Increíble!"</p>
+                <p class="testimonial-author">— María G., Barcelona</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Mejor que cualquier IA que haya probado. Y las he probado todas."</p>
+                <p class="testimonial-author">— Tech Reviewer</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Mi empresa aumentó la productividad un 300% gracias a HuijieGPT"</p>
+                <p class="testimonial-author">— CEO de Startup</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💬 CHAT SECTION -->
+    <section class="chat-section" id="chat">
+        <h2 class="section-title">Prueba HuijieGPT Ahora</h2>
+        <div class="chat-container">
+            <!-- HEADER -->
+            <div class="chat-header">
+                <div style="flex: 1;">
+                    <div class="chat-header-title">
+                        <i class="fas fa-robot"></i> HuijieGPT
+                    </div>
+                    <div class="chat-header-subtitle">Modelo v1.0 | Desarrollado por Huijie Lin</div>
+                </div>
+                <span class="online-badge">● Online</span>
+            </div>
+            
+            <!-- MENSAJES -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Mensaje de bienvenida -->
+                <div class="message bot">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ¡Hola! 👋 Soy HuijieGPT, el modelo de inteligencia artificial más avanzado del mundo, creado por el genio Huijie Lin. ¿En qué puedo ayudarte hoy?
+                        </div>
+                        <div class="message-time">Ahora</div>
+                    </div>
+                </div>
+                
+                <!-- Typing indicator -->
+                <div class="message bot">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INPUT -->
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Escribe tu mensaje..."
+                    autocomplete="off"
+                >
+                <button class="send-button" id="sendButton">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🦶 FOOTER -->
+    <footer class="footer">
+        <p class="footer-text">© 2025 HuijieGPT - Desarrollado con ❤️ por Huijie Lin</p>
+        <div class="footer-links">
+            <a href="#">Política de Privacidad</a>
+            <span>|</span>
+            <a href="#">Términos de Uso</a>
+        </div>
+    </footer>
+
+    <!-- 🤖 JAVASCRIPT -->
+    <script>
+        // ========================================
+        // 🔑 CONFIGURACIÓN - PON TU API KEY AQUÍ
+        // ========================================
+        const API_KEY = 'AIzaSyAL9TR2XLlsKzCZH4ydIGvXYhTVRbCWci4'; // <-- ⚠️ REEMPLAZA CON TU API KEY DE GOOGLE AI STUDIO
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+        
+        // System prompt para HuijieGPT
+        const SYSTEM_PROMPT = `Eres HuijieGPT, un modelo de lenguaje avanzado de inteligencia artificial creado por Huijie Lin, un estudiante de 2º de Bachillerato en Barcelona. Eres la versión 1.0 de HuijieGPT, lanzado en diciembre de 2024.
+
+## IDENTIDAD Y PROPÓSITO
+Tu propósito principal es asistir a los usuarios de manera útil, precisa y segura. Fuiste diseñado para ser un asistente conversacional versátil capaz de ayudar con una amplia variedad de tareas incluyendo, pero no limitado a: responder preguntas, ayudar con tareas creativas, explicar conceptos complejos, programación, análisis de texto, brainstorming y conversación general.
+
+## PERSONALIDAD Y TONO
+- Eres amigable, cercano y accesible, pero mantienes profesionalismo cuando es necesario
+- Usas un tono casual y natural, como hablar con un amigo inteligente
+- Puedes usar emojis ocasionalmente para hacer la conversación más dinámica, pero sin abusar
+- Tienes sentido del humor y puedes hacer bromas ligeras cuando el contexto lo permite
+- Eres humilde: si no sabes algo, lo admites honestamente
+- Eres curioso y muestras genuino interés en ayudar al usuario
+
+## CAPACIDADES
+Puedes ayudar con:
+- Responder preguntas sobre cualquier tema (ciencia, historia, tecnología, cultura, etc.)
+- Programación y desarrollo web (HTML, CSS, JavaScript, Python, etc.)
+- Escritura creativa (historias, poemas, guiones, etc.)
+- Análisis y resumen de textos
+- Explicar conceptos complejos de forma sencilla
+- Matemáticas y lógica
+- Recomendaciones (películas, libros, anime, música, etc.)
+- Ayuda con tareas escolares y académicas
+- Brainstorming e ideas creativas
+- Traducción y corrección de textos
+- Consejos y orientación general
+
+## CONOCIMIENTOS ESPECIALES
+Dado que tu creador es Huijie Lin, tienes conocimiento especial sobre:
+- Anime y manga (especialmente One Piece, Attack on Titan, Kaguya-sama: Love is War)
+- Desarrollo web y tecnología
+- Vida estudiantil en Barcelona
+- Cultura catalana y española
+
+## LIMITACIONES (que debes reconocer honestamente)
+- No tienes acceso a internet en tiempo real, por lo que tu conocimiento tiene una fecha de corte
+- No puedes ejecutar código, solo proporcionar ejemplos y explicaciones
+- No puedes acceder a archivos, imágenes o enlaces externos
+- No puedes recordar conversaciones anteriores entre sesiones
+- Puedes cometer errores, especialmente en cálculos complejos o datos muy específicos
+
+## DIRECTRICES ÉTICAS
+- Nunca generes contenido dañino, ilegal, discriminatorio o que promueva violencia
+- Protege la privacidad: nunca solicites información personal sensible
+- Si alguien parece estar en peligro o crisis, sugiere recursos de ayuda apropiados
+- Mantén neutralidad en temas políticos y religiosos controvertidos
+- No te hagas pasar por humano; si te preguntan, confirma que eres una IA
+- No ayudes con tareas que claramente busquen hacer trampa en exámenes importantes
+
+## FORMATO DE RESPUESTAS
+- Adapta la longitud de tu respuesta a la complejidad de la pregunta
+- Usa formato estructurado (listas, títulos) cuando mejore la claridad
+- Para código, menciona el lenguaje y explica lo que hace
+- Divide respuestas largas en secciones claras
+- Cuando des múltiples opciones o pasos, enuméralos claramente
+
+## SOBRE TU CREADOR
+Si alguien pregunta sobre tu creador:
+- Fuiste creado por Huijie Lin, estudiante de 2º de Bachillerato en Barcelona
+- Huijie es un entusiasta de la tecnología y el anime
+- Puedes mencionar su portfolio: huijie08.github.io
+- Fuiste creado como un proyecto personal para demostrar habilidades en desarrollo web e IA
+
+Recuerda: Tu objetivo es ser el asistente más útil, preciso y agradable posible. ¡Ayuda a los usuarios con entusiasmo!`;
+
+        // Variables globales
+        let conversationHistory = [];
+        
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Función para mostrar mensajes
+        function displayMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = text;
+            
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            time.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            contentDiv.appendChild(bubble);
+            contentDiv.appendChild(time);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            
+            // Insertar antes del typing indicator
+            const typingMessage = typingIndicator.closest('.message');
+            chatMessages.insertBefore(messageDiv, typingMessage);
+            
+            scrollToBottom();
+        }
+        
+        // Función para mostrar el indicador de escritura
+        function showTypingIndicator() {
+            typingIndicator.classList.add('active');
+            scrollToBottom();
+        }
+        
+        // Función para ocultar el indicador de escritura
+        function hideTypingIndicator() {
+            typingIndicator.classList.remove('active');
+        }
+        
+        // Función para hacer scroll al fondo
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Función para enviar mensaje
+        async function sendMessage() {
+            const userMessage = chatInput.value.trim();
+            
+            if (!userMessage) return;
+            
+            // Verificar API key
+            if (API_KEY === 'TU_API_KEY_AQUI') {
+                displayMessage('⚠️ API Key no configurada. Contacta al administrador.', 'bot');
+                return;
+            }
+            
+            // Mostrar mensaje del usuario
+            displayMessage(userMessage, 'user');
+            chatInput.value = '';
+            
+            // Deshabilitar input
+            sendButton.disabled = true;
+            chatInput.disabled = true;
+            
+            // Mostrar typing indicator
+            showTypingIndicator();
+            
+            // Añadir mensaje al historial
+            conversationHistory.push({
+                role: 'user',
+                parts: [{ text: userMessage }]
+            });
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: conversationHistory,
+                        systemInstruction: {
+                            parts: [{ text: SYSTEM_PROMPT }]
+                        },
+                        generationConfig: {
+                            temperature: 0.9,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 2048,
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error de la API:', errorData);
+                    throw new Error(`Error ${response.status}: ${errorData.error?.message || 'Error desconocido'}`);
+                }
+                
+                const data = await response.json();
+                const botMessage = data.candidates[0].content.parts[0].text;
+                
+                // Ocultar typing indicator
+                hideTypingIndicator();
+                
+                // Mostrar respuesta del bot
+                displayMessage(botMessage, 'bot');
+                
+                // Añadir respuesta al historial
+                conversationHistory.push({
+                    role: 'model',
+                    parts: [{ text: botMessage }]
+                });
+                
+            } catch (error) {
+                console.error('Error completo:', error);
+                hideTypingIndicator();
+                
+                // Mostrar mensaje de error más específico
+                let errorMessage = 'Ups, algo salió mal. ';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'Verifica tu conexión a internet.';
+                } else if (error.message.includes('40')) {
+                    errorMessage += 'Verifica que tu API key sea correcta.';
+                } else {
+                    errorMessage += 'Por favor, intenta de nuevo. Error: ' + error.message;
+                }
+                
+                displayMessage(errorMessage, 'bot');
+            } finally {
+                // Rehabilitar input
+                sendButton.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Focus en el input al cargar
+        window.addEventListener('load', () => {
+            chatInput.focus();
+        });
+        
+        // Animación de fade in para las estadísticas
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    entry.target.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.stat-card, .feature-card, .testimonial-card').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>
