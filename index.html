@@ -143,10 +143,6 @@
             font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         
         /* 🎭 BLUR TEXT ANIMATION */
@@ -155,6 +151,10 @@
             filter: blur(10px);
             opacity: 0;
             animation: blurReveal 0.8s ease-out forwards;
+            background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         @keyframes blurReveal {
