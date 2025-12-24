@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 🔍 SEO - Lo que aparece en Google -->
+    <title>Mis Redes Sociales - Huijie Lin</title>
+    <meta name="description" content="Encuentra todas mis redes sociales: YouTube, Twitter, Instagram, GitHub y AniList.">
+    <meta name="author" content="Huijie Lin">
+    
+    <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🎨 ICONOS (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- 🎨 ESTILOS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-weight: 600;
+        }
+        
+        p {
+            font-weight: 400;
+        }
+        
+        /* 🧭 NAVBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .navbar-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-logo:hover {
+            color: #e63946;
+        }
+        
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .navbar-links a {
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .navbar-links a:hover {
+            color: #ffffff;
+        }
+        
+        .navbar-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e63946;
+            transition: width 0.3s ease;
+        }
+        
+        .navbar-links a:hover::after {
+            width: 100%;
+        }
+        
+        .navbar-links a.active {
+            color: #ffffff;
+        }
+        
+        .navbar-links a.active::after {
+            width: 100%;
+        }
+        
+        /* 📦 CONTENEDOR PRINCIPAL */
+        .social-section {
+            text-align: center;
+            max-width: 600px;
+            margin-top: 80px;
+        }
+        
+        .social-section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .social-section p {
+            color: #888888;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        /* 🔗 GRID DE REDES SOCIALES */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        /* 🎯 CADA TARJETA DE RED SOCIAL */
+        .social-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .social-card:hover {
+            transform: translateY(-5px);
+            border-color: #e63946;
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+        }
+        
+        .social-card i {
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-card:hover i {
+            color: #e63946;
+        }
+        
+        .social-card span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #cccccc;
+        }
+        
+        /* 🎨 COLORES ESPECÍFICOS POR RED (hover) */
+        .social-card.youtube:hover i { color: #ff0000; }
+        .social-card.youtube:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2); }
+        
+        .social-card.twitter:hover i { color: #ffffff; }
+        .social-card.twitter:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+        
+        .social-card.instagram:hover i { color: #e1306c; }
+        .social-card.instagram:hover { border-color: #e1306c; box-shadow: 0 10px 30px rgba(225, 48, 108, 0.2); }
+        
+        .social-card.github:hover i { color: #ffffff; }
+        .social-card.github:hover { border-color: #ffffff; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+        
+        .social-card.anilist:hover i { color: #02a9ff; }
+        .social-card.anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
+        
+        /* 🎬 CUSTOM IMAGE ICON FOR ANILIST */
+        .social-card img.icon-img {
+            width: 2.5rem;
+            height: 2.5rem;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+        
+        .social-card:hover img.icon-img {
+            filter: brightness(1.2);
+        }
+        
+        /* 📱 RESPONSIVE */
+        @media (max-width: 500px) {
+            .social-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .social-card {
+                padding: 25px 15px;
+            }
+            
+            .social-card i {
+                font-size: 2rem;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .navbar-logo {
+                font-size: 1.1rem;
+            }
+            
+            .navbar-links {
+                gap: 20px;
+            }
+            
+            .navbar-links a {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 🧭 NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-logo">HUIJIE LIN</a>
+        <ul class="navbar-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="redes-sociales.html" class="active">Redes Sociales</a></li>
+            <li><a href="animes.html">Animes</a></li>
+        </ul>
+    </nav>
+
+    <section class="social-section">
+        <h2>Mis Redes</h2>
+        <p>Sígueme o stalkéame, tú decides 👀</p>
+        
+        <div class="social-grid">
+            
+            <!-- 📺 YOUTUBE -->
+            <a href="https://www.youtube.com/@Granjerito20" target="_blank" class="social-card youtube">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube</span>
+            </a>
+            
+            <!-- 🐦 TWITTER/X -->
+            <a href="https://x.com/Granjerito20" target="_blank" class="social-card twitter">
+                <i class="fab fa-x-twitter"></i>
+                <span>Twitter</span>
+            </a>
+            
+            <!-- 📷 INSTAGRAM -->
+            <a href="https://www.instagram.com/huijiel_/" target="_blank" class="social-card instagram">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
+            
+            <!-- 💻 GITHUB -->
+            <a href="https://github.com/Huijie08" target="_blank" class="social-card github">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+            
+            <!-- 🎬 ANILIST -->
+            <a href="https://anilist.co/user/Granjerito/" target="_blank" class="social-card anilist">
+                <img src="https://cdn-1.webcatalog.io/catalog/anilist/anilist-icon-filled-256.png?v=1714773219581" alt="AniList" class="icon-img">
+                <span>AniList</span>
+            </a>
+            
+        </div>
+    </section>
+
+</body>
+</html>
