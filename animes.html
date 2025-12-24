@@ -11,11 +11,11 @@
     
     <!-- 🔤 FUENTE POPPINS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic. com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- 🎨 ICONOS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all. min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         * {
@@ -81,31 +81,31 @@
             position: relative;
         }
         
-        .navbar-links a: hover {
+        .navbar-links a:hover {
             color: #ffffff;
         }
         
-        . navbar-links a:: after {
+        .navbar-links a::after {
             content: '';
             position: absolute;
             bottom: -5px;
-            left:  0;
+            left: 0;
             width: 0;
-            height:  2px;
+            height: 2px;
             background: #e63946;
             transition: width 0.3s ease;
         }
         
-        .navbar-links a:hover:: after {
+        .navbar-links a:hover::after {
             width: 100%;
         }
         
-        . navbar-links a. active {
+        .navbar-links a.active {
             color: #ffffff;
         }
         
-        . navbar-links a.active::after {
-            width:  100%;
+        .navbar-links a.active::after {
+            width: 100%;
         }
         
         /* 📦 CONTENEDOR PRINCIPAL - OCUPA TODA LA PANTALLA */
@@ -120,22 +120,22 @@
         }
         
         /* 🎯 TÍTULO PRINCIPAL */
-        . anime-section h1 {
-            font-size:  3rem;
+        .anime-section h1 {
+            font-size: 3rem;
             font-weight: 900;
             margin-bottom: 40px;
             text-transform: uppercase;
             letter-spacing: 2px;
             background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
-            -webkit-background-clip:  text;
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
         /* 🎴 GRID DE ANIMES */
         .anime-grid {
-            display:  grid;
-            grid-template-columns:  repeat(3, 1fr);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             width: 100%;
             max-width: 1000px;
@@ -165,7 +165,7 @@
         }
         
         .anime-card:hover .anime-img-container {
-            border-color:  #e63946;
+            border-color: #e63946;
             box-shadow: 0 15px 50px rgba(230, 57, 70, 0.3);
         }
         
@@ -213,13 +213,13 @@
         
         /* ▶️ ICONO DE VER MÁS (aparece en hover) */
         .anime-overlay {
-            position:  absolute;
+            position: absolute;
             top: 0;
             left: 0;
-            width:  100%;
+            width: 100%;
             height: 100%;
             background: rgba(230, 57, 70, 0.8);
-            display:  flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
@@ -227,18 +227,18 @@
             border-radius: 16px;
         }
         
-        . anime-card:hover .anime-overlay {
+        .anime-card:hover .anime-overlay {
             opacity: 1;
         }
         
-        . anime-overlay i {
-            font-size: 2. 5rem;
+        .anime-overlay i {
+            font-size: 2.5rem;
             color: #ffffff;
             transform: scale(0);
             transition: all 0.3s ease 0.1s;
         }
         
-        . anime-card:hover .anime-overlay i {
+        .anime-card:hover .anime-overlay i {
             transform: scale(1);
         }
         
@@ -260,16 +260,16 @@
             
             .anime-section {
                 max-height: none;
-                padding:  100px 20px 40px;
+                padding: 100px 20px 40px;
             }
             
-            . anime-section h1 {
-                font-size:  1.8rem;
+            .anime-section h1 {
+                font-size: 1.8rem;
                 margin-bottom: 30px;
             }
             
             .anime-grid {
-                grid-template-columns:  repeat(3, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 15px;
             }
             
@@ -298,7 +298,7 @@
             }
             
             .navbar-links a {
-                font-size:  0.85rem;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -348,7 +348,7 @@
             <a href="https://anilist.co/anime/101921/Kaguyasama-Love-is-War/" target="_blank" class="anime-card">
                 <span class="anime-rank">3</span>
                 <div class="anime-img-container">
-                    <img src="images/love-is-war.jpg" alt="Kaguya-sama:  Love is War">
+                    <img src="images/love-is-war.jpg" alt="Kaguya-sama: Love is War">
                     <div class="anime-overlay">
                         <i class="fas fa-play"></i>
                     </div>
