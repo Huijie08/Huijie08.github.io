@@ -851,8 +851,13 @@
         // ========================================
         // 🔑 CONFIGURACIÓN - PON TU API KEY AQUÍ
         // ========================================
-        const API_KEY = 'TU_API_KEY_AQUI'; // <-- ⚠️ REEMPLAZA CON TU API KEY DE GOOGLE AI STUDIO
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+        // 1. Ve a: https://aistudio.google.com/app/apikey
+        // 2. Crea una nueva API key
+        // 3. Reemplaza 'YOUR_API_KEY_HERE' con tu API key
+        // 4. NUNCA compartas tu API key públicamente
+        
+        const API_KEY = 'YOUR_API_KEY_HERE'; // <-- ⚠️ PON AQUÍ TU API KEY (sin comillas ni espacios extra)
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         // System prompt para HuijieGPT
         const SYSTEM_PROMPT = `Eres HuijieGPT, un modelo de lenguaje avanzado de inteligencia artificial creado por Huijie Lin, un estudiante de 2º de Bachillerato en Barcelona. Eres la versión 1.0 de HuijieGPT, lanzado en diciembre de 2024.
@@ -984,8 +989,8 @@ Recuerda: Tu objetivo es ser el asistente más útil, preciso y agradable posibl
             if (!userMessage) return;
             
             // Verificar API key
-            if (API_KEY === 'TU_API_KEY_AQUI') {
-                displayMessage('⚠️ API Key no configurada. Contacta al administrador.', 'bot');
+            if (API_KEY === 'YOUR_API_KEY_HERE' || !API_KEY || API_KEY.length < 30) {
+                displayMessage('⚠️ Error: API Key no configurada correctamente. Por favor, edita el archivo huijiegpt.html y añade tu API key de Google AI Studio en la línea 860.', 'bot');
                 return;
             }
             
