@@ -145,47 +145,26 @@
             margin-bottom: 20px;
         }
         
-        /* 🎭 SPLIT TEXT ANIMATION */
-        .hero-section h1 {
+        /* 🎭 BLUR TEXT ANIMATION */
+        .hero-section h1 .char {
+            display: inline-block;
+            filter: blur(10px);
+            opacity: 0;
+            animation: blurReveal 0.8s ease-out forwards;
             background: linear-gradient(135deg, #ffffff 0%, #e63946 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .hero-section h1 .word {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 0.6s ease-out forwards;
-        }
-        
-        .hero-section h1 .word .char {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: charFadeIn 0.4s ease-out forwards;
-        }
-        
-        @keyframes slideUp {
+        @keyframes blurReveal {
             0% {
+                filter: blur(10px);
                 opacity: 0;
-                transform: translateY(20px);
             }
             100% {
+                filter: blur(0px);
                 opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes charFadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
             }
         }
         
@@ -439,39 +418,22 @@
     <!-- ⚡ JAVASCRIPT FOR ANIMATIONS -->
     <script>
         // ===========================================
-        // 🎭 SPLIT TEXT ANIMATION
+        // 🎭 BLUR TEXT ANIMATION
         // ===========================================
-        function initSplitTextAnimation() {
+        function initBlurTextAnimation() {
             const title = document.getElementById('blur-text-title');
             if (!title) return;
             
-            const text = title.textContent.trim();
+            const text = title.textContent;
             title.innerHTML = '';
             
-            // Split text into words
-            const words = text.split(' ');
-            
-            words.forEach((word, wordIndex) => {
-                const wordSpan = document.createElement('span');
-                wordSpan.className = 'word';
-                wordSpan.style.animationDelay = `${wordIndex * 0.1}s`;
-                
-                // Split each word into characters
-                word.split('').forEach((char, charIndex) => {
-                    const charSpan = document.createElement('span');
-                    charSpan.className = 'char';
-                    charSpan.textContent = char;
-                    charSpan.style.animationDelay = `${(wordIndex * 0.1) + (charIndex * 0.03)}s`;
-                    wordSpan.appendChild(charSpan);
-                });
-                
-                title.appendChild(wordSpan);
-                
-                // Add space between words (except after last word)
-                if (wordIndex < words.length - 1) {
-                    const space = document.createTextNode(' ');
-                    title.appendChild(space);
-                }
+            // Split text into characters and wrap each in a span
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces
+                span.style.animationDelay = `${index * 0.05}s`; // Stagger animation
+                title.appendChild(span);
             });
         }
         
@@ -571,7 +533,7 @@
         // 🚀 INITIALIZE ON PAGE LOAD
         // ===========================================
         window.addEventListener('DOMContentLoaded', () => {
-            initSplitTextAnimation();
+            initBlurTextAnimation();
             initAntigravityBackground();
         });
     </script>
