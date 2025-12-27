@@ -636,11 +636,19 @@ Eres creado por Huijie Lin como parte de su página web personal.`;
                 // Remover indicador de escritura
                 typingIndicator.remove();
                 
-                // Mostrar error
+                // Mostrar error con mensaje más específico
                 if (error.message === 'API_KEY_NOT_SET') {
                     showError('⚠️ La API key no está configurada. Por favor, añade tu API key de Google AI Studio en el código.');
+                } else if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid')) {
+                    showError('⚠️ La API key no es válida. Verifica que la hayas copiado correctamente desde Google AI Studio.');
+                } else if (error.message.includes('PERMISSION_DENIED')) {
+                    showError('⚠️ Permiso denegado. Asegúrate de que la API de Gemini esté habilitada en tu proyecto de Google Cloud.');
+                } else if (error.message.includes('QUOTA_EXCEEDED') || error.message.includes('quota')) {
+                    showError('⚠️ Has excedido el límite de uso de la API. Espera un momento e inténtalo de nuevo.');
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    showError('⚠️ Error de conexión. Verifica tu conexión a internet o si estás abriendo el archivo localmente (usa un servidor web).');
                 } else {
-                    showError('Error al conectar con el modelo. Por favor, inténtalo de nuevo.');
+                    showError('⚠️ Error: ' + error.message);
                     console.error('Gemini API Error:', error);
                 }
             }
