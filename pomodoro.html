@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 🔍 SEO -->
+    <title>Pomodoro Timer 🌱 | Huijie Lin</title>
+    <meta name="description" content="Temporizador Pomodoro interactivo con animación de crecimiento de plantas. ¡Aumenta tu productividad mientras ves crecer tu planta!">
+    <meta name="author" content="Huijie Lin">
+    
+    <!-- 🔤 FUENTE POPPINS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🎨 ESTILOS COMUNES -->
+    <link rel="stylesheet" href="css/common.css">
+    
+    <style>
+        /* ============================================
+           🍅 POMODORO TIMER STYLES
+           ============================================ */
+        
+        :root {
+            /* Day theme colors */
+            --sky-top: #87CEEB;
+            --sky-bottom: #E0F6FF;
+            --ground: #8B4513;
+            --grass: #228B22;
+            
+            /* Plant colors */
+            --stem: #2E8B57;
+            --leaf: #32CD32;
+            --flower-center: #FFD700;
+            --flower-petal: #FF69B4;
+            
+            /* UI colors */
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --accent: #FF6B6B;
+            --text-dark: #2C3E50;
+            --text-light: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Night theme */
+        .night {
+            --sky-top: #1a1a2e;
+            --sky-bottom: #16213e;
+            --card-bg: rgba(30, 30, 50, 0.95);
+            --text-dark: #ffffff;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--grass) 60%, var(--grass) 65%, var(--ground) 65%);
+            transition: background 1s ease;
+            overflow-x: hidden;
+            padding-top: 80px;
+        }
+        
+        .night body, body.night {
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, #1a472a 60%, #1a472a 65%, #3d2914 65%);
+        }
+        
+        /* 📦 MAIN CONTAINER */
+        .pomodoro-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 🎴 CARD */
+        .timer-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        .timer-card h1 {
+            color: var(--text-dark);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* 🌱 PLANT CONTAINER */
+        .plant-container {
+            height: 200px;
+            position: relative;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        /* 🪴 POT */
+        .pot {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #D2691E 0%, #8B4513 100%);
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            bottom: 0;
+            z-index: 10;
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .pot::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -5px;
+            width: 90px;
+            height: 12px;
+            background: linear-gradient(135deg, #D2691E 0%, #A0522D 100%);
+            border-radius: 5px;
+        }
+        
+        .soil {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 70px;
+            height: 20px;
+            background: #3d2914;
+            border-radius: 50%;
+        }
+        
+        /* 🌱 PLANT STAGES */
+        .plant {
+            position: absolute;
+            bottom: 55px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        
+        /* Seed Stage */
+        .seed {
+            width: 15px;
+            height: 10px;
+            background: #8B4513;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .stage-0 .seed {
+            opacity: 1;
+            transform: translateY(0);
+            animation: seedPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes seedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Sprout Stage */
+        .sprout {
+            width: 4px;
+            height: 0;
+            background: var(--stem);
+            border-radius: 2px;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+        
+        .stage-1 .sprout {
+            height: 20px;
+        }
+        
+        .sprout-leaves {
+            position: absolute;
+            top: 0;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .stage-1 .sprout-leaves {
+            opacity: 1;
+        }
+        
+        .sprout-leaf {
+            width: 10px;
+            height: 8px;
+            background: var(--leaf);
+            border-radius: 50% 50% 50% 50%;
+        }
+        
+        .sprout-leaf:first-child {
+            transform: rotate(-30deg);
+        }
+        
+        .sprout-leaf:last-child {
+            transform: rotate(30deg);
+        }
+        
+        /* Growing Stem */
+        .stem {
+            width: 6px;
+            height: 0;
+            background: linear-gradient(to top, #2E8B57, #3CB371);
+            border-radius: 3px;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+        
+        .stage-2 .stem { height: 50px; }
+        .stage-3 .stem { height: 80px; }
+        .stage-4 .stem { height: 100px; }
+        
+        /* Leaves */
+        .leaves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .leaf {
+            position: absolute;
+            background: var(--leaf);
+            border-radius: 0 70% 0 70%;
+            opacity: 0;
+            transition: all 0.5s ease;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .leaf-1 {
+            width: 25px;
+            height: 15px;
+            left: -22px;
+            top: 30px;
+            transform: rotate(-20deg);
+        }
+        
+        .leaf-2 {
+            width: 25px;
+            height: 15px;
+            right: -22px;
+            top: 35px;
+            transform: rotate(200deg);
+        }
+        
+        .leaf-3 {
+            width: 30px;
+            height: 18px;
+            left: -27px;
+            top: 55px;
+            transform: rotate(-30deg);
+        }
+        
+        .leaf-4 {
+            width: 30px;
+            height: 18px;
+            right: -27px;
+            top: 60px;
+            transform: rotate(210deg);
+        }
+        
+        .stage-2 .leaf-1, .stage-2 .leaf-2 { opacity: 1; }
+        .stage-3 .leaf-1, .stage-3 .leaf-2, .stage-3 .leaf-3, .stage-3 .leaf-4 { opacity: 1; }
+        .stage-4 .leaf-1, .stage-4 .leaf-2, .stage-4 .leaf-3, .stage-4 .leaf-4 { opacity: 1; }
+        
+        /* Flower */
+        .flower {
+            position: absolute;
+            top: -40px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.5s ease;
+        }
+        
+        .stage-4 .flower {
+            opacity: 1;
+            transform: scale(1);
+            animation: flowerBloom 0.5s ease, flowerBounce 2s ease-in-out infinite 0.5s;
+        }
+        
+        @keyframes flowerBloom {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes flowerBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+        
+        .flower-center {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .petal {
+            width: 18px;
+            height: 25px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border-radius: 50% 50% 50% 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center bottom;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .petal:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
+        .petal:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg); }
+        .petal:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg); }
+        .petal:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg); }
+        .petal:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg); }
+        .petal:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
+        .petal:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
+        .petal:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
+        
+        /* ⏱️ TIMER DISPLAY */
+        .timer-display {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .timer-mode {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .timer-mode.break {
+            background: #17a2b8;
+        }
+        
+        .timer-mode.long-break {
+            background: #6f42c1;
+        }
+        
+        /* 🎛️ CONTROLS */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text-dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 🍅 SESSION COUNTER */
+        .session-counter {
+            background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        
+        .session-counter span {
+            font-size: 1.1rem;
+            color: #c0392b;
+            font-weight: 600;
+        }
+        
+        /* ⚙️ SETTINGS */
+        .settings-toggle {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 10px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .settings-toggle:hover {
+            opacity: 1;
+        }
+        
+        .settings-panel {
+            display: none;
+            background: rgba(0,0,0,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .settings-panel.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .setting-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        
+        .setting-group label {
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .setting-group input {
+            width: 70px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .setting-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* 💬 MOTIVATIONAL MESSAGE */
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .message.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .message h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .message p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .message-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* 🌧️ RAIN ANIMATION */
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .rain-container.active {
+            opacity: 1;
+        }
+        
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.8));
+            animation: rain 0.8s linear infinite;
+        }
+        
+        @keyframes rain {
+            0% { transform: translateY(-20px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        /* 🍃 FLOATING LEAVES */
+        .leaves-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+        
+        .floating-leaf {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: floatLeaf 8s linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes floatLeaf {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* ✨ SPARKLES */
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes sparkle {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 🌙 STARS (Night mode) */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .night .stars {
+            opacity: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* 📱 RESPONSIVE */
+        @media (max-width: 600px) {
+            .pomodoro-container {
+                padding: 10px;
+            }
+            
+            .timer-card {
+                padding: 20px;
+            }
+            
+            .timer-display {
+                font-size: 3.5rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .plant-container {
+                height: 160px;
+            }
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #8BC34A);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <!-- 🌟 STARS (Night mode) -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 🌧️ RAIN (Break mode) -->
+    <div class="rain-container" id="rainContainer"></div>
+    
+    <!-- 🍃 FLOATING LEAVES -->
+    <div class="leaves-container" id="leavesContainer"></div>
+
+    <!-- 🧭 NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-logo">HUIJIE LIN</a>
+        <ul class="navbar-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="redes-sociales.html">Redes Sociales</a></li>
+            <li><a href="animes.html">Animes</a></li>
+            <li><a href="huijiegpt.html">HuijieGPT</a></li>
+            <li><a href="pomodoro.html" class="active">Pomodoro</a></li>
+        </ul>
+    </nav>
+
+    <!-- 📦 MAIN CONTAINER -->
+    <div class="pomodoro-container">
+        <div class="timer-card">
+            <h1>🌱 Pomodoro Garden</h1>
+            
+            <!-- 🌱 PLANT ANIMATION -->
+            <div class="plant-container">
+                <div class="plant stage-0" id="plant">
+                    <!-- Seed -->
+                    <div class="seed"></div>
+                    
+                    <!-- Sprout -->
+                    <div class="sprout">
+                        <div class="sprout-leaves">
+                            <div class="sprout-leaf"></div>
+                            <div class="sprout-leaf"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Growing stem with leaves -->
+                    <div class="stem">
+                        <div class="leaves">
+                            <div class="leaf leaf-1"></div>
+                            <div class="leaf leaf-2"></div>
+                            <div class="leaf leaf-3"></div>
+                            <div class="leaf leaf-4"></div>
+                        </div>
+                        
+                        <!-- Flower -->
+                        <div class="flower">
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="petal"></div>
+                            <div class="flower-center"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pot -->
+                <div class="pot">
+                    <div class="soil"></div>
+                </div>
+            </div>
+            
+            <!-- Progress bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <!-- Timer Mode -->
+            <div class="timer-mode" id="timerMode">Trabajo</div>
+            
+            <!-- Timer Display -->
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn" onclick="startTimer()">
+                    ▶️ Iniciar
+                </button>
+                <button class="btn btn-secondary" id="pauseBtn" onclick="pauseTimer()" style="display: none;">
+                    ⏸️ Pausar
+                </button>
+                <button class="btn btn-danger" onclick="resetTimer()">
+                    🔄 Reiniciar
+                </button>
+            </div>
+            
+            <!-- Session Counter -->
+            <div class="session-counter">
+                <span>🍅 Pomodoros completados: <strong id="sessionCount">0</strong></span>
+            </div>
+            
+            <!-- Settings Toggle -->
+            <button class="settings-toggle" onclick="toggleSettings()">
+                ⚙️ Configuración
+            </button>
+            
+            <!-- Settings Panel -->
+            <div class="settings-panel" id="settingsPanel">
+                <div class="setting-group">
+                    <label>⏱️ Trabajo (min)</label>
+                    <input type="number" id="workTime" value="25" min="1" max="60" onchange="updateSettings()">
+                </div>
+                <div class="setting-group">
+                    <label>☕ Descanso corto (min)</label>
+                    <input type="number" id="shortBreak" value="5" min="1" max="30" onchange="updateSettings()">
+                </div>
+                <div class="setting-group">
+                    <label>🌴 Descanso largo (min)</label>
+                    <input type="number" id="longBreak" value="15" min="1" max="60" onchange="updateSettings()">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 💬 MOTIVATIONAL MESSAGE -->
+    <div class="message-overlay" id="messageOverlay" onclick="hideMessage()"></div>
+    <div class="message" id="message">
+        <h2 id="messageTitle">🎉 ¡Excelente!</h2>
+        <p id="messageText">Has completado un Pomodoro. ¡Tómate un descanso!</p>
+    </div>
+
+    <!-- 🔊 AUDIO -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1dXGBgYmNiYGBeXl5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/wABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8=" type="audio/wav">
+    </audio>
+
+    <script>
+        // ============================================
+        // 🍅 POMODORO TIMER - JavaScript
+        // ============================================
+        
+        // Timer state
+        let timeLeft = 25 * 60; // seconds
+        let totalTime = 25 * 60;
+        let isRunning = false;
+        let timerInterval = null;
+        let currentMode = 'work'; // 'work', 'shortBreak', 'longBreak'
+        let sessionCount = 0;
+        let workSessionsBeforeLongBreak = 4;
+        let completedWorkSessions = 0;
+        
+        // Settings
+        let settings = {
+            workTime: 25,
+            shortBreak: 5,
+            longBreak: 15
+        };
+        
+        // Motivational messages
+        const motivationalMessages = [
+            { title: '🎉 ¡Excelente!', text: 'Has completado un Pomodoro. ¡Tu planta está creciendo!' },
+            { title: '🌟 ¡Increíble!', text: 'Otro Pomodoro completado. ¡Sigue así!' },
+            { title: '💪 ¡Genial!', text: 'Tu concentración está dando frutos. ¡Literalmente!' },
+            { title: '🌱 ¡Fantástico!', text: 'Tu jardín de productividad está floreciendo.' },
+            { title: '🏆 ¡Campeón!', text: 'Eres imparable. ¡Toma un merecido descanso!' },
+            { title: '✨ ¡Brillante!', text: 'Has regado tu planta con esfuerzo. ¡Descansa!' }
+        ];
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const saved = localStorage.getItem('pomodoroSettings');
+            if (saved) {
+                settings = JSON.parse(saved);
+                document.getElementById('workTime').value = settings.workTime;
+                document.getElementById('shortBreak').value = settings.shortBreak;
+                document.getElementById('longBreak').value = settings.longBreak;
+            }
+            
+            const savedSessions = localStorage.getItem('pomodoroSessions');
+            if (savedSessions) {
+                sessionCount = parseInt(savedSessions);
+                document.getElementById('sessionCount').textContent = sessionCount;
+            }
+            
+            timeLeft = settings.workTime * 60;
+            totalTime = timeLeft;
+            updateDisplay();
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+        }
+        
+        // Save sessions to localStorage
+        function saveSessions() {
+            localStorage.setItem('pomodoroSessions', sessionCount.toString());
+        }
+        
+        // Update settings from inputs
+        function updateSettings() {
+            settings.workTime = parseInt(document.getElementById('workTime').value) || 25;
+            settings.shortBreak = parseInt(document.getElementById('shortBreak').value) || 5;
+            settings.longBreak = parseInt(document.getElementById('longBreak').value) || 15;
+            saveSettings();
+            
+            if (!isRunning && currentMode === 'work') {
+                timeLeft = settings.workTime * 60;
+                totalTime = timeLeft;
+                updateDisplay();
+                updatePlantStage();
+            }
+        }
+        
+        // Toggle settings panel
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('active');
+        }
+        
+        // Update timer display
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update progress bar
+            const progress = ((totalTime - timeLeft) / totalTime) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
+            // Update document title
+            document.title = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} - Pomodoro 🌱`;
+        }
+        
+        // Update plant stage based on progress
+        function updatePlantStage() {
+            const progress = ((totalTime - timeLeft) / totalTime) * 100;
+            const plant = document.getElementById('plant');
+            
+            // Remove all stage classes
+            plant.className = 'plant';
+            
+            if (progress < 20) {
+                plant.classList.add('stage-0'); // Seed
+            } else if (progress < 40) {
+                plant.classList.add('stage-1'); // Sprout
+            } else if (progress < 60) {
+                plant.classList.add('stage-2'); // Small plant
+            } else if (progress < 80) {
+                plant.classList.add('stage-3'); // Growing plant
+            } else {
+                plant.classList.add('stage-4'); // Full bloom
+            }
+        }
+        
+        // Start timer
+        function startTimer() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-flex';
+            
+            // Stop rain if it was playing
+            document.getElementById('rainContainer').classList.remove('active');
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                    updatePlantStage();
+                } else {
+                    timerComplete();
+                }
+            }, 1000);
+        }
+        
+        // Pause timer
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').style.display = 'inline-flex';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+        
+        // Reset timer
+        function resetTimer() {
+            pauseTimer();
+            currentMode = 'work';
+            timeLeft = settings.workTime * 60;
+            totalTime = timeLeft;
+            updateDisplay();
+            updatePlantStage();
+            updateModeDisplay();
+            document.getElementById('rainContainer').classList.remove('active');
+        }
+        
+        // Timer complete
+        function timerComplete() {
+            pauseTimer();
+            playNotification();
+            
+            if (currentMode === 'work') {
+                sessionCount++;
+                completedWorkSessions++;
+                document.getElementById('sessionCount').textContent = sessionCount;
+                saveSessions();
+                
+                // Show celebration
+                createSparkles();
+                createFloatingLeaves();
+                
+                // Show motivational message
+                const msg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+                showMessage(msg.title, msg.text);
+                
+                // Determine next break type
+                if (completedWorkSessions >= workSessionsBeforeLongBreak) {
+                    completedWorkSessions = 0;
+                    switchMode('longBreak');
+                } else {
+                    switchMode('shortBreak');
+                }
+            } else {
+                // Break complete, back to work
+                showMessage('💼 ¡A trabajar!', 'Tu descanso ha terminado. ¡Hora de ser productivo!');
+                switchMode('work');
+            }
+        }
+        
+        // Switch timer mode
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            switch (mode) {
+                case 'work':
+                    timeLeft = settings.workTime * 60;
+                    document.getElementById('rainContainer').classList.remove('active');
+                    break;
+                case 'shortBreak':
+                    timeLeft = settings.shortBreak * 60;
+                    startRain();
+                    break;
+                case 'longBreak':
+                    timeLeft = settings.longBreak * 60;
+                    startRain();
+                    break;
+            }
+            
+            totalTime = timeLeft;
+            updateDisplay();
+            updatePlantStage();
+            updateModeDisplay();
+        }
+        
+        // Update mode display
+        function updateModeDisplay() {
+            const modeEl = document.getElementById('timerMode');
+            modeEl.className = 'timer-mode';
+            
+            switch (currentMode) {
+                case 'work':
+                    modeEl.textContent = 'Trabajo';
+                    break;
+                case 'shortBreak':
+                    modeEl.textContent = 'Descanso Corto';
+                    modeEl.classList.add('break');
+                    break;
+                case 'longBreak':
+                    modeEl.textContent = 'Descanso Largo';
+                    modeEl.classList.add('long-break');
+                    break;
+            }
+        }
+        
+        // Play notification sound
+        function playNotification() {
+            const audio = document.getElementById('notificationSound');
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+            
+            // Also try to use browser notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('🍅 Pomodoro Timer', {
+                    body: currentMode === 'work' ? '¡Tiempo de descanso!' : '¡Hora de trabajar!',
+                    icon: '🌱'
+                });
+            }
+        }
+        
+        // Show message
+        function showMessage(title, text) {
+            document.getElementById('messageTitle').textContent = title;
+            document.getElementById('messageText').textContent = text;
+            document.getElementById('message').classList.add('show');
+            document.getElementById('messageOverlay').classList.add('show');
+            
+            setTimeout(hideMessage, 3000);
+        }
+        
+        // Hide message
+        function hideMessage() {
+            document.getElementById('message').classList.remove('show');
+            document.getElementById('messageOverlay').classList.remove('show');
+        }
+        
+        // Create sparkle effects
+        function createSparkles() {
+            const container = document.querySelector('.plant-container');
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = `${Math.random() * 100}%`;
+                    sparkle.style.top = `${Math.random() * 100}%`;
+                    sparkle.style.background = ['gold', '#ff69b4', '#32cd32', '#87ceeb'][Math.floor(Math.random() * 4)];
+                    container.appendChild(sparkle);
+                    
+                    setTimeout(() => sparkle.remove(), 1000);
+                }, i * 100);
+            }
+        }
+        
+        // Create floating leaves
+        function createFloatingLeaves() {
+            const container = document.getElementById('leavesContainer');
+            const leafEmojis = ['🍃', '🌿', '🍀', '🌱'];
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'floating-leaf';
+                    leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+                    leaf.style.left = `${Math.random() * 100}%`;
+                    leaf.style.animationDelay = `${Math.random() * 2}s`;
+                    container.appendChild(leaf);
+                    
+                    setTimeout(() => leaf.remove(), 8000);
+                }, i * 200);
+            }
+        }
+        
+        // Start rain animation
+        function startRain() {
+            const container = document.getElementById('rainContainer');
+            container.innerHTML = '';
+            container.classList.add('active');
+            
+            for (let i = 0; i < 50; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'rain-drop';
+                drop.style.left = `${Math.random() * 100}%`;
+                drop.style.animationDelay = `${Math.random() * 2}s`;
+                drop.style.animationDuration = `${0.5 + Math.random() * 0.5}s`;
+                container.appendChild(drop);
+            }
+        }
+        
+        // Create stars for night mode
+        function createStars() {
+            const container = document.getElementById('stars');
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                star.style.width = `${2 + Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                container.appendChild(star);
+            }
+        }
+        
+        // Check day/night mode
+        function checkDayNight() {
+            const hour = new Date().getHours();
+            const isNight = hour < 6 || hour >= 20;
+            
+            if (isNight) {
+                document.body.classList.add('night');
+            } else {
+                document.body.classList.remove('night');
+            }
+        }
+        
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+        
+        // Initialize
+        function init() {
+            loadSettings();
+            createStars();
+            checkDayNight();
+            updateModeDisplay();
+            requestNotificationPermission();
+            
+            // Check day/night every minute
+            setInterval(checkDayNight, 60000);
+        }
+        
+        // Start on page load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
