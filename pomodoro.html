@@ -70,13 +70,7 @@
             background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
             border-radius: 50%;
             box-shadow: 0 0 60px rgba(255, 215, 0, 0.6), 0 0 100px rgba(255, 165, 0, 0.4);
-            animation: sunPulse 4s ease-in-out infinite;
             z-index: 1;
-        }
-        
-        @keyframes sunPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(255, 215, 0, 0.6); }
-            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(255, 215, 0, 0.8); }
         }
         
         .night .sun {
@@ -84,7 +78,7 @@
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
         }
         
-        /* ☁️ CLOUDS */
+        /* ☁️ CLOUDS - Static */
         .cloud {
             position: fixed;
             background: white;
@@ -105,7 +99,6 @@
             height: 40px;
             top: 100px;
             left: 10%;
-            animation: floatCloud 30s linear infinite;
         }
         .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 20px; }
         .cloud-1::after { width: 60px; height: 60px; top: -30px; left: 50px; }
@@ -115,7 +108,6 @@
             height: 50px;
             top: 150px;
             left: 60%;
-            animation: floatCloud 40s linear infinite reverse;
         }
         .cloud-2::before { width: 60px; height: 60px; top: -30px; left: 25px; }
         .cloud-2::after { width: 70px; height: 70px; top: -35px; left: 70px; }
@@ -125,15 +117,9 @@
             height: 35px;
             top: 200px;
             left: 30%;
-            animation: floatCloud 35s linear infinite;
         }
         .cloud-3::before { width: 40px; height: 40px; top: -20px; left: 15px; }
         .cloud-3::after { width: 50px; height: 50px; top: -25px; left: 45px; }
-        
-        @keyframes floatCloud {
-            0% { transform: translateX(-200px); }
-            100% { transform: translateX(calc(100vw + 200px)); }
-        }
         
         .night .cloud { opacity: 0.3; background: #444; }
         .night .cloud::before, .night .cloud::after { background: #444; }
@@ -225,42 +211,14 @@
         .bush-3 { right: 35%; width: 70px; height: 45px; }
         .bush-4 { right: 15%; width: 50px; height: 35px; }
         
-        /* 🐦 BIRDS */
+        /* 🐦 BIRDS - Hidden to avoid distraction */
         .bird {
-            position: fixed;
-            z-index: 10;
-            font-size: 1.5rem;
-            animation: flyBird 20s linear infinite;
+            display: none;
         }
         
-        .bird-1 { top: 120px; animation-delay: 0s; }
-        .bird-2 { top: 180px; animation-delay: -7s; }
-        .bird-3 { top: 140px; animation-delay: -14s; }
-        
-        @keyframes flyBird {
-            0% { left: -50px; transform: scaleX(1); }
-            49% { transform: scaleX(1); }
-            50% { left: calc(100% + 50px); transform: scaleX(-1); }
-            99% { transform: scaleX(-1); }
-            100% { left: -50px; transform: scaleX(1); }
-        }
-        
-        /* 🦋 BUTTERFLY */
+        /* 🦋 BUTTERFLY - Hidden to avoid distraction */
         .butterfly {
-            position: fixed;
-            z-index: 15;
-            font-size: 1.2rem;
-            animation: flutter 15s ease-in-out infinite;
-        }
-        
-        .butterfly-1 { bottom: 35%; left: 30%; animation-delay: 0s; }
-        .butterfly-2 { bottom: 40%; right: 40%; animation-delay: -5s; }
-        
-        @keyframes flutter {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(50px, -30px) rotate(10deg); }
-            50% { transform: translate(100px, 0) rotate(0deg); }
-            75% { transform: translate(50px, 30px) rotate(-10deg); }
+            display: none;
         }
         
         /* 🌍 GROUND */
@@ -463,11 +421,11 @@
         .petal:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
         
         /* ⏱️ TIMER UI */
+        /* ⏱️ TIMER UI - Positioned on the left */
         .timer-ui {
             position: fixed;
             top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 20px;
             z-index: 100;
             text-align: center;
         }
@@ -475,7 +433,7 @@
         .timer-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 25px 40px;
+            padding: 25px 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
         }
@@ -587,10 +545,11 @@
         .night .session-counter span { color: #ff9999; }
         
         /* ⚙️ SETTINGS BUTTON */
+        /* ⚙️ SETTINGS BUTTON - Top right corner */
         .settings-btn {
             position: fixed;
             top: 80px;
-            left: 20px;
+            right: 20px;
             z-index: 200;
             background: rgba(255, 255, 255, 0.9);
             border: none;
@@ -616,7 +575,7 @@
         .settings-panel {
             position: fixed;
             top: 140px;
-            left: 20px;
+            right: 20px;
             z-index: 199;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
@@ -785,18 +744,25 @@
             .sagrada-familia svg { width: 120px; height: 150px; }
             .tree-1, .tree-2 { display: none; }
             .timer-display { font-size: 3rem; }
-            .timer-card { padding: 20px 25px; }
+            .timer-card { padding: 20px 20px; }
+            .timer-ui { left: 10px; }
             .sun { width: 60px; height: 60px; right: 40px; }
             .controls { flex-wrap: wrap; }
             .btn { padding: 10px 20px; font-size: 0.9rem; }
         }
         
         @media (max-width: 500px) {
-            .timer-ui { width: 90%; }
+            .timer-ui { 
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                top: 70px;
+            }
             .timer-card { padding: 15px 20px; }
             .timer-display { font-size: 2.5rem; }
             .sagrada-familia { right: 2%; }
             .sagrada-familia svg { width: 80px; height: 100px; }
+            .plant-area { bottom: 15%; }
         }
     </style>
 </head>
