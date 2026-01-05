@@ -15,173 +15,195 @@
     
     <style>
         body {
-            margin: 0; overflow: hidden; background-color: #2e4c23;
-            font-family: 'Segoe UI', sans-serif; user-select: none;
+            margin: 0; overflow: hidden; background-color: #1a1a2e;
+            font-family: 'Poppins', sans-serif; user-select: none;
         }
         canvas { display: block; cursor: crosshair; }
         
-        /* 🎮 START SCREEN */
+        /* 🎮 START SCREEN - Pixel Art Style */
         #start-screen {
             position: fixed;
             top: 60px; left: 0;
             width: 100%; height: calc(100% - 60px);
-            background: linear-gradient(180deg, #0a1a0a 0%, #1a2a1a 50%, #0a1a0a 100%);
+            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 999;
             pointer-events: auto;
+            image-rendering: pixelated;
         }
         
-        #start-screen.hidden {
-            display: none;
+        /* Pixel grid overlay */
+        #start-screen::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px),
+                        repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px);
+            pointer-events: none;
         }
+        
+        /* Floating math symbols */
+        .float-symbol {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(115, 234, 255, 0.15);
+            animation: floatSymbol 8s ease-in-out infinite;
+            font-family: 'Georgia', serif;
+        }
+        
+        @keyframes floatSymbol {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
+            50% { transform: translateY(-20px) rotate(10deg); opacity: 0.3; }
+        }
+        
+        #start-screen.hidden { display: none; }
         
         .game-title {
-            font-family: 'Impact', 'Arial Black', sans-serif;
-            font-size: 4rem;
-            color: #e74c3c;
-            text-shadow: 0 0 30px rgba(231, 76, 60, 0.8), 
-                         0 4px 0 #8b0000,
-                         0 8px 0 #4a0000;
-            letter-spacing: 3px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: #73eaff;
+            text-shadow: 0 0 40px rgba(115, 234, 255, 0.8), 
+                         0 4px 0 #2980b9,
+                         0 8px 0 #1a5276,
+                         4px 4px 0 #1a5276;
+            letter-spacing: 8px;
             text-align: center;
-            margin-bottom: 10px;
-            animation: titlePulse 2s ease-in-out infinite;
+            margin-bottom: 5px;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-transform: uppercase;
         }
         
         .game-subtitle {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 300;
             color: #888;
-            letter-spacing: 8px;
-            margin-bottom: 40px;
+            letter-spacing: 12px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
         }
         
-        @keyframes titlePulse {
-            0%, 100% { text-shadow: 0 0 30px rgba(231, 76, 60, 0.8), 0 4px 0 #8b0000, 0 8px 0 #4a0000; }
-            50% { text-shadow: 0 0 50px rgba(231, 76, 60, 1), 0 4px 0 #8b0000, 0 8px 0 #4a0000; }
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 40px rgba(115, 234, 255, 0.8), 0 4px 0 #2980b9, 0 8px 0 #1a5276, 4px 4px 0 #1a5276; }
+            50% { text-shadow: 0 0 60px rgba(115, 234, 255, 1), 0 4px 0 #3498db, 0 8px 0 #2980b9, 4px 4px 0 #2980b9; }
+        }
+        
+        /* Boss Preview Card */
+        .boss-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+            padding: 25px 40px;
+            background: linear-gradient(180deg, rgba(30, 40, 50, 0.9) 0%, rgba(20, 30, 40, 0.95) 100%);
+            border: 3px solid #73eaff;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(115, 234, 255, 0.3), inset 0 0 50px rgba(115, 234, 255, 0.05);
+        }
+        
+        .boss-preview img {
+            width: 150px;
+            height: 180px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 20px rgba(115, 234, 255, 0.5));
+            margin-bottom: 15px;
+        }
+        
+        .boss-preview h3 {
+            font-family: 'Poppins', sans-serif;
+            color: #73eaff;
+            font-size: 1.4rem;
+            margin: 0 0 5px 0;
+            text-shadow: 0 0 10px rgba(115, 234, 255, 0.5);
+        }
+        
+        .boss-preview p {
+            color: #888;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .boss-preview .difficulty {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            letter-spacing: 2px;
         }
         
         .start-btn {
-            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #73eaff 0%, #4dd0e1 100%);
             border: none;
-            color: white;
-            font-size: 1.8rem;
-            font-weight: bold;
-            padding: 20px 80px;
-            border-radius: 50px;
+            color: #1a1a2e;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 18px 70px;
+            border-radius: 8px;
             cursor: pointer;
-            letter-spacing: 3px;
-            box-shadow: 0 8px 0 #1a8a4a, 0 15px 30px rgba(0,0,0,0.5);
+            letter-spacing: 4px;
+            box-shadow: 0 6px 0 #2980b9, 0 12px 30px rgba(0,0,0,0.5);
             transition: all 0.1s;
-            margin-bottom: 30px;
+            margin: 20px 0;
+            text-transform: uppercase;
         }
         
         .start-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 11px 0 #1a8a4a, 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 9px 0 #2980b9, 0 18px 40px rgba(0,0,0,0.6);
         }
         
         .start-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 3px 0 #1a8a4a, 0 8px 20px rgba(0,0,0,0.4);
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #2980b9, 0 6px 15px rgba(0,0,0,0.4);
         }
         
-        .start-instructions {
-            color: #666;
-            font-size: 0.9rem;
-            text-align: center;
-            max-width: 600px;
-            line-height: 1.6;
-        }
-        
-        .start-instructions h3 {
-            color: #f1c40f;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .start-instructions kbd {
-            background: #333;
-            padding: 3px 8px;
-            border-radius: 5px;
-            border: 1px solid #555;
-            font-family: monospace;
-            color: #fff;
-            font-size: 0.85rem;
-        }
-        
-        .zombie-preview {
+        /* Game Instructions */
+        .game-info {
             display: flex;
-            gap: 20px;
+            gap: 40px;
             margin-top: 25px;
             flex-wrap: wrap;
             justify-content: center;
         }
         
-        .zombie-type {
-            text-align: center;
-            color: #888;
-            font-size: 0.7rem;
-        }
-        
-        .zombie-type .icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin: 0 auto 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        .zombie-walker { background: #779977; }
-        .zombie-runner { background: #c0392b; }
-        .zombie-tank { background: #2c3e50; }
-        .zombie-toxic { background: #00ff00; }
-        .zombie-explosive { background: #f39c12; }
-        .zombie-ice { background: #00bcd4; }
-        .zombie-armored { background: #607d8b; }
-        .zombie-seniorP { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); box-shadow: 0 0 10px #9b59b6; }
-        
-        /* Boss Selection Cards */
-        .boss-selection { margin: 20px 0; }
-        .boss-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .boss-card {
-            width: 150px; padding: 20px; border-radius: 15px;
-            text-align: center; transition: all 0.2s;
+        .info-box {
+            background: rgba(20, 30, 40, 0.8);
             border: 2px solid #444;
+            border-radius: 10px;
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 180px;
         }
-        .boss-card h4 { margin: 10px 0 5px 0; color: #fff; }
-        .boss-card-available {
-            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
-            cursor: pointer;
+        
+        .info-box h4 {
+            color: #73eaff;
+            font-size: 0.9rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
         }
-        .boss-card-available:hover {
-            transform: translateY(-5px) scale(1.05);
-            border-color: #9b59b6;
-            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        
+        .info-box p {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin: 0;
+            line-height: 1.6;
         }
-        .boss-card-selected {
-            border-color: #9b59b6 !important;
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.6);
-            transform: translateY(-5px) scale(1.05);
+        
+        .info-box kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: 'Poppins', monospace;
+            color: #73eaff;
+            font-size: 0.75rem;
         }
-        .boss-card-locked {
-            background: #1a1a1a;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        .boss-icon {
-            width: 60px; height: 60px; border-radius: 50%;
-            margin: 0 auto; display: flex;
-            align-items: center; justify-content: center;
-            font-size: 30px;
-        }
-        .boss-difficulty { font-size: 10px; margin-top: 5px; display: block; }
         
         /* Victory Screen */
         #victory-screen {
@@ -384,47 +406,59 @@
             <li><a href="animes.html">Animes</a></li>
             <li><a href="huijiegpt.html">HuijieGPT</a></li>
             <li><a href="pomodoro.html">Pomodoro</a></li>
-            <li><a href="survival.html" class="active">Survival</a></li>
+            <li><a href="survival.html" class="active">La Sayye</a></li>
         </ul>
     </nav>
 
-    <!-- 🎮 START SCREEN - BOSS SELECTION -->
+    <!-- 🎮 START SCREEN - PIXEL ART STYLE -->
     <div id="start-screen">
-        <h1 class="game-title">La Sayye</h1>
-        <p class="game-subtitle">Student vs Teachers</p>
+        <!-- Floating math symbols for decoration -->
+        <span class="float-symbol" style="top: 10%; left: 5%;">π</span>
+        <span class="float-symbol" style="top: 25%; right: 8%; animation-delay: -2s;">∑</span>
+        <span class="float-symbol" style="bottom: 20%; left: 10%; animation-delay: -4s;">∫</span>
+        <span class="float-symbol" style="top: 40%; right: 15%; animation-delay: -1s;">∞</span>
+        <span class="float-symbol" style="bottom: 30%; right: 5%; animation-delay: -3s;">Δ</span>
+        <span class="float-symbol" style="top: 15%; left: 20%; animation-delay: -5s;">θ</span>
         
-        <div class="boss-selection">
-            <h3 style="color: #f1c40f; margin-bottom: 20px;">📚 SELECCIONA TU OPONENTE</h3>
-            <div class="boss-cards">
-                <div id="boss-card-seniorP" class="boss-card boss-card-available boss-card-selected">
-                    <div class="boss-icon" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">👨‍🏫</div>
-                    <h4>Senior P</h4>
-                    <p style="color: #888; font-size: 11px;">Profesor de Matemáticas</p>
-                    <span class="boss-difficulty" style="color: #e74c3c;">★★★ DIFÍCIL</span>
-                </div>
-                <div class="boss-card boss-card-locked">
-                    <div class="boss-icon" style="background: #444;">🔒</div>
-                    <h4 style="color: #666;">???</h4>
-                    <p style="color: #555; font-size: 11px;">Próximamente</p>
-                </div>
-                <div class="boss-card boss-card-locked">
-                    <div class="boss-icon" style="background: #444;">🔒</div>
-                    <h4 style="color: #666;">???</h4>
-                    <p style="color: #555; font-size: 11px;">Próximamente</p>
-                </div>
-            </div>
+        <h1 class="game-title">La Sayye</h1>
+        <p class="game-subtitle">Estudiante vs Profesores</p>
+        
+        <!-- Boss Preview with actual image -->
+        <div class="boss-preview">
+            <img src="Senior%20P/seniorp-base.png" alt="Senior P" onerror="this.style.display='none'">
+            <h3>👨‍🏫 Senior P</h3>
+            <p>Profesor de Matemáticas</p>
+            <span class="difficulty">★★★ DIFÍCIL</span>
         </div>
         
-        <button id="play-btn" class="start-btn" style="margin-top: 30px;">▶ JUGAR</button>
+        <button id="play-btn" class="start-btn">▶ JUGAR</button>
         
-        <div class="start-instructions" style="margin-top: 20px;">
-            <h3>🎮 CONTROLES</h3>
-            <kbd>WASD</kbd> Mover &nbsp;|&nbsp; 
-            <kbd>1-7</kbd> Herramientas &nbsp;|&nbsp;
-            <kbd>Click</kbd> Atacar/Construir<br>
-            <kbd>E</kbd> Tienda &nbsp;|&nbsp;
-            <kbd>R</kbd> Recargar &nbsp;|&nbsp;
-            <kbd>Rueda</kbd> Cambiar Slot
+        <!-- Game Info Boxes -->
+        <div class="game-info">
+            <div class="info-box">
+                <h4>🎮 Controles</h4>
+                <p>
+                    <kbd>WASD</kbd> Mover<br>
+                    <kbd>Space</kbd> Dash<br>
+                    <kbd>Click</kbd> Atacar
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>⚔️ Objetivo</h4>
+                <p>
+                    Prepárate 10 segundos<br>
+                    Recoge recursos<br>
+                    ¡Derrota al profesor!
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>🛠️ Herramientas</h4>
+                <p>
+                    <kbd>1-7</kbd> Seleccionar<br>
+                    <kbd>E</kbd> Tienda<br>
+                    <kbd>R</kbd> Recargar
+                </p>
+            </div>
         </div>
     </div>
     
