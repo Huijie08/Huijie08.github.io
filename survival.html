@@ -2851,10 +2851,8 @@
         
         generarMundo(); 
         
-        // Auto-start the game directly (skip menu)
-        setTimeout(function() {
-            iniciarPartida();
-        }, 100);
+        // Show start screen and wait for user to click JUGAR
+        // The game starts when the play-btn is clicked
         
         requestAnimationFrame(loop);
     </script>
