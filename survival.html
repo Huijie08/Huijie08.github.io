@@ -850,7 +850,7 @@
         const rect = canvas.getBoundingClientRect();
         window.addEventListener('mousemove', (e) => { ratonPantalla.x = e.clientX - rect.left; ratonPantalla.y = e.clientY - rect.top; });
         window.addEventListener('mousedown', (e) => {
-            if (gameOver || shopOpen) return;
+            if (gameOver || shopOpen || !gameStarted || gamePhase === 'menu' || gamePhase === 'victory' || gamePhase === 'defeat') return;
             if (e.button === 2) { if (slotActivo === 1) materialMuro = (materialMuro === 'madera') ? 'piedra' : 'madera'; }
             else if (e.button === 0) { mousePresionado = true; if(slotActivo !== 0) cooldownAccion = 0; intentarAccion(); }
         });
