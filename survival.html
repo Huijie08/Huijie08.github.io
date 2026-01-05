@@ -1327,7 +1327,7 @@
                     }
                     break;
                     
-                case 'funcions': // Spawn X and Y minions
+                case 'funcions': // Spawn X and Y minions (8 total)
                     for (let i = 0; i < 8; i++) {
                         const minionAngle = (Math.PI * 2 / 8) * i;
                         const minion = {
@@ -1349,9 +1349,9 @@
                         };
                         enemigos.push(minion);
                         seniorPAttack.minions.push(minion);
-                        crearParticula(minion.x, minion.y, '#000000', 'explosion');
+                        crearParticula(minion.x, minion.y, '#333333', 'explosion');
                     }
-                    mostrarTexto(boss.x, boss.y - 60, "f(x,y) = Variables!", '#000000');
+                    mostrarTexto(boss.x, boss.y - 60, "f(x,y) = Variables!", '#73eaff');
                     break;
             }
         }
