@@ -600,8 +600,8 @@
         let spritesLoaded = 0;
         
         // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
-        const SENIOR_P_FIXED_WIDTH = 220;
-        const SENIOR_P_FIXED_HEIGHT = 240;
+        const SENIOR_P_FIXED_WIDTH = 280;
+        const SENIOR_P_FIXED_HEIGHT = 280;
         
         // Load all Senior P sprites
         spriteNames.forEach(name => {
@@ -1207,8 +1207,8 @@
                 case 'gauss': // Area Explosion (Gaussian curve)
                     for (let i = 0; i < 7; i++) {
                         // Calculate target position for this explosion
-                        const targetX = jugador.x + (Math.random() - 0.5) * 500;
-                        const targetY = jugador.y + (Math.random() - 0.5) * 500;
+                        const targetX = jugador.x + (Math.random() - 0.5) * 1000;
+                        const targetY = jugador.y + (Math.random() - 0.5) * 1000;
                         
                         // Add warning area that shows before explosion
                         seniorPAttack.gaussAreas.push({
@@ -1239,8 +1239,8 @@
                     
                 case 'logaritmes': // Acid Pools
                     for (let i = 0; i < 6; i++) {
-                        const poolX = jugador.x + (Math.random() - 0.5) * 500;
-                        const poolY = jugador.y + (Math.random() - 0.5) * 500;
+                        const poolX = jugador.x + (Math.random() - 0.5) * 750;
+                        const poolY = jugador.y + (Math.random() - 0.5) * 750;
                         seniorPAttack.acidPools.push({
                             x: poolX, y: poolY,
                             radio: 120,
