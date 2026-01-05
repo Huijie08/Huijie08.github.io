@@ -600,8 +600,8 @@
         let spritesLoaded = 0;
         
         // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
-        const SENIOR_P_FIXED_WIDTH = 100;
-        const SENIOR_P_FIXED_HEIGHT = 140;
+        const SENIOR_P_FIXED_WIDTH = 130;
+        const SENIOR_P_FIXED_HEIGHT = 180;
         
         // Load all Senior P sprites
         spriteNames.forEach(name => {
@@ -1190,32 +1190,32 @@
                     mostrarTexto(boss.x, boss.y - 60, "🛡️ ESCUDO!", '#9b59b6');
                     break;
                     
-                case 'escalar': // Cross Laser
-                    for (let i = 0; i < 4; i++) {
-                        const laserAngle = (Math.PI / 2) * i;
+                case 'escalar': // Cross Laser (8 lasers in X pattern)
+                    for (let i = 0; i < 8; i++) {
+                        const laserAngle = (Math.PI / 4) * i;
                         seniorPAttack.lasers.push({
                             x: boss.x, y: boss.y,
                             angle: laserAngle,
                             length: 0,
-                            maxLength: 800,
-                            timer: 2000,
-                            damage: 5
+                            maxLength: 1000,
+                            timer: 3000,
+                            damage: 10
                         });
                     }
                     break;
                     
                 case 'gauss': // Area Explosion (Gaussian curve)
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 7; i++) {
                         // Calculate target position for this explosion
-                        const targetX = jugador.x + (Math.random() - 0.5) * 200;
-                        const targetY = jugador.y + (Math.random() - 0.5) * 200;
+                        const targetX = jugador.x + (Math.random() - 0.5) * 250;
+                        const targetY = jugador.y + (Math.random() - 0.5) * 250;
                         
                         // Add warning area that shows before explosion
                         seniorPAttack.gaussAreas.push({
                             x: targetX,
                             y: targetY,
-                            radio: 80,
-                            warningTime: i * 400 + 300, // Time before explosion
+                            radio: 90,
+                            warningTime: i * 350 + 300, // Time before explosion
                             exploded: false
                         });
                         
@@ -1224,75 +1224,75 @@
                             crearParticula(targetX, targetY, '#e74c3c', 'explosion');
                             crearParticula(targetX, targetY, '#f39c12', 'explosion');
                             for (let k = 0; k < 10; k++) {
-                                crearParticula(targetX + (Math.random() - 0.5) * 80, targetY + (Math.random() - 0.5) * 80, '#e74c3c', 'explosion');
+                                crearParticula(targetX + (Math.random() - 0.5) * 90, targetY + (Math.random() - 0.5) * 90, '#e74c3c', 'explosion');
                             }
                             
                             // Check player damage
-                            if (Math.hypot(jugador.x - targetX, jugador.y - targetY) < 80) {
-                                vida -= 15;
-                                screenshake = 10;
+                            if (Math.hypot(jugador.x - targetX, jugador.y - targetY) < 90) {
+                                vida -= 25;
+                                screenshake = 15;
                                 crearParticula(jugador.x, jugador.y, 'red', 'golpe');
                             }
-                        }, i * 400 + 300);
+                        }, i * 350 + 300);
                     }
                     break;
                     
                 case 'logaritmes': // Acid Pools
-                    for (let i = 0; i < 4; i++) {
-                        const poolX = jugador.x + (Math.random() - 0.5) * 300;
-                        const poolY = jugador.y + (Math.random() - 0.5) * 300;
+                    for (let i = 0; i < 6; i++) {
+                        const poolX = jugador.x + (Math.random() - 0.5) * 350;
+                        const poolY = jugador.y + (Math.random() - 0.5) * 350;
                         seniorPAttack.acidPools.push({
                             x: poolX, y: poolY,
-                            radio: 60,
-                            timer: 8000,
-                            damage: 0.5
+                            radio: 70,
+                            timer: 10000,
+                            damage: 1.0
                         });
                     }
                     break;
                     
                 case 'trigonometria': // Sine Wave Projectiles
-                    for (let i = 0; i < 8; i++) {
-                        const projAngle = (Math.PI * 2 / 8) * i;
+                    for (let i = 0; i < 16; i++) {
+                        const projAngle = (Math.PI * 2 / 16) * i;
                         seniorPAttack.sineProjectiles.push({
                             x: boss.x, y: boss.y,
                             baseAngle: projAngle,
                             phase: 0,
-                            speed: 3,
-                            timer: 5000,
-                            damage: 8
+                            speed: 3.5,
+                            timer: 6000,
+                            damage: 15
                         });
                     }
                     break;
                     
                 case 'rectes': // Temporary Walls
-                    for (let i = 0; i < 3; i++) {
-                        const wallAngle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x) + (Math.random() - 0.5) * 1;
-                        const wallDist = 150 + i * 80;
+                    for (let i = 0; i < 6; i++) {
+                        const wallAngle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x) + (Math.random() - 0.5) * 1.5;
+                        const wallDist = 120 + i * 60;
                         seniorPAttack.tempWalls.push({
                             x: boss.x + Math.cos(wallAngle) * wallDist,
                             y: boss.y + Math.sin(wallAngle) * wallDist,
                             angle: wallAngle + Math.PI/2,
-                            width: 120,
-                            timer: 6000
+                            width: 140,
+                            timer: 8000
                         });
                     }
                     break;
                     
                 case 'funcions': // Spawn Minions
-                    for (let i = 0; i < 4; i++) {
-                        const minionAngle = (Math.PI * 2 / 4) * i;
+                    for (let i = 0; i < 8; i++) {
+                        const minionAngle = (Math.PI * 2 / 8) * i;
                         const minion = {
-                            x: boss.x + Math.cos(minionAngle) * 80,
-                            y: boss.y + Math.sin(minionAngle) * 80,
-                            velocidad: 2,
-                            radio: 12,
-                            hp: 20,
-                            maxHp: 20,
+                            x: boss.x + Math.cos(minionAngle) * 100,
+                            y: boss.y + Math.sin(minionAngle) * 100,
+                            velocidad: 2.5,
+                            radio: 14,
+                            hp: 30,
+                            maxHp: 30,
                             color: '#9b59b6',
                             tipo: 'minion',
                             angle: 0,
-                            xpReward: 10,
-                            dmg: 1,
+                            xpReward: 15,
+                            dmg: 2,
                             hitFlash: 0,
                             armadura: 0,
                             armorHp: 0
@@ -1301,7 +1301,7 @@
                         seniorPAttack.minions.push(minion);
                         crearParticula(minion.x, minion.y, '#9b59b6', 'explosion');
                     }
-                    mostrarTexto(boss.x, boss.y - 60, "f(x) = 4 esbirros!", '#9b59b6');
+                    mostrarTexto(boss.x, boss.y - 60, "f(x) = 8 esbirros!", '#9b59b6');
                     break;
             }
         }
