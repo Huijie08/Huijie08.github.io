@@ -30,7 +30,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 999;
             pointer-events: auto;
         }
         
@@ -699,11 +699,13 @@
                 if (madera >= 200 && piedra >= 100) {
                     madera -= 200; piedra -= 100;
                     mostrarNotificacion("Click en árbol/roca para colocar recolector");
-                    slotActivo = 7; // Special mode for placing collector
+                    pendingCollector = true; // Flag for collector placement mode
                 }
             }
             actualizarTiendaUI();
         }
+        
+        let pendingCollector = false;
 
         // --- INICIALIZACIÓN MUNDO ---
         function generarMundo() {
@@ -902,7 +904,8 @@
             if (teclas['a']) mx = -1; if (teclas['d']) mx = 1;
             if (mx !== 0 || my !== 0) {
                 const len = Math.hypot(mx, my);
-                jugador.x += (mx/len) * stats.velocidad; jugador.y += (my/len) * stats.velocidad;
+                const currentSpeed = jugador.slowed > 0 ? stats.velocidad * 0.5 : stats.velocidad;
+                jugador.x += (mx/len) * currentSpeed; jugador.y += (my/len) * currentSpeed;
             }
             jugador.x = Math.max(20, Math.min(MUNDO_ANCHO-20, jugador.x));
             jugador.y = Math.max(20, Math.min(MUNDO_ALTO-20, jugador.y));
@@ -1040,6 +1043,34 @@
         function usarPico() {
             const hitPos = { x: jugador.x + Math.cos(jugador.angle)*25, y: jugador.y + Math.sin(jugador.angle)*25 };
             crearParticula(hitPos.x, hitPos.y, 'rgba(255,255,255,0.5)', 'golpe');
+            
+            // Check for collector placement first
+            if (pendingCollector) {
+                for (const a of arboles) {
+                    if (a.activo && a.recursos > 0 && Math.hypot(a.x - ratonMundo.x, a.y - ratonMundo.y) < a.radio + 20) {
+                        const gx = Math.floor(a.x/TILE_SIZE)*TILE_SIZE;
+                        const gy = Math.floor(a.y/TILE_SIZE)*TILE_SIZE;
+                        recolectores.push({ x: gx, y: gy, target: a, cooldown: 0 });
+                        pendingCollector = false;
+                        mostrarTexto(gx + 25, gy + 25, "RECOLECTOR", "#f1c40f");
+                        crearParticula(gx + 25, gy + 25, '#f1c40f', 'explosion');
+                        return;
+                    }
+                }
+                for (const r of rocas) {
+                    if (r.activo && r.recursos > 0 && Math.hypot(r.x - ratonMundo.x, r.y - ratonMundo.y) < r.ancho + 20) {
+                        const gx = Math.floor(r.x/TILE_SIZE)*TILE_SIZE;
+                        const gy = Math.floor(r.y/TILE_SIZE)*TILE_SIZE;
+                        recolectores.push({ x: gx, y: gy, target: r, cooldown: 0 });
+                        pendingCollector = false;
+                        mostrarTexto(gx + 25, gy + 25, "RECOLECTOR", "#f1c40f");
+                        crearParticula(gx + 25, gy + 25, '#f1c40f', 'explosion');
+                        return;
+                    }
+                }
+                mostrarTexto(ratonMundo.x, ratonMundo.y, "Sin recurso", "#e74c3c");
+                return;
+            }
             
             const check = (obj, tipo) => {
                 if (!obj.activo) return false;
@@ -1255,11 +1286,9 @@
                     if (e.tipo === 'tanque') playerDmg = 1.5;
                     if (e.tipo === 'explosivo') { playerDmg = 15; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); }
                     
-                    // ICE GOLEM slows player
-                    if (e.tipo === 'hielo') {
-                        jugador.slowed = 2000; // 2 seconds slow
-                        stats.velocidad = Math.max(2, stats.velocidad * 0.5);
-                        setTimeout(() => stats.velocidad = Math.min(STAT_CAPS.velocidad, stats.velocidad * 2), 2000);
+                    // ICE GOLEM slows player - use slowed timer instead of modifying velocity directly
+                    if (e.tipo === 'hielo' && jugador.slowed <= 0) {
+                        jugador.slowed = 2000; // 2 seconds slow - visual indicator only
                     }
                     
                     // Armor perk reduces damage
