@@ -23,14 +23,14 @@
         /* 🎮 START SCREEN */
         #start-screen {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 60px; left: 0;
+            width: 100%; height: calc(100% - 60px);
             background: linear-gradient(180deg, #0a1a0a 0%, #1a2a1a 50%, #0a1a0a 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 100;
             pointer-events: auto;
         }
         
@@ -56,7 +56,7 @@
             font-size: 1.5rem;
             color: #888;
             letter-spacing: 8px;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
         }
         
         @keyframes titlePulse {
@@ -76,7 +76,7 @@
             letter-spacing: 3px;
             box-shadow: 0 8px 0 #1a8a4a, 0 15px 30px rgba(0,0,0,0.5);
             transition: all 0.1s;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         
         .start-btn:hover {
@@ -91,48 +91,51 @@
         
         .start-instructions {
             color: #666;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
             max-width: 600px;
-            line-height: 1.8;
+            line-height: 1.6;
         }
         
         .start-instructions h3 {
             color: #f1c40f;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         
         .start-instructions kbd {
             background: #333;
-            padding: 3px 10px;
+            padding: 3px 8px;
             border-radius: 5px;
             border: 1px solid #555;
             font-family: monospace;
             color: #fff;
+            font-size: 0.85rem;
         }
         
         .zombie-preview {
             display: flex;
-            gap: 30px;
-            margin-top: 40px;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .zombie-type {
             text-align: center;
             color: #888;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
         
         .zombie-type .icon {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
         }
         
         .zombie-walker { background: #779977; }
@@ -140,9 +143,11 @@
         .zombie-tank { background: #2c3e50; }
         .zombie-toxic { background: #00ff00; }
         .zombie-explosive { background: #f39c12; }
+        .zombie-ice { background: #00bcd4; }
+        .zombie-armored { background: #607d8b; }
         
         /* Navbar adjustments for game */
-        .navbar { display: flex; }
+        .navbar { display: flex; z-index: 1000; }
         
         #ui-layer { position: absolute; pointer-events: none; width: 100%; height: 100%; top: 0; left: 0; }
         
@@ -188,6 +193,50 @@
         }
         #wave-timer h2 { margin: 0; font-size: 14px; color: #aaa; letter-spacing: 2px; }
         #wave-timer span { font-size: 32px; font-weight: bold; font-family: monospace; display: block; line-height: 1; margin-top: 5px; }
+        
+        /* Boss HP Bar */
+        #boss-hp-container {
+            display: none; position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            width: 400px; max-width: 90%;
+        }
+        #boss-name { text-align: center; color: #e74c3c; font-size: 20px; font-weight: bold; margin-bottom: 5px; text-shadow: 0 0 10px #e74c3c; }
+        #boss-hp-bar { width: 100%; height: 20px; background: #333; border: 2px solid #e74c3c; border-radius: 10px; overflow: hidden; }
+        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #e74c3c, #c0392b); transition: width 0.2s; }
+        
+        /* Event Banner */
+        #event-banner {
+            display: none; position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
+            background: rgba(155, 89, 182, 0.9); color: white;
+            padding: 10px 30px; border-radius: 20px;
+            font-size: 16px; font-weight: bold;
+            border: 2px solid #8e44ad;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            animation: eventPulse 2s ease-in-out infinite;
+        }
+        @keyframes eventPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        /* Perk Selection Modal */
+        #perk-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 200;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        #perk-modal h2 { color: #3498db; font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 20px #3498db; }
+        #perk-modal p { color: #aaa; margin-bottom: 30px; }
+        .perk-cards { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .perk-card {
+            width: 200px; background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            border: 3px solid #3498db; border-radius: 15px; padding: 25px;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .perk-card:hover { transform: translateY(-10px) scale(1.05); border-color: #f1c40f; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .perk-card .icon { font-size: 50px; margin-bottom: 15px; }
+        .perk-card h3 { color: #f1c40f; margin: 0 0 10px 0; font-size: 18px; }
+        .perk-card p { color: #bbb; font-size: 12px; margin: 0; }
+        .perk-rarity-common { border-color: #95a5a6; }
+        .perk-rarity-rare { border-color: #3498db; }
+        .perk-rarity-epic { border-color: #9b59b6; }
+        .perk-rarity-legendary { border-color: #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.5); }
 
         /* Game Over */
         #gameOverScreen {
@@ -204,18 +253,21 @@
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(15, 20, 15, 0.98); color: white;
-            width: min(650px, 90%); padding: 25px; border-radius: 15px;
+            width: min(750px, 95%); padding: 25px; border-radius: 15px;
             border: 1px solid #f1c40f; z-index: 40; pointer-events: auto;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            max-height: 80vh; overflow-y: auto;
         }
-        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
         .shop-item {
-            background: #222; padding: 15px; border-radius: 8px; border: 1px solid #444; cursor: pointer;
+            background: #222; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer;
             transition: transform 0.1s, background 0.1s; position: relative; overflow: hidden;
         }
         .shop-item:hover { background: #333; border-color: #f1c40f; transform: translateY(-3px); }
-        .shop-item h3 { margin: 0 0 5px 0; color: #f1c40f; font-size: 18px; }
-        .cost { font-size: 12px; color: #bbb; display: block; margin-bottom: 5px;}
+        .shop-item h3 { margin: 0 0 5px 0; color: #f1c40f; font-size: 14px; }
+        .cost { font-size: 11px; color: #bbb; display: block; margin-bottom: 3px;}
+        .shop-section { margin-top: 20px; }
+        .shop-section h4 { color: #2ecc71; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px; }
 
         button {
             background-color: #e74c3c; color: white; border: none;
@@ -227,9 +279,9 @@
 
         #controls-hint {
             position: absolute; bottom: 30px; right: 20px;
-            color: rgba(255,255,255,0.6); font-size: 13px; text-align: right;
-            background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; pointer-events: none;
-            line-height: 1.6;
+            color: rgba(255,255,255,0.6); font-size: 12px; text-align: right;
+            background: rgba(0,0,0,0.7); padding: 12px; border-radius: 10px; pointer-events: none;
+            line-height: 1.5;
         }
         
         .notification {
@@ -238,6 +290,22 @@
             text-shadow: 0 0 20px red; opacity: 0; pointer-events: none;
             transition: opacity 0.5s; width: 100%; text-align: center; z-index: 30; font-family: 'Impact', sans-serif; letter-spacing: 3px;
         }
+        
+        /* Slow effect indicator */
+        #slow-indicator {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,188,212,0.1) 0%, rgba(0,188,212,0.3) 100%);
+            animation: slowPulse 0.5s ease-in-out infinite;
+        }
+        @keyframes slowPulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+        
+        /* Active perks display */
+        #active-perks {
+            position: absolute; top: 100px; left: 10px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .active-perk { background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #f1c40f; }
     </style>
 </head>
 <body>
@@ -264,8 +332,8 @@
         <div class="start-instructions">
             <h3>🎮 CONTROLES</h3>
             <kbd>WASD</kbd> Mover &nbsp;|&nbsp; 
-            <kbd>1-5</kbd> Herramientas &nbsp;|&nbsp;
-            <kbd>Click</kbd> Atacar/Construir<br><br>
+            <kbd>1-7</kbd> Herramientas &nbsp;|&nbsp;
+            <kbd>Click</kbd> Atacar/Construir<br>
             <kbd>E</kbd> Tienda &nbsp;|&nbsp;
             <kbd>R</kbd> Recargar &nbsp;|&nbsp;
             <kbd>Rueda</kbd> Cambiar Slot
@@ -292,6 +360,14 @@
                 <div class="icon zombie-explosive">💥</div>
                 Explosivo
             </div>
+            <div class="zombie-type">
+                <div class="icon zombie-ice">❄️</div>
+                Golem Hielo
+            </div>
+            <div class="zombie-type">
+                <div class="icon zombie-armored">⚔️</div>
+                Caballero
+            </div>
         </div>
     </div>
 
@@ -301,6 +377,15 @@
         <h2 id="wave-title">PRÓXIMA OLEADA</h2>
         <span id="wave-countdown">00:00</span>
     </div>
+    
+    <!-- Boss HP Bar -->
+    <div id="boss-hp-container">
+        <div id="boss-name">BOSS</div>
+        <div id="boss-hp-bar"><div id="boss-hp-fill" style="width:100%"></div></div>
+    </div>
+    
+    <!-- Event Banner -->
+    <div id="event-banner">⚡ EVENTO: Ninguno</div>
 
     <div id="xp-container"><div id="xp-bar"></div></div>
     <div id="level-badge">LVL 1</div>
@@ -308,12 +393,27 @@
     
     <!-- COMBO DISPLAY -->
     <div id="combo-display">🔥 COMBO x<span id="combo-mult">1.0</span></div>
+    
+    <!-- Slow Effect Indicator -->
+    <div id="slow-indicator"></div>
+    
+    <!-- Active Perks Display -->
+    <div id="active-perks"></div>
+    
+    <!-- Perk Selection Modal -->
+    <div id="perk-modal">
+        <h2>⬆️ ¡SUBISTE DE NIVEL!</h2>
+        <p>Elige una mejora:</p>
+        <div class="perk-cards" id="perk-cards"></div>
+    </div>
 
     <div id="ui-layer">
         <div class="notification" id="wave-warning">¡HORDA INMINENTE!</div>
         <div id="controls-hint">
-            [1] Pico (Cerca)<br>[2] Muro | [3] Torreta<br>[4] SCAR (Largo Alcance)<br>[5] Demoler (50% Reembolso)<br>
-            [R] Recargar | [E] TIENDA<br>[Rueda] Cambiar Slot
+            [1] Pico | [2] Muro | [3] Torreta<br>
+            [4] SCAR | [5] Demoler<br>
+            [6] Trampa | [7] Mina<br>
+            [R] Recargar | [E] TIENDA
         </div>
     </div>
 
@@ -322,26 +422,41 @@
         <div style="text-align:center; margin:15px 0; font-size:18px; border-bottom:1px solid #333; padding-bottom:10px;">
             🌲 <span id="shop-wood" style="color:#2ecc71">0</span> | 🪨 <span id="shop-stone" style="color:#95a5a6">0</span>
         </div>
-        <div class="shop-grid">
-            <div class="shop-item" onclick="comprar('pico')">
-                <h3>🛠️ Pico Reforzado</h3>
-                <span class="cost">120 Madera, 60 Piedra</span>
-                <div style="font-size:11px; color:#888;">+Recolección (Nivel <span id="lvl-pico">1</span>)</div>
+        
+        <div class="shop-section">
+            <h4>🔧 MEJORAS</h4>
+            <div class="shop-grid">
+                <div class="shop-item" onclick="comprar('pico')">
+                    <h3>🛠️ Pico Reforzado</h3>
+                    <span class="cost">120 Madera, 60 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-pico">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('velocidad')">
+                    <h3>👟 Botas Tácticas</h3>
+                    <span class="cost">150 Madera</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-vel">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('torreta')">
+                    <h3>🔫 Torreta MK-II</h3>
+                    <span class="cost">200 Madera, 150 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-turret">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('muro')">
+                    <h3>🛡️ Muro Reforzado</h3>
+                    <span class="cost">300 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-muro">1</span></div>
+                </div>
             </div>
-            <div class="shop-item" onclick="comprar('velocidad')">
-                <h3>👟 Botas Tácticas</h3>
-                <span class="cost">150 Madera</span>
-                <div style="font-size:11px; color:#888;">+Velocidad (Nivel <span id="lvl-vel">1</span>)</div>
-            </div>
-            <div class="shop-item" onclick="comprar('torreta')">
-                <h3>🔫 Torreta MK-II</h3>
-                <span class="cost">200 Madera, 150 Piedra</span>
-                <div style="font-size:11px; color:#888;">+Daño y Rango (Nivel <span id="lvl-turret">1</span>)</div>
-            </div>
-             <div class="shop-item" onclick="comprar('muro')">
-                <h3>🛡️ Muro de Acero</h3>
-                <span class="cost">300 Piedra</span>
-                <div style="font-size:11px; color:#888;">+Resistencia (Nivel <span id="lvl-muro">1</span>)</div>
+        </div>
+        
+        <div class="shop-section">
+            <h4>🏗️ AUTOMATIZACIÓN</h4>
+            <div class="shop-grid">
+                <div class="shop-item" onclick="comprar('recolector')">
+                    <h3>🤖 Recolector Auto</h3>
+                    <span class="cost">200 Madera, 100 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Coloca sobre recurso</div>
+                </div>
             </div>
         </div>
     </div>
@@ -364,33 +479,33 @@
         
         // --- ESTADO DEL JUEGO ---
         let camara = { x: 0, y: 0 };
-        let gameOver = false, shopOpen = false;
-        let gameStarted = false; // Game starts when player clicks play
+        let gameOver = false, shopOpen = false, perkModalOpen = false;
+        let gameStarted = false;
         
         // TIEMPO (Supervivencia)
         let tiempoJuego = 0;
-        const DURACION_DIA = 30000; // 30 seg de preparación
-        const DURACION_NOCHE = 25000; // 25 seg de combate intenso
+        const DURACION_DIA = 30000;
+        const DURACION_NOCHE = 25000;
         let esNoche = false;
         let diaContador = 1;
         const DIAS_PARA_REGENERAR = 2;
-        let tiempoRestanteVisual = 0;
 
         // ENTIDADES
         let arboles = [], rocas = [], muros = [], enemigos = [], particulas = [], torretas = [], proyectiles = [];
-        const jugador = { x: MUNDO_ANCHO/2, y: MUNDO_ALTO/2, radio: 15, color: '#f1c40f', angle: 0 };
+        let trampas = [], minas = [], recolectores = [];
+        const jugador = { x: MUNDO_ANCHO/2, y: MUNDO_ALTO/2, radio: 15, color: '#f1c40f', angle: 0, slowed: 0 };
         
         // ECONOMIA & STATS
         let madera = 0, piedra = 0, vida = 100, vidaMax = 100;
         let slotActivo = 0, materialMuro = 'madera';
         let xp = 0, nivel = 1, xpParaSiguiente = 100;
-        let spawnRate = 2000, waveTimer = 0; // Spawn rate base
+        let spawnRate = 2000, waveTimer = 0;
 
         // ARMA
         let scar = { balas: 32, maxBalas: 32, reloading: false, reloadTime: 2000, reloadTimer: 0, damage: 3, fireRate: 100 };
         let stats = { picoDmg: 1, recoleccion: 1, velocidad: 5, muroHpMult: 1, turretDmg: 4, turretRange: 300, lvlPico: 1, lvlVel: 1, lvlMuro: 1, lvlTurret: 1 };
         
-        // STAT CAPS (Anti-OP)
+        // STAT CAPS
         const STAT_CAPS = { velocidad: 9, fireRate: 50, lvlPico: 10, lvlVel: 5, lvlMuro: 10, lvlTurret: 8 };
         
         // COMBO SYSTEM
@@ -398,6 +513,34 @@
         
         // LOOT DROPS
         let lootDrops = [];
+        
+        // BOSS SYSTEM
+        let boss = null;
+        
+        // DAILY EVENTS
+        let currentEvent = null;
+        const EVENTOS = [
+            { nombre: "☁️ Niebla Densa", efecto: "niebla", desc: "Visibilidad reducida" },
+            { nombre: "☠️ Lluvia Ácida", efecto: "acido", desc: "Daño fuera de base" },
+            { nombre: "⚡ Frenesí", efecto: "frenesi", desc: "Zombis más rápidos" },
+            { nombre: "💪 Horda Gigante", efecto: "horda", desc: "Más enemigos" },
+            { nombre: "🌙 Noche Eterna", efecto: "oscuro", desc: "Más oscuridad" }
+        ];
+        
+        // PERKS SYSTEM
+        let activePerks = [];
+        const PERKS = [
+            { id: 'explosivas', nombre: '💥 Balas Explosivas', desc: 'Daño en área al impactar', rarity: 'epic', icon: '💥' },
+            { id: 'vampirismo', nombre: '🧛 Vampirismo', desc: 'Cura 5 HP al matar', rarity: 'rare', icon: '🧛' },
+            { id: 'ingeniero', nombre: '🔧 Ingeniero', desc: 'Torretas se auto-reparan', rarity: 'common', icon: '🔧' },
+            { id: 'piesligeros', nombre: '👟 Pies Ligeros', desc: '+20% velocidad', rarity: 'common', icon: '👟' },
+            { id: 'armadura', nombre: '🛡️ Armadura', desc: '-25% daño recibido', rarity: 'rare', icon: '🛡️' },
+            { id: 'critico', nombre: '🎯 Golpe Crítico', desc: '20% chance 2x daño', rarity: 'rare', icon: '🎯' },
+            { id: 'regeneracion', nombre: '💚 Regeneración', desc: 'Recupera 1 HP/seg', rarity: 'epic', icon: '💚' },
+            { id: 'municion', nombre: '🔫 Munición Extra', desc: '+50% capacidad cargador', rarity: 'common', icon: '🔫' },
+            { id: 'berserker', nombre: '🔥 Berserker', desc: '+50% daño con poca vida', rarity: 'legendary', icon: '🔥' },
+            { id: 'imantado', nombre: '🧲 Imantado', desc: 'Loot se atrae al jugador', rarity: 'common', icon: '🧲' }
+        ];
 
         // INPUT
         let teclas = {};
@@ -407,34 +550,86 @@
         
         // ALCANCES
         const ALCANCE_CONSTRUCCION = 200;
-        const ALCANCE_PICO = 70; // Muy corto (Melee real)
+        const ALCANCE_PICO = 70;
+
+        // --- PERK SYSTEM ---
+        function hasPerk(id) { return activePerks.some(p => p.id === id); }
+        
+        function mostrarPerkSelection() {
+            perkModalOpen = true;
+            const modal = document.getElementById('perk-modal');
+            const cardsContainer = document.getElementById('perk-cards');
+            modal.style.display = 'flex';
+            
+            // Get 3 random perks
+            const available = PERKS.filter(p => !activePerks.some(ap => ap.id === p.id));
+            const selected = [];
+            for (let i = 0; i < 3 && available.length > 0; i++) {
+                const idx = Math.floor(Math.random() * available.length);
+                selected.push(available.splice(idx, 1)[0]);
+            }
+            
+            cardsContainer.innerHTML = '';
+            selected.forEach(perk => {
+                const card = document.createElement('div');
+                card.className = `perk-card perk-rarity-${perk.rarity}`;
+                card.innerHTML = `<div class="icon">${perk.icon}</div><h3>${perk.nombre}</h3><p>${perk.desc}</p>`;
+                card.onclick = () => selectPerk(perk);
+                cardsContainer.appendChild(card);
+            });
+        }
+        
+        function selectPerk(perk) {
+            activePerks.push(perk);
+            perkModalOpen = false;
+            document.getElementById('perk-modal').style.display = 'none';
+            
+            // Apply perk effects
+            if (perk.id === 'piesligeros') stats.velocidad = Math.min(stats.velocidad * 1.2, STAT_CAPS.velocidad);
+            if (perk.id === 'municion') scar.maxBalas = Math.floor(scar.maxBalas * 1.5);
+            
+            // Update active perks display
+            updateActivePerksUI();
+            mostrarNotificacion(`¡${perk.nombre} ACTIVADO!`);
+        }
+        
+        function updateActivePerksUI() {
+            const container = document.getElementById('active-perks');
+            container.innerHTML = activePerks.map(p => `<div class="active-perk">${p.icon} ${p.nombre.split(' ')[1]}</div>`).join('');
+        }
 
         // --- UTILIDADES ---
         function ganarXP(cantidad) {
-            // Apply combo multiplier
             const xpGanado = Math.floor(cantidad * combo.multiplier);
             xp += xpGanado;
             if(xp >= xpParaSiguiente) {
                 xp -= xpParaSiguiente; nivel++; xpParaSiguiente = Math.floor(xpParaSiguiente * 1.5);
-                vida = vidaMax; stats.picoDmg += 0.15; scar.damage += 0.3; // Reduced level bonuses
-                mostrarNotificacion(`¡NIVEL ${nivel}! (DAÑO AUMENTADO)`);
+                vida = vidaMax;
+                mostrarNotificacion(`¡NIVEL ${nivel}!`);
                 crearParticula(jugador.x, jugador.y, '#3498db', 'explosion');
+                // Show perk selection instead of auto stats
+                mostrarPerkSelection();
             }
             document.getElementById('xp-bar').style.width = (xp/xpParaSiguiente*100) + "%";
             document.getElementById('level-badge').textContent = "LVL " + nivel;
         }
         
-        // COMBO SYSTEM
         function actualizarCombo() {
             combo.count++;
             combo.timer = combo.maxTime;
-            combo.multiplier = 1 + Math.min(combo.count * 0.1, 2); // Max 3x multiplier
+            combo.multiplier = 1 + Math.min(combo.count * 0.1, 2);
             
             const comboDisplay = document.getElementById('combo-display');
             const comboMult = document.getElementById('combo-mult');
             if (comboDisplay && comboMult) {
                 comboMult.textContent = combo.multiplier.toFixed(1);
                 comboDisplay.classList.add('active');
+            }
+            
+            // Vampirism perk
+            if (hasPerk('vampirismo')) {
+                vida = Math.min(vidaMax, vida + 5);
+                mostrarTexto(jugador.x, jugador.y - 30, "+5 HP", "#c0392b");
             }
         }
         
@@ -451,6 +646,7 @@
         }
 
         function toggleShop() {
+            if (perkModalOpen) return;
             shopOpen = !shopOpen;
             document.getElementById('shop-modal').style.display = shopOpen ? 'block' : 'none';
             if(shopOpen) actualizarTiendaUI();
@@ -465,7 +661,6 @@
             document.getElementById('lvl-turret').textContent = stats.lvlTurret;
         }
         
-        // EXPONENTIAL COST CALCULATOR
         function calcularCosto(base, nivel, multiplicador = 1.5) {
             return Math.floor(base * Math.pow(multiplicador, nivel - 1));
         }
@@ -500,13 +695,19 @@
                 if (piedra >= costo) {
                     piedra -= costo; stats.lvlMuro++; stats.muroHpMult += 0.3;
                 }
+            } else if (item === 'recolector') {
+                if (madera >= 200 && piedra >= 100) {
+                    madera -= 200; piedra -= 100;
+                    mostrarNotificacion("Click en árbol/roca para colocar recolector");
+                    slotActivo = 7; // Special mode for placing collector
+                }
             }
             actualizarTiendaUI();
         }
 
         // --- INICIALIZACIÓN MUNDO ---
         function generarMundo() {
-            arboles = []; rocas = []; muros = []; enemigos = [];
+            arboles = []; rocas = []; muros = []; enemigos = []; trampas = []; minas = []; recolectores = [];
             for (let i = 0; i < 200; i++) spawnObjeto(arboles, 'arbol');
             for (let i = 0; i < 100; i++) spawnObjeto(rocas, 'roca');
         }
@@ -519,19 +720,21 @@
                 safety++;
             } while (dist < 400 && safety < 50);
 
-            if (tipo === 'arbol') array.push({ x, y, radio: 20 + Math.random()*15, vida: 5, maxVida: 5, activo: true, respawnDia: 0 });
-            if (tipo === 'roca') array.push({ x, y, ancho: 28, alto: 22, vida: 5, maxVida: 5, activo: true, respawnDia: 0 });
+            if (tipo === 'arbol') array.push({ x, y, radio: 20 + Math.random()*15, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 100 });
+            if (tipo === 'roca') array.push({ x, y, ancho: 28, alto: 22, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 80 });
         }
 
         // --- INPUT HANDLING ---
         window.addEventListener('keydown', (e) => {
-            if (gameOver) return;
+            if (gameOver || perkModalOpen) return;
             teclas[e.key.toLowerCase()] = true;
             if (e.key === '1') slotActivo = 0;
             if (e.key === '2') slotActivo = 1;
             if (e.key === '3') slotActivo = 2;
             if (e.key === '4') slotActivo = 3; 
             if (e.key === '5') slotActivo = 4;
+            if (e.key === '6') slotActivo = 5;
+            if (e.key === '7') slotActivo = 6;
             if (e.key.toLowerCase() === 'e') toggleShop();
             if (e.key.toLowerCase() === 'r') iniciarRecarga();
         });
@@ -546,19 +749,21 @@
         window.addEventListener('mouseup', () => mousePresionado = false);
         window.addEventListener('contextmenu', e => e.preventDefault());
         
-        // MOUSE WHEEL - Slot switching
+        // MOUSE WHEEL - Slot switching (7 slots now)
         window.addEventListener('wheel', (e) => {
-            if (gameOver || shopOpen) return;
+            if (gameOver || shopOpen || perkModalOpen) return;
             e.preventDefault();
             if (e.deltaY > 0) {
-                slotActivo = (slotActivo + 1) % 5;
+                slotActivo = (slotActivo + 1) % 7;
             } else {
-                slotActivo = (slotActivo - 1 + 5) % 5;
+                slotActivo = (slotActivo - 1 + 7) % 7;
             }
         }, { passive: false });
 
         // --- UPDATE LOOP ---
         function actualizar(dt) {
+            if (perkModalOpen) return; // Pause game during perk selection
+            
             if (screenshake > 0) screenshake = Math.max(0, screenshake * 0.9);
             
             // Combo decay
@@ -566,6 +771,20 @@
             
             // Loot updates
             actualizarLoot(dt);
+            
+            // Update recolectores
+            actualizarRecolectores(dt);
+            
+            // Regeneration perk
+            if (hasPerk('regeneracion') && vida < vidaMax) {
+                vida = Math.min(vidaMax, vida + dt / 1000);
+            }
+            
+            // Slow effect decay
+            if (jugador.slowed > 0) {
+                jugador.slowed -= dt;
+                document.getElementById('slow-indicator').style.display = jugador.slowed > 0 ? 'block' : 'none';
+            }
             
             // Cámara suave
             let shakeX = (Math.random() - 0.5) * screenshake;
@@ -595,10 +814,18 @@
                 if (restante <= 0) {
                     esNoche = true; 
                     tiempoJuego = 0; 
-                    mostrarNotificacion("¡HORDA NOCTURNA!"); 
+                    
+                    // BOSS every 5 days
+                    if (diaContador % 5 === 0) {
+                        spawnBoss();
+                        mostrarNotificacion("¡JEFE FINAL APARECIÓ!");
+                    } else {
+                        mostrarNotificacion("¡HORDA NOCTURNA!");
+                    }
+                    
                     timerBox.style.borderColor = "#e74c3c";
                     timerBox.style.color = "#e74c3c";
-                    spawnRate = 400; // Spawn muy rápido
+                    spawnRate = currentEvent?.efecto === 'horda' ? 200 : 400;
                 }
                 timerTitle.innerText = "PREPARACIÓN";
                 timerTitle.style.color = "#2ecc71";
@@ -610,26 +837,51 @@
                     esNoche = false; 
                     tiempoJuego = 0; 
                     diaContador++; 
+                    boss = null;
+                    document.getElementById('boss-hp-container').style.display = 'none';
+                    
+                    // Random event chance at dawn
+                    if (Math.random() < 0.4) {
+                        currentEvent = EVENTOS[Math.floor(Math.random() * EVENTOS.length)];
+                        document.getElementById('event-banner').style.display = 'block';
+                        document.getElementById('event-banner').textContent = `⚡ ${currentEvent.nombre}: ${currentEvent.desc}`;
+                        mostrarNotificacion(`EVENTO: ${currentEvent.nombre}`);
+                    } else {
+                        currentEvent = null;
+                        document.getElementById('event-banner').style.display = 'none';
+                    }
+                    
                     mostrarNotificacion(`DÍA ${diaContador} - ZONA SEGURA`);
                     timerBox.style.borderColor = "#fff";
                     timerBox.style.color = "#fff";
                     vida = Math.min(vidaMax, vida + 30);
-                    // Regeneración
-                    arboles.forEach(a => { if(!a.activo && diaContador >= a.respawnDia) { a.activo = true; a.vida = a.maxVida; crearParticula(a.x, a.y, '#2ecc71', 'explosion'); } });
-                    rocas.forEach(r => { if(!r.activo && diaContador >= r.respawnDia) { r.activo = true; r.vida = r.maxVida; crearParticula(r.x, r.y, '#95a5a6', 'explosion'); } });
+                    
+                    // Regeneración recursos
+                    arboles.forEach(a => { if(!a.activo && diaContador >= a.respawnDia) { a.activo = true; a.vida = a.maxVida; a.recursos = 100; crearParticula(a.x, a.y, '#2ecc71', 'explosion'); } });
+                    rocas.forEach(r => { if(!r.activo && diaContador >= r.respawnDia) { r.activo = true; r.vida = r.maxVida; r.recursos = 80; crearParticula(r.x, r.y, '#95a5a6', 'explosion'); } });
                 }
                 
-                timerTitle.innerText = "SOBREVIVE";
+                timerTitle.innerText = boss ? "¡JEFE!" : "SOBREVIVE";
                 timerTitle.style.color = "#e74c3c";
                 timerUI.innerText = (restante/1000).toFixed(1) + "s";
 
                 // Spawner
                 waveTimer += dt;
-                if (waveTimer > spawnRate) { 
+                const effectiveSpawnRate = currentEvent?.efecto === 'frenesi' ? spawnRate * 0.7 : spawnRate;
+                if (waveTimer > effectiveSpawnRate) { 
                     spawnEnemigo(); 
                     waveTimer = 0; 
-                    // Se acelera durante la noche
                     if (spawnRate > 200) spawnRate -= 10; 
+                }
+                
+                // Acid rain damage
+                if (currentEvent?.efecto === 'acido') {
+                    // Check if player is outside base (not near walls)
+                    const nearWall = muros.some(m => Math.hypot(jugador.x - m.x - 25, jugador.y - m.y - 25) < 100);
+                    if (!nearWall) {
+                        vida -= dt / 500; // Slow damage
+                        if (Math.random() < 0.1) crearParticula(jugador.x + (Math.random()-0.5)*30, jugador.y - 20, '#8e44ad', 'golpe');
+                    }
                 }
             }
 
@@ -671,6 +923,8 @@
             else if (slotActivo === 2) construirTorreta();
             else if (slotActivo === 3) dispararSCAR();
             else if (slotActivo === 4) intentarDemoler();
+            else if (slotActivo === 5) construirTrampa();
+            else if (slotActivo === 6) construirMina();
         }
 
         function dispararSCAR() {
@@ -681,8 +935,106 @@
             // Fogonazo visual
             crearParticula(jugador.x + Math.cos(jugador.angle)*30, jugador.y + Math.sin(jugador.angle)*30, '#ffff00', 'explosion');
 
-            const angle = jugador.angle + (Math.random() - 0.5) * 0.1; 
-            proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(angle) * 22, vy: Math.sin(angle) * 22, vida: 40, dmg: scar.damage, tipo: 'bala' });
+            const angle = jugador.angle + (Math.random() - 0.5) * 0.1;
+            
+            // Critical hit perk
+            let dmg = scar.damage;
+            if (hasPerk('critico') && Math.random() < 0.2) {
+                dmg *= 2;
+                mostrarTexto(jugador.x, jugador.y - 30, "¡CRÍTICO!", "#f1c40f");
+            }
+            
+            // Berserker perk
+            if (hasPerk('berserker') && vida < vidaMax * 0.3) {
+                dmg *= 1.5;
+            }
+            
+            proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(angle) * 22, vy: Math.sin(angle) * 22, vida: 40, dmg: dmg, tipo: 'bala', explosive: hasPerk('explosivas') });
+        }
+        
+        // SPIKE TRAP
+        function construirTrampa() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (madera < 30 || piedra < 20) { mostrarTexto(gx, gy, "30🌲 20🪨", "#e74c3c"); return; }
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) return;
+            if (trampas.some(t => t.x === gx && t.y === gy)) return;
+            if (muros.some(m => m.x === gx && m.y === gy)) return;
+            
+            trampas.push({ x: gx, y: gy, damage: 2, cooldown: 0 });
+            madera -= 30; piedra -= 20;
+            crearParticula(gx+25, gy+25, '#95a5a6', 'explosion');
+            mostrarTexto(gx, gy, "TRAMPA", "#95a5a6");
+        }
+        
+        // PROXIMITY MINE
+        function construirMina() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (piedra < 60) { mostrarTexto(gx, gy, "60🪨", "#e74c3c"); return; }
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) return;
+            if (minas.some(m => m.x === gx && m.y === gy)) return;
+            
+            minas.push({ x: gx, y: gy, radio: 80, damage: 50 });
+            piedra -= 60;
+            crearParticula(gx+25, gy+25, '#e74c3c', 'explosion');
+            mostrarTexto(gx, gy, "MINA", "#e74c3c");
+        }
+        
+        // BOSS SPAWN
+        function spawnBoss() {
+            const bossTypes = [
+                { nombre: "TITÁN PÚTRIDO", color: '#4a0e0e', hp: 500 * diaContador, radio: 80, velocidad: 0.8, dmg: 5 },
+                { nombre: "GOLEM ANCESTRAL", color: '#1a3a1a', hp: 800 * diaContador, radio: 100, velocidad: 0.5, dmg: 8 },
+                { nombre: "BESTIA DE LA NOCHE", color: '#2c1654', hp: 400 * diaContador, radio: 60, velocidad: 1.5, dmg: 3 }
+            ];
+            const bossType = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+            
+            let ex, ey;
+            do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; } 
+            while(Math.hypot(ex-jugador.x, ey-jugador.y) < 600);
+            
+            boss = {
+                x: ex, y: ey,
+                ...bossType,
+                maxHp: bossType.hp,
+                angle: 0, hitFlash: 0, tipo: 'boss'
+            };
+            
+            enemigos.push(boss);
+            document.getElementById('boss-hp-container').style.display = 'block';
+            document.getElementById('boss-name').textContent = `👹 ${boss.nombre}`;
+        }
+        
+        // RECOLECTOR AUTOMÁTICO
+        function actualizarRecolectores(dt) {
+            recolectores.forEach(rec => {
+                if (!rec.target || !rec.target.activo || rec.target.recursos <= 0) {
+                    // Find new target
+                    rec.target = [...arboles, ...rocas].find(r => 
+                        r.activo && r.recursos > 0 && Math.hypot(rec.x - r.x, rec.y - r.y) < 50
+                    );
+                }
+                
+                if (rec.target && rec.target.recursos > 0) {
+                    rec.cooldown -= dt;
+                    if (rec.cooldown <= 0) {
+                        rec.cooldown = 1000; // 1 resource per second
+                        rec.target.recursos--;
+                        
+                        if (rec.target.radio) { // Es árbol
+                            madera += 1;
+                        } else { // Es roca
+                            piedra += 1;
+                        }
+                        
+                        crearParticula(rec.x + 25, rec.y + 15, rec.target.radio ? '#2ecc71' : '#95a5a6', 'golpe');
+                        
+                        if (rec.target.recursos <= 0) {
+                            rec.target.activo = false;
+                            rec.target.respawnDia = diaContador + DIAS_PARA_REGENERAR;
+                        }
+                    }
+                }
+            });
         }
 
         function usarPico() {
@@ -779,42 +1131,97 @@
             if (enemigos.length >= 100) return;
 
             let ex, ey, dist, att = 0;
-            // Spawn lejos del jugador pero no infinito
             do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; dist = Math.hypot(ex-jugador.x, ey-jugador.y); att++; } while(dist < 500 && att < 10);
             
-            // AGGRESSIVE SCALING - HP and damage scale exponentially with days
-            const hpScale = Math.pow(1.4, diaContador - 1); // 40% more HP each day
-            const dmgScale = 1 + (diaContador - 1) * 0.2; // 20% more damage each day
+            // AGGRESSIVE SCALING
+            const hpScale = Math.pow(1.4, diaContador - 1);
+            const dmgScale = 1 + (diaContador - 1) * 0.2;
+            const velScale = currentEvent?.efecto === 'frenesi' ? 1.3 : 1;
             
             // Variantes
             let r = Math.random();
-            let tipo = 'caminante', col = '#779977', rad = 18, vel = 1.2, hp = Math.floor((5 + diaContador * 3) * hpScale), xpR = 15, dmg = 0.5 * dmgScale;
+            let tipo = 'caminante', col = '#779977', rad = 18, vel = 1.2 * velScale, hp = Math.floor((5 + diaContador * 3) * hpScale), xpR = 15, dmg = 0.5 * dmgScale;
+            let armadura = 0; // Damage reduction
             
-            if (diaContador >= 2 && r < 0.25) { // Runner - more common
-                tipo = 'corredor'; col = '#c0392b'; vel = 3.5; hp = Math.floor(hp * 0.5); rad = 14; xpR = 25; dmg *= 0.8;
-            } else if (diaContador >= 3 && r > 0.85) { // Tank - earlier and more common
-                tipo = 'tanque'; col = '#2c3e50'; vel = 0.5; hp = Math.floor(hp * 6); rad = 35; xpR = 70; dmg *= 2;
-            } else if (diaContador >= 3 && r > 0.7 && r <= 0.85) { // Tóxico
-                tipo = 'toxico'; col = '#00ff00'; vel = 1.0; hp = Math.floor(hp * 1.3); rad = 20; xpR = 30;
-            } else if (diaContador >= 4 && r > 0.55 && r <= 0.7) { // Explosivo - earlier
-                tipo = 'explosivo'; col = '#f39c12'; vel = 2.0; hp = Math.floor(hp * 0.4); rad = 18; xpR = 40; dmg *= 3;
+            if (diaContador >= 2 && r < 0.20) { // Runner
+                tipo = 'corredor'; col = '#c0392b'; vel = 3.5 * velScale; hp = Math.floor(hp * 0.5); rad = 14; xpR = 25; dmg *= 0.8;
+            } else if (diaContador >= 3 && r >= 0.20 && r < 0.30) { // Tank
+                tipo = 'tanque'; col = '#2c3e50'; vel = 0.5 * velScale; hp = Math.floor(hp * 6); rad = 35; xpR = 70; dmg *= 2;
+            } else if (diaContador >= 3 && r >= 0.30 && r < 0.40) { // Tóxico
+                tipo = 'toxico'; col = '#00ff00'; vel = 1.0 * velScale; hp = Math.floor(hp * 1.3); rad = 20; xpR = 30;
+            } else if (diaContador >= 4 && r >= 0.40 && r < 0.50) { // Explosivo
+                tipo = 'explosivo'; col = '#f39c12'; vel = 2.0 * velScale; hp = Math.floor(hp * 0.4); rad = 18; xpR = 40; dmg *= 3;
+            } else if (diaContador >= 5 && r >= 0.50 && r < 0.60) { // ICE GOLEM - NEW
+                tipo = 'hielo'; col = '#00bcd4'; vel = 0.7 * velScale; hp = Math.floor(hp * 4); rad = 30; xpR = 60; dmg *= 1.2;
+            } else if (diaContador >= 6 && r >= 0.60 && r < 0.70) { // ARMORED KNIGHT - NEW
+                tipo = 'armado'; col = '#607d8b'; vel = 1.0 * velScale; hp = Math.floor(hp * 2); rad = 22; xpR = 50; dmg *= 1.5;
+                armadura = 0.5; // 50% damage reduction until armor breaks
             }
             
-            enemigos.push({ x: ex, y: ey, velocidad: vel, radio: rad, hp: hp, maxHp: hp, color: col, tipo: tipo, angle: 0, xpReward: xpR, dmg: dmg, hitFlash: 0 });
+            enemigos.push({ 
+                x: ex, y: ey, velocidad: vel, radio: rad, hp: hp, maxHp: hp, 
+                color: col, tipo: tipo, angle: 0, xpReward: xpR, dmg: dmg, 
+                hitFlash: 0, armadura: armadura, armorHp: armadura > 0 ? hp * 0.3 : 0 
+            });
         }
 
         function actualizarEntidades(dt) {
             // Limit projectiles to prevent memory issues
             if (proyectiles.length > 100) proyectiles.splice(0, 30);
             
+            // UPDATE TRAPS - damage enemies walking over them
+            trampas.forEach(trap => {
+                trap.cooldown -= dt;
+                if (trap.cooldown <= 0) {
+                    enemigos.forEach(e => {
+                        if (e.x > trap.x && e.x < trap.x + 50 && e.y > trap.y && e.y < trap.y + 50) {
+                            e.hp -= trap.damage;
+                            e.hitFlash = 100;
+                            crearParticula(e.x, e.y, '#95a5a6', 'golpe');
+                            trap.cooldown = 500; // Damage every 0.5s
+                        }
+                    });
+                }
+            });
+            
+            // UPDATE MINES - explode on contact
+            for (let i = minas.length - 1; i >= 0; i--) {
+                const mina = minas[i];
+                for (const e of enemigos) {
+                    if (Math.hypot(e.x - (mina.x + 25), e.y - (mina.y + 25)) < 40) {
+                        // BOOM!
+                        crearParticula(mina.x + 25, mina.y + 25, '#e74c3c', 'explosion');
+                        crearParticula(mina.x + 25, mina.y + 25, '#f39c12', 'explosion');
+                        screenshake = 10;
+                        
+                        // Damage all enemies in radius
+                        enemigos.forEach(en => {
+                            const dist = Math.hypot(en.x - (mina.x + 25), en.y - (mina.y + 25));
+                            if (dist < mina.radio) {
+                                const dmg = mina.damage * (1 - dist / mina.radio);
+                                en.hp -= dmg;
+                                en.hitFlash = 150;
+                                mostrarTexto(en.x, en.y - 20, Math.floor(dmg), 'orange');
+                            }
+                        });
+                        
+                        minas.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            
             for (let i = enemigos.length - 1; i >= 0; i--) {
                 const e = enemigos[i];
-                if (!e) continue; // Guard against undefined
+                if (!e) continue;
                 e.angle = Math.atan2(jugador.y - e.y, jugador.x - e.x);
                 let vx = Math.cos(e.angle) * e.velocidad, vy = Math.sin(e.angle) * e.velocidad;
                 
                 // Efecto Tóxico (Partículas)
                 if (e.tipo === 'toxico' && Math.random() < 0.1) crearParticula(e.x, e.y, '#00ff00', 'golpe');
+                
+                // Ice effect particles
+                if (e.tipo === 'hielo' && Math.random() < 0.1) crearParticula(e.x, e.y, '#00bcd4', 'golpe');
 
                 // Colisiones
                 let col = false;
@@ -825,7 +1232,7 @@
                             if (e.x+e.radio > o.x && e.x-e.radio < o.x+50 && e.y+e.radio > o.y && e.y-e.radio < o.y+50) {
                                 e.x -= vx*2; e.y -= vy*2;
                                 let dmg = e.tipo === 'tanque' ? 2 : 0.5;
-                                if (e.tipo === 'explosivo') { dmg = 20; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); } // Kamikaze
+                                if (e.tipo === 'explosivo') { dmg = 20; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); }
                                 o.vida -= dmg; crearParticula(o.x+25, o.y+25, '#fff', 'golpe');
                                 if (o.vida <= 0) arr.splice(j, 1);
                                 return true;
@@ -844,14 +1251,28 @@
                 }
 
                 if (Math.hypot(jugador.x - e.x, jugador.y - e.y) < jugador.radio + e.radio) {
-                    let dmg = 0.5;
-                    if (e.tipo === 'tanque') dmg = 1.5;
-                    if (e.tipo === 'explosivo') { dmg = 15; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); } // Explota al tocar jugador
-                    vida -= dmg; screenshake = 5; crearParticula(jugador.x, jugador.y, 'red', 'golpe');
+                    let playerDmg = e.dmg || 0.5;
+                    if (e.tipo === 'tanque') playerDmg = 1.5;
+                    if (e.tipo === 'explosivo') { playerDmg = 15; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); }
+                    
+                    // ICE GOLEM slows player
+                    if (e.tipo === 'hielo') {
+                        jugador.slowed = 2000; // 2 seconds slow
+                        stats.velocidad = Math.max(2, stats.velocidad * 0.5);
+                        setTimeout(() => stats.velocidad = Math.min(STAT_CAPS.velocidad, stats.velocidad * 2), 2000);
+                    }
+                    
+                    // Armor perk reduces damage
+                    if (hasPerk('armadura')) playerDmg *= 0.75;
+                    
+                    vida -= playerDmg; screenshake = 5; crearParticula(jugador.x, jugador.y, 'red', 'golpe');
                     if (vida <= 0) { gameOver = true; document.getElementById('death-stats').textContent = `Días: ${diaContador} (Lvl ${nivel})`; document.getElementById('gameOverScreen').style.display = 'block'; }
                 }
-
-                // Explosive area damage is handled separately to avoid array mutation during iteration
+            }
+            
+            // Update boss HP bar
+            if (boss && boss.hp > 0) {
+                document.getElementById('boss-hp-fill').style.width = (boss.hp / boss.maxHp * 100) + '%';
             }
             
             // Process explosive deaths separately to avoid array mutation issues
@@ -863,7 +1284,7 @@
                 }
             }
             
-            // Apply area damage from explosives (without modifying array during iteration)
+            // Apply area damage from explosives
             explosivesToProcess.forEach(exp => {
                 enemigos.forEach(other => {
                     if (other.hp > 0 && Math.hypot(exp.x - other.x, exp.y - other.y) < 100) {
@@ -874,7 +1295,7 @@
                 });
             });
             
-            // Clean up dead enemies after all damage is applied
+            // Clean up dead enemies
             for (let i = enemigos.length - 1; i >= 0; i--) {
                 const e = enemigos[i];
                 if (e.hp <= 0) {
@@ -882,6 +1303,17 @@
                     crearParticula(e.x, e.y, 'red', 'explosion');
                     ganarXP(e.xpReward);
                     actualizarCombo();
+                    
+                    // Check if boss died
+                    if (e === boss) {
+                        boss = null;
+                        document.getElementById('boss-hp-container').style.display = 'none';
+                        mostrarNotificacion("¡JEFE DERROTADO!");
+                        // Bonus loot for boss
+                        for (let l = 0; l < 5; l++) {
+                            lootDrops.push({ x: e.x + (Math.random()-0.5)*50, y: e.y + (Math.random()-0.5)*50, type: Math.random() < 0.5 ? 'health' : 'ammo', timer: 15000 });
+                        }
+                    }
                     
                     // LOOT DROP CHANCE
                     if (Math.random() < 0.15) {
@@ -891,6 +1323,13 @@
                     
                     enemigos.splice(i, 1);
                 }
+            }
+
+            // Engineer perk - turrets auto-repair
+            if (hasPerk('ingeniero')) {
+                torretas.forEach(t => {
+                    if (t.vida < 100) t.vida = Math.min(100, t.vida + dt / 100);
+                });
             }
 
             torretas.forEach(t => {
@@ -910,7 +1349,24 @@
                 let hit = false;
                 for (let j = enemigos.length-1; j >= 0; j--) {
                     const e = enemigos[j];
-                    if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { dañarEnemigo(e, j, p.dmg); crearParticula(e.x, e.y, '#f1c40f', 'explosion'); hit = true; break; }
+                    if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { 
+                        dañarEnemigo(e, j, p.dmg); 
+                        crearParticula(e.x, e.y, '#f1c40f', 'explosion'); 
+                        
+                        // Explosive bullets perk
+                        if (p.explosive) {
+                            enemigos.forEach(other => {
+                                if (other !== e && Math.hypot(other.x - e.x, other.y - e.y) < 60) {
+                                    dañarEnemigo(other, -1, p.dmg * 0.5);
+                                    crearParticula(other.x, other.y, '#f39c12', 'explosion');
+                                }
+                            });
+                            screenshake = 5;
+                        }
+                        
+                        hit = true; 
+                        break; 
+                    }
                 }
                 if (hit || p.vida <= 0) proyectiles.splice(i, 1);
             }
@@ -922,10 +1378,21 @@
         }
 
         function dañarEnemigo(e, index, daño) {
-            if (!e || e.hp <= 0) return; // Guard against null/already dead enemies
+            if (!e || e.hp <= 0) return;
+            
+            // Armored knight damage reduction
+            if (e.armadura > 0 && e.armorHp > 0) {
+                e.armorHp -= daño;
+                daño *= (1 - e.armadura); // Reduce damage
+                if (e.armorHp <= 0) {
+                    e.armadura = 0;
+                    mostrarTexto(e.x, e.y - 30, "¡ARMADURA ROTA!", "#607d8b");
+                    crearParticula(e.x, e.y, '#607d8b', 'explosion');
+                }
+            }
             
             e.hp -= daño; 
-            e.hitFlash = 150; // White flash for 150ms
+            e.hitFlash = 150;
             mostrarTexto(e.x, e.y-20, Math.floor(daño), 'white');
             e.x -= Math.cos(e.angle || 0)*5; 
             e.y -= Math.sin(e.angle || 0)*5;
@@ -940,6 +1407,16 @@
                 const loot = lootDrops[i];
                 loot.timer -= dt;
                 if (loot.timer <= 0) { lootDrops.splice(i, 1); continue; }
+                
+                // IMANTADO perk - loot attracted to player
+                if (hasPerk('imantado')) {
+                    const dist = Math.hypot(jugador.x - loot.x, jugador.y - loot.y);
+                    if (dist < 200) {
+                        const angle = Math.atan2(jugador.y - loot.y, jugador.x - loot.x);
+                        loot.x += Math.cos(angle) * 3;
+                        loot.y += Math.sin(angle) * 3;
+                    }
+                }
                 
                 // Check pickup
                 if (Math.hypot(jugador.x - loot.x, jugador.y - loot.y) < 30) {
@@ -1011,6 +1488,60 @@
             });
 
             torretas.forEach(t => { if(!isVis(t, 50)) return; ctx.fillStyle = '#95a5a6'; ctx.fillRect(t.x+10, t.y+10, 30, 30); ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(t.x+25, t.y+25, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(t.x+25, t.y+25, 6, 0, Math.PI*2); ctx.fill(); });
+            
+            // --- SPIKE TRAPS ---
+            trampas.forEach(t => {
+                if(!isVis(t, 50)) return;
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(t.x + 5, t.y + 5, 40, 40);
+                // Spikes
+                ctx.fillStyle = '#888';
+                for (let sx = 0; sx < 3; sx++) {
+                    for (let sy = 0; sy < 3; sy++) {
+                        ctx.beginPath();
+                        ctx.moveTo(t.x + 12 + sx * 13, t.y + 10 + sy * 13);
+                        ctx.lineTo(t.x + 15 + sx * 13, t.y + 5 + sy * 13);
+                        ctx.lineTo(t.x + 18 + sx * 13, t.y + 10 + sy * 13);
+                        ctx.fill();
+                    }
+                }
+            });
+            
+            // --- PROXIMITY MINES ---
+            minas.forEach(m => {
+                if(!isVis(m, 50)) return;
+                const pulse = 1 + Math.sin(Date.now() / 300) * 0.1;
+                ctx.save();
+                ctx.translate(m.x + 25, m.y + 25);
+                ctx.scale(pulse, pulse);
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
+                // Blinking light
+                if (Date.now() % 1000 < 500) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+            });
+            
+            // --- RECOLECTORES AUTOMÁTICOS ---
+            recolectores.forEach(rec => {
+                if(!isVis(rec, 50)) return;
+                ctx.fillStyle = '#795548';
+                ctx.fillRect(rec.x + 10, rec.y + 10, 30, 30);
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath(); ctx.arc(rec.x + 25, rec.y + 25, 10, 0, Math.PI * 2); ctx.fill();
+                // Rotating arm animation
+                const angle = Date.now() / 500;
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(rec.x + 25, rec.y + 25);
+                ctx.lineTo(rec.x + 25 + Math.cos(angle) * 12, rec.y + 25 + Math.sin(angle) * 12);
+                ctx.stroke();
+            });
 
             arboles.forEach(a => {
                 if(!isVis(a, 30)) return;
@@ -1051,7 +1582,7 @@
 
             // --- ZOMBIES DETALLADOS ---
             enemigos.forEach(e => {
-                if(!isVis(e, 50)) return;
+                if(!isVis(e, e.tipo === 'boss' ? 150 : 50)) return;
                 
                 // Decay hit flash
                 if (e.hitFlash > 0) e.hitFlash -= 16;
@@ -1065,13 +1596,15 @@
                     ctx.shadowBlur = 20; ctx.shadowColor = '#ffffff';
                 }
                 
-                // Cuerpo with shadow for depth
+                // Special effects for new enemy types
                 ctx.fillStyle = baseColor; 
                 if (e.tipo === 'toxico') { ctx.shadowBlur = 10; ctx.shadowColor = '#00ff00'; }
                 if (e.tipo === 'explosivo') { baseColor = `hsl(${Date.now()%360}, 70%, 50%)`; ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : baseColor; }
+                if (e.tipo === 'hielo') { ctx.shadowBlur = 15; ctx.shadowColor = '#00bcd4'; }
+                if (e.tipo === 'boss') { ctx.shadowBlur = 30; ctx.shadowColor = e.color; }
 
                 ctx.beginPath(); 
-                if (e.tipo === 'tanque') ctx.rect(-e.radio, -e.radio, e.radio*2, e.radio*2);
+                if (e.tipo === 'tanque' || e.tipo === 'boss') ctx.rect(-e.radio, -e.radio, e.radio*2, e.radio*2);
                 else ctx.arc(0, 0, e.radio, 0, Math.PI*2); 
                 ctx.fill(); ctx.shadowBlur = 0;
 
@@ -1080,9 +1613,53 @@
                     ctx.fillStyle = 'rgba(0,0,0,0.25)';
                     ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.7, 0, Math.PI*2); ctx.fill();
                     
+                    // ICE GOLEM - ice crystals
+                    if (e.tipo === 'hielo') {
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        for (let i = 0; i < 5; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(Math.cos(i*1.2)*e.radio*0.8, Math.sin(i*1.2)*e.radio*0.8);
+                            ctx.lineTo(Math.cos(i*1.2+0.3)*e.radio*0.5, Math.sin(i*1.2+0.3)*e.radio*0.5);
+                            ctx.lineTo(Math.cos(i*1.2-0.3)*e.radio*0.5, Math.sin(i*1.2-0.3)*e.radio*0.5);
+                            ctx.fill();
+                        }
+                    }
+                    
+                    // ARMORED KNIGHT - armor plates
+                    if (e.tipo === 'armado') {
+                        if (e.armadura > 0) {
+                            ctx.strokeStyle = '#90a4ae';
+                            ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.9, 0, Math.PI*2); ctx.stroke();
+                            // Helmet
+                            ctx.fillStyle = '#78909c';
+                            ctx.fillRect(-8, -e.radio * 0.6, 16, 8);
+                        }
+                    }
+                    
+                    // BOSS - special details
+                    if (e.tipo === 'boss') {
+                        ctx.fillStyle = 'rgba(200,0,0,0.3)';
+                        ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.5, 0, Math.PI*2); ctx.fill();
+                        // Horns
+                        ctx.fillStyle = '#333';
+                        ctx.beginPath();
+                        ctx.moveTo(-e.radio*0.5, -e.radio);
+                        ctx.lineTo(-e.radio*0.3, -e.radio*1.4);
+                        ctx.lineTo(-e.radio*0.1, -e.radio);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(e.radio*0.5, -e.radio);
+                        ctx.lineTo(e.radio*0.3, -e.radio*1.4);
+                        ctx.lineTo(e.radio*0.1, -e.radio);
+                        ctx.fill();
+                    }
+                    
                     // Torn clothes effect
-                    ctx.fillStyle = 'rgba(80,60,40,0.3)';
-                    ctx.beginPath(); ctx.arc(-3, 5, e.radio * 0.3, 0, Math.PI*2); ctx.fill();
+                    if (!['hielo', 'armado', 'boss'].includes(e.tipo)) {
+                        ctx.fillStyle = 'rgba(80,60,40,0.3)';
+                        ctx.beginPath(); ctx.arc(-3, 5, e.radio * 0.3, 0, Math.PI*2); ctx.fill();
+                    }
                 }
 
                 // Brazos
@@ -1092,10 +1669,10 @@
 
                 // Ojos
                 if (e.hitFlash <= 0) {
-                    ctx.fillStyle = 'white'; 
+                    ctx.fillStyle = e.tipo === 'hielo' ? '#00bcd4' : 'white'; 
                     ctx.beginPath(); ctx.arc(5, 5, 3, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(5, -5, 3, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = 'red';
+                    ctx.fillStyle = e.tipo === 'hielo' ? '#fff' : 'red';
                     ctx.beginPath(); ctx.arc(6, 5, 1.5, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(6, -5, 1.5, 0, Math.PI*2); ctx.fill();
                 }
@@ -1108,7 +1685,17 @@
                 ctx.restore();
                 
                 // Vida
-                if(e.hp < e.maxHp) { ctx.fillStyle = 'red'; ctx.fillRect(e.x-15, e.y-35, 30, 4); ctx.fillStyle = '#2ecc71'; ctx.fillRect(e.x-15, e.y-35, 30*(e.hp/e.maxHp), 4); }
+                const hpBarWidth = e.tipo === 'boss' ? 80 : 30;
+                if(e.hp < e.maxHp && e.tipo !== 'boss') { 
+                    ctx.fillStyle = 'red'; ctx.fillRect(e.x-hpBarWidth/2, e.y-35, hpBarWidth, 4); 
+                    ctx.fillStyle = '#2ecc71'; ctx.fillRect(e.x-hpBarWidth/2, e.y-35, hpBarWidth*(e.hp/e.maxHp), 4); 
+                }
+                
+                // Armor bar for armored knight
+                if (e.tipo === 'armado' && e.armadura > 0 && e.armorHp > 0) {
+                    ctx.fillStyle = '#607d8b'; ctx.fillRect(e.x-15, e.y-40, 30, 3);
+                    ctx.fillStyle = '#90a4ae'; ctx.fillRect(e.x-15, e.y-40, 30*(e.armorHp/(e.maxHp*0.3)), 3);
+                }
             });
 
             ctx.fillStyle = '#f39c12'; proyectiles.forEach(p => { if(isVis(p, 10)) { ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); } });
@@ -1134,18 +1721,24 @@
             ctx.restore();
 
             // Cursor Construcción/Demolición
-            if (slotActivo === 1 || slotActivo === 2 || slotActivo === 4) {
+            if ([1, 2, 4, 5, 6].includes(slotActivo)) {
                 const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
                 const distOk = Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) <= ALCANCE_CONSTRUCCION;
                 
-                if (slotActivo === 4) { // Martillo
-                    if (muros.some(m=>m.x===gx&&m.y===gy) || torretas.some(t=>t.x===gx&&t.y===gy)) {
+                if (slotActivo === 4) { // Martillo demoler
+                    if (muros.some(m=>m.x===gx&&m.y===gy) || torretas.some(t=>t.x===gx&&t.y===gy) || trampas.some(t=>t.x===gx&&t.y===gy) || minas.some(m=>m.x===gx&&m.y===gy)) {
                         ctx.strokeStyle = 'red'; ctx.lineWidth=3; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
                         ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx+50, gy+50); ctx.moveTo(gx+50, gy); ctx.lineTo(gx, gy+50); ctx.stroke();
                     } else if (distOk) {
                          ctx.strokeStyle = 'rgba(255,0,0,0.3)'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
                     }
-                } else { // Construir
+                } else if (slotActivo === 5) { // Trampa
+                    ctx.fillStyle = distOk ? 'rgba(150,150,150,0.5)' : 'rgba(200,50,50,0.5)';
+                    ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#888'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                } else if (slotActivo === 6) { // Mina
+                    ctx.fillStyle = distOk ? 'rgba(200,50,50,0.5)' : 'rgba(100,50,50,0.3)';
+                    ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#e74c3c'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                } else { // Muro o Torreta
                     ctx.fillStyle = distOk ? (slotActivo===1?'rgba(100,200,100,0.5)':'rgba(255,200,0,0.5)') : 'rgba(200,50,50,0.5)';
                     ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = 'white'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
                 }
@@ -1178,6 +1771,19 @@
                 lightGrd.addColorStop(1, "rgba(0,0,0,0)");
                 ctx.fillStyle = lightGrd; ctx.fillRect(0,0,canvas.width, canvas.height);
             }
+            
+            // FOG EVENT
+            if (currentEvent?.efecto === 'niebla') {
+                ctx.fillStyle = 'rgba(200,200,200,0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // DARKNESS EVENT
+            if (currentEvent?.efecto === 'oscuro' && !esNoche) {
+                ctx.fillStyle = 'rgba(0,0,20,0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
             dibujarHUD();
         }
 
@@ -1186,7 +1792,8 @@
             ctx.fillStyle = '#fff'; ctx.font = "bold 16px Segoe UI"; ctx.textAlign = "left";
             ctx.fillText(`🌲 ${Math.floor(madera)}`, 25, 40); ctx.fillText(`🪨 ${Math.floor(piedra)}`, 110, 40);
             ctx.font = "12px Segoe UI"; ctx.fillStyle = esNoche ? "#e74c3c" : "#2ecc71";
-            ctx.fillText(esNoche ? "PELIGRO" : "SEGURO", 25, 70);
+            ctx.fillText(esNoche ? "PELIGRO" : "SEGURO", 25, 60);
+            ctx.fillStyle = '#3498db'; ctx.fillText(`DÍA ${diaContador}`, 25, 75);
 
             const w = Math.min(400, canvas.width - 40), x = canvas.width/2 - w/2, y = canvas.height - 80;
             ctx.fillStyle = '#222'; ctx.fillRect(x, y, w, 25);
@@ -1195,55 +1802,56 @@
             ctx.fillStyle = '#fff'; ctx.textAlign = "center"; ctx.font = "bold 14px Arial"; 
             ctx.fillText(`${Math.floor(vida)} / ${vidaMax}`, canvas.width/2, y + 18);
             
-            const sx = canvas.width/2 - 175, sy = canvas.height - 140;
-            dibujarSlot(sx, sy, 0, "1", slotActivo===0); 
-            dibujarSlot(sx+70, sy, 1, "2", slotActivo===1); 
-            dibujarSlot(sx+140, sy, 2, "3", slotActivo===2);
-            dibujarSlot(sx+210, sy, 3, "4", slotActivo===3);
-            dibujarSlot(sx+280, sy, 4, "5", slotActivo===4);
+            // 7 slots now
+            const slotWidth = 50;
+            const totalWidth = slotWidth * 7 + 5 * 6;
+            const sx = canvas.width/2 - totalWidth/2, sy = canvas.height - 135;
+            
+            for (let i = 0; i < 7; i++) {
+                dibujarSlot(sx + i * (slotWidth + 5), sy, i, String(i + 1), slotActivo === i);
+            }
             
             if (slotActivo === 3) {
-                ctx.fillStyle = scar.balas > 5 ? '#f1c40f' : 'red'; ctx.font = "bold 16px Arial";
-                ctx.fillText(`${scar.balas}/${scar.maxBalas}`, sx + 240, sy + 70);
+                ctx.fillStyle = scar.balas > 5 ? '#f1c40f' : 'red'; ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(`${scar.balas}/${scar.maxBalas}`, canvas.width/2, sy + 60);
             }
         }
         
         function dibujarSlot(x, y, i, k, a) {
-            // Enhanced active slot indicator
             if (a) {
-                // Glow effect for active slot
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = '#f1c40f';
             }
             
             ctx.fillStyle = a ? 'rgba(255,220,100,0.4)' : 'rgba(0,0,0,0.6)'; 
             ctx.strokeStyle = a ? '#f1c40f' : '#555'; 
-            ctx.lineWidth = a ? 4 : 1;
-            ctx.fillRect(x, y, 60, 50); 
-            ctx.strokeRect(x, y, 60, 50);
+            ctx.lineWidth = a ? 3 : 1;
+            ctx.fillRect(x, y, 50, 45); 
+            ctx.strokeRect(x, y, 50, 45);
             
-            // Double border for active
             if (a) {
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 1;
-                ctx.strokeRect(x + 2, y + 2, 56, 46);
+                ctx.strokeRect(x + 2, y + 2, 46, 41);
             }
             
             ctx.shadowBlur = 0;
             ctx.fillStyle = a ? '#f1c40f' : 'white'; 
             ctx.textAlign = "center"; 
-            ctx.font = a ? "bold 16px Arial" : "bold 14px Arial"; 
-            ctx.fillText(k, x + 30, y + 30);
-            ctx.font = "10px Arial"; 
+            ctx.font = a ? "bold 14px Arial" : "bold 12px Arial"; 
+            ctx.fillText(k, x + 25, y + 22);
+            ctx.font = "8px Arial"; 
             ctx.fillStyle = a ? "#fff" : "#aaa";
-            const names = ["PICO", "MURO", "TORRE", "SCAR", "DEMO"];
-            ctx.fillText(names[i], x + 30, y + 45);
+            const names = ["PICO", "MURO", "TORRE", "SCAR", "DEMO", "TRAP", "MINA"];
+            ctx.fillText(names[i], x + 25, y + 38);
         }
 
         let lastTime = 0;
         function loop(timestamp) {
             const dt = timestamp - lastTime; lastTime = timestamp;
-            if (gameStarted && !gameOver) { actualizar(dt); dibujar(); }
+            if (gameStarted && !gameOver && !perkModalOpen) { actualizar(dt); dibujar(); }
+            else if (gameStarted && !gameOver && perkModalOpen) { dibujar(); } // Still draw but don't update
             requestAnimationFrame(loop);
         }
         
