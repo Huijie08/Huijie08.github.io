@@ -2490,7 +2490,14 @@
             iniciarPartida();
         });
         
-        generarMundo(); requestAnimationFrame(loop);
+        generarMundo(); 
+        
+        // Auto-start the game directly (skip menu)
+        setTimeout(function() {
+            iniciarPartida();
+        }, 100);
+        
+        requestAnimationFrame(loop);
     </script>
 </body>
 </html>
