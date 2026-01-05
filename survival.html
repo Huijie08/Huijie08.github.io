@@ -600,8 +600,8 @@
         let spritesLoaded = 0;
         
         // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
-        const SENIOR_P_FIXED_WIDTH = 130;
-        const SENIOR_P_FIXED_HEIGHT = 180;
+        const SENIOR_P_FIXED_WIDTH = 180;
+        const SENIOR_P_FIXED_HEIGHT = 240;
         
         // Load all Senior P sprites
         spriteNames.forEach(name => {
@@ -1214,7 +1214,7 @@
                         seniorPAttack.gaussAreas.push({
                             x: targetX,
                             y: targetY,
-                            radio: 90,
+                            radio: 150,
                             warningTime: i * 350 + 300, // Time before explosion
                             exploded: false
                         });
@@ -1243,7 +1243,7 @@
                         const poolY = jugador.y + (Math.random() - 0.5) * 350;
                         seniorPAttack.acidPools.push({
                             x: poolX, y: poolY,
-                            radio: 70,
+                            radio: 120,
                             timer: 10000,
                             damage: 1.0
                         });
@@ -1272,26 +1272,26 @@
                             x: boss.x + Math.cos(wallAngle) * wallDist,
                             y: boss.y + Math.sin(wallAngle) * wallDist,
                             angle: wallAngle + Math.PI/2,
-                            width: 140,
+                            width: 180,
                             timer: 8000
                         });
                     }
                     break;
                     
                 case 'funcions': // Spawn Minions
-                    for (let i = 0; i < 8; i++) {
+                    for (let i = 0; i < 5; i++) {
                         const minionAngle = (Math.PI * 2 / 8) * i;
                         const minion = {
                             x: boss.x + Math.cos(minionAngle) * 100,
                             y: boss.y + Math.sin(minionAngle) * 100,
                             velocidad: 2.5,
                             radio: 14,
-                            hp: 30,
-                            maxHp: 30,
+                            hp: 20,
+                            maxHp: 20,
                             color: '#9b59b6',
                             tipo: 'minion',
                             angle: 0,
-                            xpReward: 15,
+                            xpReward: 30,
                             dmg: 2,
                             hitFlash: 0,
                             armadura: 0,
