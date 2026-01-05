@@ -241,14 +241,16 @@
         #wave-timer h2 { margin: 0; font-size: 14px; color: #aaa; letter-spacing: 2px; }
         #wave-timer span { font-size: 32px; font-weight: bold; font-family: monospace; display: block; line-height: 1; margin-top: 5px; }
         
-        /* Boss HP Bar */
+        /* Boss HP Bar - At top of screen, smaller */
         #boss-hp-container {
-            display: none; position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
-            width: 400px; max-width: 90%;
+            display: none; position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            width: 350px; max-width: 80%;
+            background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 15px;
+            border: 2px solid #9b59b6;
         }
-        #boss-name { text-align: center; color: #e74c3c; font-size: 20px; font-weight: bold; margin-bottom: 5px; text-shadow: 0 0 10px #e74c3c; }
-        #boss-hp-bar { width: 100%; height: 20px; background: #333; border: 2px solid #e74c3c; border-radius: 10px; overflow: hidden; }
-        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #e74c3c, #c0392b); transition: width 0.2s; }
+        #boss-name { text-align: center; color: #9b59b6; font-size: 14px; font-weight: bold; margin-bottom: 3px; text-shadow: 0 0 10px #9b59b6; }
+        #boss-hp-bar { width: 100%; height: 12px; background: #333; border: 2px solid #9b59b6; border-radius: 6px; overflow: hidden; }
+        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #9b59b6, #8e44ad); transition: width 0.2s; }
         
         /* Event Banner */
         #event-banner {
@@ -262,21 +264,21 @@
         }
         @keyframes eventPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
         
-        /* Senior P Attack Banner */
+        /* Senior P Attack Banner - Below boss HP bar */
         #senior-p-attack {
-            display: none; position: absolute; top: 160px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, rgba(128, 0, 128, 0.95) 0%, rgba(75, 0, 130, 0.95) 100%);
-            color: #ffd700; padding: 15px 40px; border-radius: 10px;
-            font-size: 22px; font-weight: bold; font-family: 'Georgia', serif;
-            border: 3px solid #ffd700;
-            text-shadow: 0 0 15px #ffd700, 0 0 30px rgba(255,215,0,0.5);
-            box-shadow: 0 0 30px rgba(128, 0, 128, 0.8), inset 0 0 20px rgba(255,215,0,0.2);
+            display: none; position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(128, 0, 128, 0.9) 0%, rgba(75, 0, 130, 0.9) 100%);
+            color: #ffd700; padding: 8px 25px; border-radius: 8px;
+            font-size: 16px; font-weight: bold; font-family: 'Georgia', serif;
+            border: 2px solid #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            box-shadow: 0 0 20px rgba(128, 0, 128, 0.6);
             animation: seniorPAttackPulse 1s ease-in-out infinite;
             z-index: 100;
         }
         @keyframes seniorPAttackPulse { 
-            0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 30px rgba(128, 0, 128, 0.8); } 
-            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 50px rgba(128, 0, 128, 1); } 
+            0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(128, 0, 128, 0.6); } 
+            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 30px rgba(128, 0, 128, 0.8); } 
         }
         
         /* Perk Selection Modal */
@@ -541,8 +543,6 @@
 
         // --- CONSTANTES DEL MUNDO ---
         const MUNDO_ANCHO = 2500, MUNDO_ALTO = 2500, TILE_SIZE = 50;
-        const SENIOR_P_SPRITE_SCALE = 3.5; // Sprite size multiplier for Senior P boss (increased for bigger boss)
-        const SENIOR_P_ASPECT_RATIO = 1.4; // Height/Width ratio for vertical rectangle
         
         // --- ESTADO DEL JUEGO ---
         let camara = { x: 0, y: 0 };
@@ -587,7 +587,7 @@
         
         // GAME PHASES: 'menu', 'prep', 'combat', 'victory', 'defeat'
         let gamePhase = 'menu';
-        let prepTimer = 30000; // 30 seconds preparation
+        let prepTimer = 10000; // 10 seconds preparation
         
         // SENIOR P BOSS SYSTEM
         let seniorPActive = false;
@@ -595,9 +595,13 @@
         
         // Senior P Sprite Images - Dynamic based on ability
         const seniorPSprites = {};
-        const spriteNames = ['base', 'invers-multiplicatiu-modular', 'producte-escalar', 'la-campana-de-gauss', 'logaritmes-ph', 'trigonometria', 'rectes-en-el-pla', 'funcions'];
+        const spriteNames = ['base', 'hit', 'invers-multiplicatiu-modular', 'producte-escalar', 'la-campana-de-gauss', 'logaritmes-ph', 'trigonometria', 'rectes-en-el-pla', 'funcions'];
         let currentSeniorPSprite = 'base';
         let spritesLoaded = 0;
+        
+        // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
+        const SENIOR_P_FIXED_WIDTH = 100;
+        const SENIOR_P_FIXED_HEIGHT = 140;
         
         // Load all Senior P sprites
         spriteNames.forEach(name => {
@@ -714,6 +718,9 @@
 
         // --- UTILIDADES ---
         function ganarXP(cantidad) {
+            // Don't give XP if game is already over (victory/defeat)
+            if (gamePhase === 'victory' || gamePhase === 'defeat') return;
+            
             const xpGanado = Math.floor(cantidad * combo.multiplier);
             xp += xpGanado;
             if(xp >= xpParaSiguiente) {
@@ -721,8 +728,10 @@
                 vida = vidaMax;
                 mostrarNotificacion(`¡NIVEL ${nivel}!`);
                 crearParticula(jugador.x, jugador.y, '#3498db', 'explosion');
-                // Show perk selection instead of auto stats
-                mostrarPerkSelection();
+                // Show perk selection only during active gameplay, not when boss is defeated
+                if (gamePhase === 'combat' || gamePhase === 'prep') {
+                    mostrarPerkSelection();
+                }
             }
             document.getElementById('xp-bar').style.width = (xp/xpParaSiguiente*100) + "%";
             document.getElementById('level-badge').textContent = "LVL " + nivel;
@@ -937,16 +946,14 @@
                     gamePhase = 'combat';
                     spawnSeniorP();
                     seniorPActive = true;
-                    esNoche = true;
+                    // Keep daytime - don't set esNoche = true
                     mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
-                    timerBox.style.borderColor = "#9b59b6";
-                    timerBox.style.color = "#9b59b6";
+                    // Hide wave timer during combat
+                    timerBox.style.display = 'none';
                 }
             } else if (gamePhase === 'combat') {
                 // COMBAT PHASE - Fight the boss
-                timerTitle.innerText = "👨‍🏫 SENIOR P";
-                timerTitle.style.color = "#9b59b6";
-                timerUI.innerText = "¡COMBATE!";
+                // Wave timer is hidden, boss HP bar is shown instead
                 
                 // Update Senior P boss
                 if (boss && boss.tipo === 'seniorP') {
@@ -1953,30 +1960,152 @@
 
         // --- DIBUJADO DETALLADO ---
         function dibujar() {
-            // IMPROVED GROUND TEXTURE
-            const baseColor = esNoche ? '#1a2614' : '#558b2f';
+            // MAGICAL CLASSROOM BACKGROUND (Pixelated style)
+            // Dark wooden floor with blue-green tones like an old magic classroom
+            const baseColor = '#2a3a4a'; // Dark slate blue-green (pizarra)
             ctx.fillStyle = baseColor; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Add grass texture pattern (procedural)
-            ctx.save();
-            ctx.translate(Math.floor(-camara.x % 20), Math.floor(-camara.y % 20));
-            ctx.fillStyle = esNoche ? 'rgba(40, 60, 30, 0.3)' : 'rgba(70, 130, 50, 0.3)';
-            for (let gx = -20; gx < canvas.width + 40; gx += 20) {
-                for (let gy = -20; gy < canvas.height + 40; gy += 20) {
-                    if ((gx + gy) % 40 === 0) {
-                        ctx.beginPath();
-                        ctx.arc(gx + 10, gy + 10, 3, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-            }
-            ctx.restore();
-            
             ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
             
-            // Grid
-            ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 1; ctx.beginPath();
+            // Wooden floor planks pattern
+            const plankWidth = 80;
+            const plankHeight = 30;
+            for (let px = Math.floor(camara.x / plankWidth) * plankWidth - plankWidth; 
+                 px < camara.x + canvas.width + plankWidth; px += plankWidth) {
+                for (let py = Math.floor(camara.y / plankHeight) * plankHeight - plankHeight; 
+                     py < camara.y + canvas.height + plankHeight; py += plankHeight) {
+                    // Alternate wood colors for planks
+                    const shade = ((Math.floor(px/plankWidth) + Math.floor(py/plankHeight)) % 2) === 0 ? 0 : 15;
+                    ctx.fillStyle = `rgb(${60 + shade}, ${50 + shade}, ${40 + shade})`;
+                    ctx.fillRect(px, py, plankWidth - 2, plankHeight - 2);
+                    // Wood grain lines
+                    ctx.strokeStyle = `rgba(40, 30, 20, 0.3)`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(px + 10, py + 5);
+                    ctx.lineTo(px + plankWidth - 15, py + 5);
+                    ctx.moveTo(px + 5, py + 15);
+                    ctx.lineTo(px + plankWidth - 10, py + 15);
+                    ctx.moveTo(px + 15, py + 25);
+                    ctx.lineTo(px + plankWidth - 5, py + 25);
+                    ctx.stroke();
+                }
+            }
+            
+            // YELLOW STAR IN CENTER (magical summoning circle)
+            const centerX = MUNDO_ANCHO / 2;
+            const centerY = MUNDO_ALTO / 2;
+            const starRadius = 200;
+            
+            // Outer magical circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, starRadius + 30, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
+            // Inner circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, starRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            // Draw 5-pointed star
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * starRadius;
+                const y = centerY + Math.sin(angle) * starRadius;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Math symbols scattered around (magical runes)
+            const mathSymbols = ['π', 'Σ', '∫', '∞', 'Δ', 'θ', 'φ', '√', '∂', 'λ', 'α', 'β', 'γ'];
+            ctx.font = 'bold 24px Georgia';
+            ctx.textAlign = 'center';
+            const runePositions = [
+                {x: centerX - 150, y: centerY - 150}, {x: centerX + 150, y: centerY - 150},
+                {x: centerX - 150, y: centerY + 150}, {x: centerX + 150, y: centerY + 150},
+                {x: centerX, y: centerY - 250}, {x: centerX, y: centerY + 250},
+                {x: centerX - 250, y: centerY}, {x: centerX + 250, y: centerY}
+            ];
+            runePositions.forEach((pos, i) => {
+                ctx.fillStyle = `rgba(100, 200, 255, ${0.4 + Math.sin(Date.now()/1000 + i) * 0.2})`;
+                ctx.fillText(mathSymbols[i % mathSymbols.length], pos.x, pos.y);
+            });
+            
+            // Wooden desks on the edges (pixelated style)
+            const deskPositions = [
+                // Top row
+                {x: 200, y: 150}, {x: 400, y: 150}, {x: 600, y: 150}, 
+                {x: 1900, y: 150}, {x: 2100, y: 150}, {x: 2300, y: 150},
+                // Bottom row  
+                {x: 200, y: 2300}, {x: 400, y: 2300}, {x: 600, y: 2300},
+                {x: 1900, y: 2300}, {x: 2100, y: 2300}, {x: 2300, y: 2300},
+                // Left side
+                {x: 150, y: 500}, {x: 150, y: 700}, {x: 150, y: 1800}, {x: 150, y: 2000},
+                // Right side
+                {x: 2300, y: 500}, {x: 2300, y: 700}, {x: 2300, y: 1800}, {x: 2300, y: 2000}
+            ];
+            deskPositions.forEach(d => {
+                // Desk top
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(d.x, d.y, 100, 60);
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(d.x + 5, d.y + 5, 90, 50);
+                // Desk legs
+                ctx.fillStyle = '#5c3317';
+                ctx.fillRect(d.x + 5, d.y + 50, 8, 20);
+                ctx.fillRect(d.x + 87, d.y + 50, 8, 20);
+            });
+            
+            // Chalkboards on edges
+            const chalkboards = [
+                {x: 800, y: 50, w: 400, h: 120},
+                {x: 1300, y: 50, w: 400, h: 120}
+            ];
+            chalkboards.forEach(cb => {
+                // Frame
+                ctx.fillStyle = '#4a3c2a';
+                ctx.fillRect(cb.x - 10, cb.y - 10, cb.w + 20, cb.h + 20);
+                // Board
+                ctx.fillStyle = '#2f4f4f';
+                ctx.fillRect(cb.x, cb.y, cb.w, cb.h);
+                // Chalk formulas
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '16px Georgia';
+                ctx.fillText('y = mx + b', cb.x + cb.w/4, cb.y + 40);
+                ctx.fillText('E = mc²', cb.x + cb.w*3/4, cb.y + 40);
+                ctx.fillText('∫f(x)dx', cb.x + cb.w/4, cb.y + 80);
+                ctx.fillText('Σn=1→∞', cb.x + cb.w*3/4, cb.y + 80);
+            });
+            
+            // Floating magical particles
+            const particleTime = Date.now() / 1000;
+            for (let i = 0; i < 20; i++) {
+                const px = centerX + Math.cos(particleTime + i * 0.5) * (100 + i * 15);
+                const py = centerY + Math.sin(particleTime * 0.7 + i * 0.3) * (100 + i * 15);
+                const alpha = 0.3 + Math.sin(particleTime * 2 + i) * 0.2;
+                ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
+            
+            // Grid (lighter for classroom feel)
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1; ctx.beginPath();
             const sx = Math.max(0, Math.floor(camara.x/TILE_SIZE)*TILE_SIZE), ex = Math.min(MUNDO_ANCHO, sx+canvas.width+TILE_SIZE);
             const sy = Math.max(0, Math.floor(camara.y/TILE_SIZE)*TILE_SIZE), ey = Math.min(MUNDO_ALTO, sy+canvas.height+TILE_SIZE);
             for(let x=sx; x<=ex; x+=TILE_SIZE) { ctx.moveTo(x, sy); ctx.lineTo(x, ey); }
@@ -2108,15 +2237,19 @@
                         ctx.shadowColor = '#9b59b6';
                     }
                     
-                    // Get current sprite based on attack state
-                    const spriteToUse = seniorPSprites[currentSeniorPSprite] || seniorPSprites['base'];
+                    // Get current sprite based on attack state OR hit state
+                    // Use 'hit' sprite when taking damage (hitFlash > 0)
+                    let spriteKey = currentSeniorPSprite;
+                    if (e.hitFlash > 0 && seniorPSprites['hit'] && seniorPSprites['hit'].complete) {
+                        spriteKey = 'hit';
+                    }
+                    const spriteToUse = seniorPSprites[spriteKey] || seniorPSprites['base'];
                     const spriteLoaded = spriteToUse && spriteToUse.complete && spriteToUse.naturalWidth > 0;
                     
-                    // Draw sprite or fallback
-                    if (spriteLoaded && e.hitFlash <= 0) {
-                        const sizeW = e.radio * SENIOR_P_SPRITE_SCALE;
-                        const sizeH = sizeW * SENIOR_P_ASPECT_RATIO; // Taller than wide
-                        ctx.drawImage(spriteToUse, -sizeW/2, -sizeH/2, sizeW, sizeH);
+                    // Draw sprite or fallback - FIXED SIZE for all sprites
+                    if (spriteLoaded) {
+                        // Use fixed dimensions so all sprites appear the same size
+                        ctx.drawImage(spriteToUse, -SENIOR_P_FIXED_WIDTH/2, -SENIOR_P_FIXED_HEIGHT/2, SENIOR_P_FIXED_WIDTH, SENIOR_P_FIXED_HEIGHT);
                     } else {
                         // Fallback: Purple square with glasses if image fails
                         ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#800080';
@@ -2565,9 +2698,9 @@
             document.querySelector('.navbar').style.display = 'none';
             gameStarted = true;
             gamePhase = 'prep';
-            prepTimer = 30000;
+            prepTimer = 10000;
             esNoche = false;
-            mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 30 SEGUNDOS");
+            mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 10 SEGUNDOS");
         }
         
         function volverAlMenu() { 
