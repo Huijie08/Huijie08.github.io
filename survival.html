@@ -600,7 +600,7 @@
         let spritesLoaded = 0;
         
         // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
-        const SENIOR_P_FIXED_WIDTH = 180;
+        const SENIOR_P_FIXED_WIDTH = 220;
         const SENIOR_P_FIXED_HEIGHT = 240;
         
         // Load all Senior P sprites
@@ -1119,7 +1119,7 @@
             
             enemigos.push(boss);
             document.getElementById('boss-hp-container').style.display = 'block';
-            document.getElementById('boss-name').textContent = `👨‍🏫 SENIOR P - El Maestro de Matemáticas`;
+            document.getElementById('boss-name').textContent = `👨‍🏫 SENIOR P`;
         }
         
         // SENIOR P UPDATE LOGIC
@@ -1207,8 +1207,8 @@
                 case 'gauss': // Area Explosion (Gaussian curve)
                     for (let i = 0; i < 7; i++) {
                         // Calculate target position for this explosion
-                        const targetX = jugador.x + (Math.random() - 0.5) * 250;
-                        const targetY = jugador.y + (Math.random() - 0.5) * 250;
+                        const targetX = jugador.x + (Math.random() - 0.5) * 500;
+                        const targetY = jugador.y + (Math.random() - 0.5) * 500;
                         
                         // Add warning area that shows before explosion
                         seniorPAttack.gaussAreas.push({
@@ -1239,8 +1239,8 @@
                     
                 case 'logaritmes': // Acid Pools
                     for (let i = 0; i < 6; i++) {
-                        const poolX = jugador.x + (Math.random() - 0.5) * 350;
-                        const poolY = jugador.y + (Math.random() - 0.5) * 350;
+                        const poolX = jugador.x + (Math.random() - 0.5) * 500;
+                        const poolY = jugador.y + (Math.random() - 0.5) * 500;
                         seniorPAttack.acidPools.push({
                             x: poolX, y: poolY,
                             radio: 120,
@@ -1251,7 +1251,7 @@
                     break;
                     
                 case 'trigonometria': // Sine Wave Projectiles
-                    for (let i = 0; i < 16; i++) {
+                    for (let i = 0; i < 32; i++) {
                         const projAngle = (Math.PI * 2 / 16) * i;
                         seniorPAttack.sineProjectiles.push({
                             x: boss.x, y: boss.y,
@@ -1265,7 +1265,7 @@
                     break;
                     
                 case 'rectes': // Temporary Walls
-                    for (let i = 0; i < 6; i++) {
+                    for (let i = 0; i < 16; i++) {
                         const wallAngle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x) + (Math.random() - 0.5) * 1.5;
                         const wallDist = 120 + i * 60;
                         seniorPAttack.tempWalls.push({
@@ -1288,7 +1288,7 @@
                             radio: 14,
                             hp: 20,
                             maxHp: 20,
-                            color: '#9b59b6',
+                            color: '#73eaff',
                             tipo: 'minion',
                             angle: 0,
                             xpReward: 30,
@@ -1299,9 +1299,9 @@
                         };
                         enemigos.push(minion);
                         seniorPAttack.minions.push(minion);
-                        crearParticula(minion.x, minion.y, '#9b59b6', 'explosion');
+                        crearParticula(minion.x, minion.y, '#73eaff', 'explosion');
                     }
-                    mostrarTexto(boss.x, boss.y - 60, "f(x) = 8 esbirros!", '#9b59b6');
+                    mostrarTexto(boss.x, boss.y - 60, "f(x) = 8 esbirros!", '#73eaff');
                     break;
             }
         }
