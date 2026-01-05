@@ -646,6 +646,37 @@
             seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
         });
         
+        // ============ SOUND SYSTEM ============
+        // Senior P ability sounds - naming convention: seniorp-[ability]-sound.mp3
+        const seniorPSounds = {};
+        const soundNames = {
+            'invers': 'seniorp-invers-multiplicatiu-modular-sound',
+            'escalar': 'seniorp-producte-escalar-sound',
+            'gauss': 'seniorp-la-campana-de-gauss-sound',
+            'logaritmes': 'seniorp-logaritmes-ph-sound',
+            'trigonometria': 'seniorp-trigonometria-sound',
+            'rectes': 'seniorp-rectes-en-el-pla-sound',
+            'funcions': 'seniorp-funcions-sound'
+        };
+        
+        // Load all ability sounds
+        Object.keys(soundNames).forEach(key => {
+            seniorPSounds[key] = new Audio(`sonidos/${soundNames[key]}.mp3`);
+            seniorPSounds[key].volume = 0.5;
+        });
+        
+        // SCAR weapon sound
+        const scarSound = new Audio('sonidos/scar.mp3');
+        scarSound.volume = 0.3;
+        
+        // Helper function to play sound (handles cloning for rapid fire)
+        function playSound(sound) {
+            if (!sound) return;
+            const clone = sound.cloneNode();
+            clone.volume = sound.volume;
+            clone.play().catch(() => {}); // Catch and ignore autoplay errors
+        }
+        
         // Senior P attack system
         let seniorPAttack = { 
             current: null, 
@@ -1088,6 +1119,9 @@
             if (scar.balas <= 0) { iniciarRecarga(); return; }
             scar.balas--; screenshake = 3; 
             
+            // Play SCAR shooting sound
+            playSound(scarSound);
+            
             // Fogonazo visual
             crearParticula(jugador.x + Math.cos(jugador.angle)*30, jugador.y + Math.sin(jugador.angle)*30, '#ffff00', 'explosion');
 
@@ -1261,6 +1295,11 @@
         }
         
         function ejecutarAtaqueSeniorP(attackId) {
+            // Play the corresponding ability sound
+            if (seniorPSounds[attackId]) {
+                playSound(seniorPSounds[attackId]);
+            }
+            
             switch(attackId) {
                 case 'invers': // Reflective Shield
                     seniorPAttack.shield = true;
