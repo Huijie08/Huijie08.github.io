@@ -28,6 +28,20 @@
             width: 50px; height: 5px; background: rgba(0,0,0,0.5); border: 1px solid white;
         }
         #reload-bar { width: 0%; height: 100%; background: #f1c40f; }
+        
+        /* Combo Display */
+        #combo-display {
+            position: absolute; top: 100px; right: 20px;
+            background: rgba(0,0,0,0.85); color: #f39c12;
+            padding: 12px 25px; border-radius: 12px;
+            font-size: 20px; font-weight: bold;
+            border: 2px solid #f39c12;
+            display: none; transition: all 0.2s;
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.6);
+            text-shadow: 0 0 10px #f39c12;
+        }
+        #combo-display.active { display: block; animation: comboPulse 0.3s ease; }
+        @keyframes comboPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
 
         /* Timer de Oleada */
         #wave-timer {
@@ -105,12 +119,15 @@
     <div id="xp-container"><div id="xp-bar"></div></div>
     <div id="level-badge">LVL 1</div>
     <div id="reload-bar-container"><div id="reload-bar"></div></div>
+    
+    <!-- COMBO DISPLAY -->
+    <div id="combo-display">🔥 COMBO x<span id="combo-mult">1.0</span></div>
 
     <div id="ui-layer">
         <div class="notification" id="wave-warning">¡HORDA INMINENTE!</div>
         <div id="controls-hint">
             [1] Pico (Cerca)<br>[2] Muro | [3] Torreta<br>[4] SCAR (Largo Alcance)<br>[5] Demoler (50% Reembolso)<br>
-            [R] Recargar | [E] TIENDA
+            [R] Recargar | [E] TIENDA<br>[Rueda] Cambiar Slot
         </div>
     </div>
 
@@ -185,6 +202,15 @@
         // ARMA
         let scar = { balas: 20, maxBalas: 20, reloading: false, reloadTime: 2000, reloadTimer: 0, damage: 3, fireRate: 100 };
         let stats = { picoDmg: 1, recoleccion: 1, velocidad: 5, muroHpMult: 1, turretDmg: 4, turretRange: 300, lvlPico: 1, lvlVel: 1, lvlMuro: 1, lvlTurret: 1 };
+        
+        // STAT CAPS (Anti-OP)
+        const STAT_CAPS = { velocidad: 9, fireRate: 50, lvlPico: 10, lvlVel: 5, lvlMuro: 10, lvlTurret: 8 };
+        
+        // COMBO SYSTEM
+        let combo = { count: 0, timer: 0, maxTime: 2000, multiplier: 1 };
+        
+        // LOOT DROPS
+        let lootDrops = [];
 
         // INPUT
         let teclas = {};
@@ -198,15 +224,43 @@
 
         // --- UTILIDADES ---
         function ganarXP(cantidad) {
-            xp += cantidad;
+            // Apply combo multiplier
+            const xpGanado = Math.floor(cantidad * combo.multiplier);
+            xp += xpGanado;
             if(xp >= xpParaSiguiente) {
                 xp -= xpParaSiguiente; nivel++; xpParaSiguiente = Math.floor(xpParaSiguiente * 1.5);
-                vida = vidaMax; stats.picoDmg += 0.2; scar.damage += 0.5;
+                vida = vidaMax; stats.picoDmg += 0.15; scar.damage += 0.3; // Reduced level bonuses
                 mostrarNotificacion(`¡NIVEL ${nivel}! (DAÑO AUMENTADO)`);
                 crearParticula(jugador.x, jugador.y, '#3498db', 'explosion');
             }
             document.getElementById('xp-bar').style.width = (xp/xpParaSiguiente*100) + "%";
             document.getElementById('level-badge').textContent = "LVL " + nivel;
+        }
+        
+        // COMBO SYSTEM
+        function actualizarCombo() {
+            combo.count++;
+            combo.timer = combo.maxTime;
+            combo.multiplier = 1 + Math.min(combo.count * 0.1, 2); // Max 3x multiplier
+            
+            const comboDisplay = document.getElementById('combo-display');
+            const comboMult = document.getElementById('combo-mult');
+            if (comboDisplay && comboMult) {
+                comboMult.textContent = combo.multiplier.toFixed(1);
+                comboDisplay.classList.add('active');
+            }
+        }
+        
+        function decayCombo(dt) {
+            if (combo.timer > 0) {
+                combo.timer -= dt;
+                if (combo.timer <= 0) {
+                    combo.count = 0;
+                    combo.multiplier = 1;
+                    const comboDisplay = document.getElementById('combo-display');
+                    if (comboDisplay) comboDisplay.classList.remove('active');
+                }
+            }
         }
 
         function toggleShop() {
@@ -223,16 +277,42 @@
             document.getElementById('lvl-muro').textContent = stats.lvlMuro;
             document.getElementById('lvl-turret').textContent = stats.lvlTurret;
         }
+        
+        // EXPONENTIAL COST CALCULATOR
+        function calcularCosto(base, nivel, multiplicador = 1.5) {
+            return Math.floor(base * Math.pow(multiplicador, nivel - 1));
+        }
 
         function comprar(item) {
-            if (item === 'pico' && madera >= 120 && piedra >= 60) {
-                madera -= 120; piedra -= 60; stats.lvlPico++; stats.picoDmg += 0.5; stats.recoleccion += 0.5;
-            } else if (item === 'velocidad' && madera >= 150) {
-                madera -= 150; stats.lvlVel++; stats.velocidad += 0.8;
-            } else if (item === 'torreta' && madera >= 200 && piedra >= 150) {
-                madera -= 200; piedra -= 150; stats.lvlTurret++; stats.turretDmg += 2; stats.turretRange += 50;
-            } else if (item === 'muro' && piedra >= 300) {
-                piedra -= 300; stats.lvlMuro++; stats.muroHpMult += 0.5;
+            if (item === 'pico') {
+                if (stats.lvlPico >= STAT_CAPS.lvlPico) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
+                const costoMadera = calcularCosto(120, stats.lvlPico);
+                const costoPiedra = calcularCosto(60, stats.lvlPico);
+                if (madera >= costoMadera && piedra >= costoPiedra) {
+                    madera -= costoMadera; piedra -= costoPiedra;
+                    stats.lvlPico++; stats.picoDmg += 0.3; stats.recoleccion += 0.3;
+                }
+            } else if (item === 'velocidad') {
+                if (stats.lvlVel >= STAT_CAPS.lvlVel) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
+                const costo = calcularCosto(150, stats.lvlVel);
+                if (madera >= costo) {
+                    madera -= costo; stats.lvlVel++;
+                    stats.velocidad = Math.min(stats.velocidad + 0.5, STAT_CAPS.velocidad);
+                }
+            } else if (item === 'torreta') {
+                if (stats.lvlTurret >= STAT_CAPS.lvlTurret) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
+                const costoMadera = calcularCosto(200, stats.lvlTurret);
+                const costoPiedra = calcularCosto(150, stats.lvlTurret);
+                if (madera >= costoMadera && piedra >= costoPiedra) {
+                    madera -= costoMadera; piedra -= costoPiedra;
+                    stats.lvlTurret++; stats.turretDmg += 1.5; stats.turretRange += 30;
+                }
+            } else if (item === 'muro') {
+                if (stats.lvlMuro >= STAT_CAPS.lvlMuro) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
+                const costo = calcularCosto(300, stats.lvlMuro);
+                if (piedra >= costo) {
+                    piedra -= costo; stats.lvlMuro++; stats.muroHpMult += 0.3;
+                }
             }
             actualizarTiendaUI();
         }
@@ -278,10 +358,27 @@
         });
         window.addEventListener('mouseup', () => mousePresionado = false);
         window.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // MOUSE WHEEL - Slot switching
+        window.addEventListener('wheel', (e) => {
+            if (gameOver || shopOpen) return;
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                slotActivo = (slotActivo + 1) % 5;
+            } else {
+                slotActivo = (slotActivo - 1 + 5) % 5;
+            }
+        }, { passive: false });
 
         // --- UPDATE LOOP ---
         function actualizar(dt) {
             if (screenshake > 0) screenshake = Math.max(0, screenshake * 0.9);
+            
+            // Combo decay
+            decayCombo(dt);
+            
+            // Loot updates
+            actualizarLoot(dt);
             
             // Cámara suave
             let shakeX = (Math.random() - 0.5) * screenshake;
@@ -495,21 +592,25 @@
             // Spawn lejos del jugador pero no infinito
             do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; dist = Math.hypot(ex-jugador.x, ey-jugador.y); att++; } while(dist < 500 && att < 10);
             
+            // AGGRESSIVE SCALING - HP and damage scale exponentially with days
+            const hpScale = Math.pow(1.4, diaContador - 1); // 40% more HP each day
+            const dmgScale = 1 + (diaContador - 1) * 0.2; // 20% more damage each day
+            
             // Variantes
             let r = Math.random();
-            let tipo = 'caminante', col = '#779977', rad = 18, vel = 1.2, hp = 3+diaContador*2, xpR = 15;
+            let tipo = 'caminante', col = '#779977', rad = 18, vel = 1.2, hp = Math.floor((5 + diaContador * 3) * hpScale), xpR = 15, dmg = 0.5 * dmgScale;
             
-            if (diaContador >= 2 && r < 0.2) { // Runner
-                tipo = 'corredor'; col = '#c0392b'; vel = 3.5; hp *= 0.6; rad = 14; xpR = 25;
-            } else if (diaContador >= 4 && r > 0.9) { // Tank
-                tipo = 'tanque'; col = '#2c3e50'; vel = 0.5; hp *= 5; rad = 35; xpR = 70;
-            } else if (diaContador >= 3 && r > 0.8 && r <= 0.9) { // Tóxico
-                tipo = 'toxico'; col = '#00ff00'; vel = 1.0; hp *= 1.2; rad = 20; xpR = 30;
-            } else if (diaContador >= 5 && r > 0.7 && r <= 0.8) { // Explosivo
-                tipo = 'explosivo'; col = '#f39c12'; vel = 2.0; hp *= 0.5; rad = 18; xpR = 40;
+            if (diaContador >= 2 && r < 0.25) { // Runner - more common
+                tipo = 'corredor'; col = '#c0392b'; vel = 3.5; hp = Math.floor(hp * 0.5); rad = 14; xpR = 25; dmg *= 0.8;
+            } else if (diaContador >= 3 && r > 0.85) { // Tank - earlier and more common
+                tipo = 'tanque'; col = '#2c3e50'; vel = 0.5; hp = Math.floor(hp * 6); rad = 35; xpR = 70; dmg *= 2;
+            } else if (diaContador >= 3 && r > 0.7 && r <= 0.85) { // Tóxico
+                tipo = 'toxico'; col = '#00ff00'; vel = 1.0; hp = Math.floor(hp * 1.3); rad = 20; xpR = 30;
+            } else if (diaContador >= 4 && r > 0.55 && r <= 0.7) { // Explosivo - earlier
+                tipo = 'explosivo'; col = '#f39c12'; vel = 2.0; hp = Math.floor(hp * 0.4); rad = 18; xpR = 40; dmg *= 3;
             }
             
-            enemigos.push({ x: ex, y: ey, velocidad: vel, radio: rad, hp: hp, maxHp: hp, color: col, tipo: tipo, angle: 0, xpReward: xpR });
+            enemigos.push({ x: ex, y: ey, velocidad: vel, radio: rad, hp: hp, maxHp: hp, color: col, tipo: tipo, angle: 0, xpReward: xpR, dmg: dmg, hitFlash: 0 });
         }
 
         function actualizarEntidades(dt) {
@@ -593,13 +694,43 @@
         }
 
         function dañarEnemigo(e, index, daño) {
-            e.hp -= daño; mostrarTexto(e.x, e.y-20, Math.floor(daño), 'white');
+            e.hp -= daño; 
+            e.hitFlash = 150; // White flash for 150ms
+            mostrarTexto(e.x, e.y-20, Math.floor(daño), 'white');
             e.x -= Math.cos(e.angle)*5; e.y -= Math.sin(e.angle)*5;
             if (e.hp <= 0) { 
                 enemigos.splice(index, 1); 
                 crearParticula(e.x, e.y, e.color, 'explosion'); 
                 crearParticula(e.x, e.y, 'red', 'explosion'); 
-                ganarXP(e.xpReward); 
+                ganarXP(e.xpReward);
+                actualizarCombo(); // Combo system
+                
+                // LOOT DROP CHANCE
+                if (Math.random() < 0.15) { // 15% chance
+                    const lootType = Math.random() < 0.6 ? 'health' : 'ammo';
+                    lootDrops.push({ x: e.x, y: e.y, type: lootType, timer: 10000 }); // 10 seconds to collect
+                }
+            }
+        }
+        
+        function actualizarLoot(dt) {
+            for (let i = lootDrops.length - 1; i >= 0; i--) {
+                const loot = lootDrops[i];
+                loot.timer -= dt;
+                if (loot.timer <= 0) { lootDrops.splice(i, 1); continue; }
+                
+                // Check pickup
+                if (Math.hypot(jugador.x - loot.x, jugador.y - loot.y) < 30) {
+                    if (loot.type === 'health') {
+                        vida = Math.min(vidaMax, vida + 20);
+                        mostrarTexto(jugador.x, jugador.y - 30, "+20 HP", "#2ecc71");
+                    } else {
+                        scar.balas = Math.min(scar.maxBalas, scar.balas + 10);
+                        mostrarTexto(jugador.x, jugador.y - 30, "+10 BALAS", "#f1c40f");
+                    }
+                    crearParticula(loot.x, loot.y, loot.type === 'health' ? '#2ecc71' : '#f1c40f', 'explosion');
+                    lootDrops.splice(i, 1);
+                }
             }
         }
 
@@ -612,7 +743,26 @@
 
         // --- DIBUJADO DETALLADO ---
         function dibujar() {
-            ctx.fillStyle = esNoche ? '#1a2614' : '#558b2f'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // IMPROVED GROUND TEXTURE
+            const baseColor = esNoche ? '#1a2614' : '#558b2f';
+            ctx.fillStyle = baseColor; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add grass texture pattern (procedural)
+            ctx.save();
+            ctx.translate(Math.floor(-camara.x % 20), Math.floor(-camara.y % 20));
+            ctx.fillStyle = esNoche ? 'rgba(40, 60, 30, 0.3)' : 'rgba(70, 130, 50, 0.3)';
+            for (let gx = -20; gx < canvas.width + 40; gx += 20) {
+                for (let gy = -20; gy < canvas.height + 40; gy += 20) {
+                    if ((gx + gy) % 40 === 0) {
+                        ctx.beginPath();
+                        ctx.arc(gx + 10, gy + 10, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            ctx.restore();
+            
             ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
             
             // Grid
@@ -644,41 +794,86 @@
                 if (r.activo) { ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.ancho, r.alto, 0, 0, Math.PI*2); ctx.fill(); } 
                 else { ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.arc(r.x-5, r.y+5, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(r.x+5, r.y, 3, 0, Math.PI*2); ctx.fill(); }
             });
+            
+            // --- LOOT DROPS ---
+            lootDrops.forEach(loot => {
+                if(!isVis(loot, 20)) return;
+                const pulse = 1 + Math.sin(Date.now() / 200) * 0.2;
+                ctx.save();
+                ctx.translate(loot.x, loot.y);
+                ctx.scale(pulse, pulse);
+                
+                if (loot.type === 'health') {
+                    // Health pack - green cross
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#2ecc71';
+                    ctx.fillRect(-12, -4, 24, 8);
+                    ctx.fillRect(-4, -12, 8, 24);
+                } else {
+                    // Ammo pack - yellow box
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#f1c40f';
+                    ctx.fillRect(-10, -8, 20, 16);
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(-6, -4, 12, 8);
+                }
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            });
 
             // --- ZOMBIES DETALLADOS ---
             enemigos.forEach(e => {
                 if(!isVis(e, 50)) return;
+                
+                // Decay hit flash
+                if (e.hitFlash > 0) e.hitFlash -= 16;
+                
                 ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.angle);
                 
-                // Cuerpo
-                ctx.fillStyle = e.color; 
-                if (e.tipo === 'toxico') ctx.shadowBlur = 10; ctx.shadowColor = '#00ff00';
-                if (e.tipo === 'explosivo') { ctx.fillStyle = `hsl(${Date.now()%360}, 70%, 50%)`; } // Parpadeo
+                // HIT FLASH - White overlay when damaged
+                let baseColor = e.color;
+                if (e.hitFlash > 0) {
+                    baseColor = '#ffffff';
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#ffffff';
+                }
+                
+                // Cuerpo with shadow for depth
+                ctx.fillStyle = baseColor; 
+                if (e.tipo === 'toxico') { ctx.shadowBlur = 10; ctx.shadowColor = '#00ff00'; }
+                if (e.tipo === 'explosivo') { baseColor = `hsl(${Date.now()%360}, 70%, 50%)`; ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : baseColor; }
 
                 ctx.beginPath(); 
-                if (e.tipo === 'tanque') ctx.rect(-e.radio, -e.radio, e.radio*2, e.radio*2); // Tanque cuadrado
+                if (e.tipo === 'tanque') ctx.rect(-e.radio, -e.radio, e.radio*2, e.radio*2);
                 else ctx.arc(0, 0, e.radio, 0, Math.PI*2); 
                 ctx.fill(); ctx.shadowBlur = 0;
 
-                // Detalles
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
-                ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.7, 0, Math.PI*2); ctx.fill(); // Cabeza/Cuerpo separación
+                // Clothes/Dirt details
+                if (e.hitFlash <= 0) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                    ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.7, 0, Math.PI*2); ctx.fill();
+                    
+                    // Torn clothes effect
+                    ctx.fillStyle = 'rgba(80,60,40,0.3)';
+                    ctx.beginPath(); ctx.arc(-3, 5, e.radio * 0.3, 0, Math.PI*2); ctx.fill();
+                }
 
                 // Brazos
-                ctx.fillStyle = e.color;
+                ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : e.color;
                 ctx.beginPath(); ctx.ellipse(e.radio, 10, 8, 4, 0, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.ellipse(e.radio, -10, 8, 4, 0, 0, Math.PI*2); ctx.fill();
 
                 // Ojos
-                ctx.fillStyle = 'white'; 
-                ctx.beginPath(); ctx.arc(5, 5, 3, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(5, -5, 3, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'red';
-                ctx.beginPath(); ctx.arc(6, 5, 1.5, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(6, -5, 1.5, 0, Math.PI*2); ctx.fill();
+                if (e.hitFlash <= 0) {
+                    ctx.fillStyle = 'white'; 
+                    ctx.beginPath(); ctx.arc(5, 5, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(5, -5, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = 'red';
+                    ctx.beginPath(); ctx.arc(6, 5, 1.5, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(6, -5, 1.5, 0, Math.PI*2); ctx.fill();
+                }
 
                 // Placas Tanque
-                if (e.tipo === 'tanque') {
+                if (e.tipo === 'tanque' && e.hitFlash <= 0) {
                     ctx.fillStyle = '#555'; ctx.fillRect(-10, -25, 20, 5); ctx.fillRect(-10, 20, 20, 5);
                 }
 
@@ -738,11 +933,22 @@
 
             ctx.restore();
 
-            // Overlay Noche
+            // IMPROVED Night Overlay with stronger vignette
             if (esNoche) {
-                const grd = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width/4, canvas.width/2, canvas.height/2, canvas.width);
-                grd.addColorStop(0, "rgba(0,0,20,0.2)"); grd.addColorStop(1, "rgba(0,0,10,0.85)");
+                // Darker vignette
+                const grd = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width/6, canvas.width/2, canvas.height/2, canvas.width * 0.8);
+                grd.addColorStop(0, "rgba(0,0,15,0.1)"); 
+                grd.addColorStop(0.5, "rgba(0,0,20,0.4)"); 
+                grd.addColorStop(1, "rgba(0,0,10,0.92)");
                 ctx.fillStyle = grd; ctx.fillRect(0,0,canvas.width, canvas.height);
+                
+                // Light around player (flashlight effect)
+                const playerScreenX = jugador.x - camara.x;
+                const playerScreenY = jugador.y - camara.y;
+                const lightGrd = ctx.createRadialGradient(playerScreenX, playerScreenY, 10, playerScreenX, playerScreenY, 150);
+                lightGrd.addColorStop(0, "rgba(255,200,100,0.15)");
+                lightGrd.addColorStop(1, "rgba(0,0,0,0)");
+                ctx.fillStyle = lightGrd; ctx.fillRect(0,0,canvas.width, canvas.height);
             }
             dibujarHUD();
         }
@@ -775,12 +981,35 @@
         }
         
         function dibujarSlot(x, y, i, k, a) {
-            ctx.fillStyle = a ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.6)'; ctx.strokeStyle = a ? '#f1c40f' : '#555'; ctx.lineWidth = a ? 3 : 1;
-            ctx.fillRect(x, y, 60, 50); ctx.strokeRect(x, y, 60, 50);
-            ctx.fillStyle = 'white'; ctx.textAlign="center"; ctx.font = "bold 14px Arial"; ctx.fillText(k, x+30, y+30);
-            ctx.font = "10px Arial"; ctx.fillStyle="#aaa";
+            // Enhanced active slot indicator
+            if (a) {
+                // Glow effect for active slot
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#f1c40f';
+            }
+            
+            ctx.fillStyle = a ? 'rgba(255,220,100,0.4)' : 'rgba(0,0,0,0.6)'; 
+            ctx.strokeStyle = a ? '#f1c40f' : '#555'; 
+            ctx.lineWidth = a ? 4 : 1;
+            ctx.fillRect(x, y, 60, 50); 
+            ctx.strokeRect(x, y, 60, 50);
+            
+            // Double border for active
+            if (a) {
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x + 2, y + 2, 56, 46);
+            }
+            
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = a ? '#f1c40f' : 'white'; 
+            ctx.textAlign = "center"; 
+            ctx.font = a ? "bold 16px Arial" : "bold 14px Arial"; 
+            ctx.fillText(k, x + 30, y + 30);
+            ctx.font = "10px Arial"; 
+            ctx.fillStyle = a ? "#fff" : "#aaa";
             const names = ["PICO", "MURO", "TORRE", "SCAR", "DEMO"];
-            ctx.fillText(names[i], x+30, y+45);
+            ctx.fillText(names[i], x + 30, y + 45);
         }
 
         let lastTime = 0;
