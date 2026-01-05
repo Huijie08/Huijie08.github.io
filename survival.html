@@ -246,20 +246,20 @@
             display: none; position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             width: 350px; max-width: 80%;
             background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 15px;
-            border: 2px solid #9b59b6;
+            border: 2px solid #73eaff;
         }
-        #boss-name { text-align: center; color: #9b59b6; font-size: 14px; font-weight: bold; margin-bottom: 3px; text-shadow: 0 0 10px #9b59b6; }
-        #boss-hp-bar { width: 100%; height: 12px; background: #333; border: 2px solid #9b59b6; border-radius: 6px; overflow: hidden; }
-        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #9b59b6, #8e44ad); transition: width 0.2s; }
+        #boss-name { text-align: center; color: #73eaff; font-size: 14px; font-weight: bold; margin-bottom: 3px; text-shadow: 0 0 10px #73eaff; }
+        #boss-hp-bar { width: 100%; height: 12px; background: #333; border: 2px solid #73eaff; border-radius: 6px; overflow: hidden; }
+        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #73eaff, #4dd0e1); transition: width 0.2s; }
         
         /* Event Banner */
         #event-banner {
             display: none; position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
-            background: rgba(155, 89, 182, 0.9); color: white;
+            background: rgba(115, 234, 255, 0.9); color: black;
             padding: 10px 30px; border-radius: 20px;
             font-size: 16px; font-weight: bold;
-            border: 2px solid #8e44ad;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid #4dd0e1;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
             animation: eventPulse 2s ease-in-out infinite;
         }
         @keyframes eventPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
@@ -267,18 +267,18 @@
         /* Senior P Attack Banner - Below boss HP bar */
         #senior-p-attack {
             display: none; position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, rgba(128, 0, 128, 0.9) 0%, rgba(75, 0, 130, 0.9) 100%);
-            color: #ffd700; padding: 8px 25px; border-radius: 8px;
+            background: linear-gradient(135deg, rgba(115, 234, 255, 0.9) 0%, rgba(77, 208, 225, 0.9) 100%);
+            color: #000000; padding: 8px 25px; border-radius: 8px;
             font-size: 16px; font-weight: bold; font-family: 'Georgia', serif;
-            border: 2px solid #ffd700;
-            text-shadow: 0 0 10px #ffd700;
-            box-shadow: 0 0 20px rgba(128, 0, 128, 0.6);
+            border: 2px solid #000000;
+            text-shadow: 0 0 5px #ffffff;
+            box-shadow: 0 0 20px rgba(115, 234, 255, 0.6);
             animation: seniorPAttackPulse 1s ease-in-out infinite;
             z-index: 100;
         }
         @keyframes seniorPAttackPulse { 
-            0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(128, 0, 128, 0.6); } 
-            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 30px rgba(128, 0, 128, 0.8); } 
+            0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(115, 234, 255, 0.6); } 
+            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 30px rgba(115, 234, 255, 0.8); } 
         }
         
         /* Perk Selection Modal */
@@ -560,7 +560,8 @@
         // ENTIDADES
         let arboles = [], rocas = [], muros = [], enemigos = [], particulas = [], torretas = [], proyectiles = [];
         let trampas = [], minas = [], recolectores = [];
-        const jugador = { x: MUNDO_ANCHO/2, y: MUNDO_ALTO/2, radio: 15, color: '#f1c40f', angle: 0, slowed: 0 };
+        const jugador = { x: MUNDO_ANCHO/2, y: MUNDO_ALTO/2, radio: 15, color: '#f1c40f', angle: 0, slowed: 0, 
+                          dash: { active: false, timer: 0, cooldown: 0, speed: 25, duration: 100, cooldownTime: 1500, dx: 0, dy: 0 } };
         
         // ECONOMIA & STATS
         let madera = 0, piedra = 0, vida = 100, vidaMax = 100;
@@ -862,6 +863,7 @@
             if (e.key === '7') slotActivo = 6;
             if (e.key.toLowerCase() === 'e') toggleShop();
             if (e.key.toLowerCase() === 'r') iniciarRecarga();
+            if (e.key === ' ') { e.preventDefault(); iniciarDash(); }
         });
         window.addEventListener('keyup', (e) => teclas[e.key.toLowerCase()] = false);
         const rect = canvas.getBoundingClientRect();
@@ -972,11 +974,24 @@
                 }
             } else cooldownAccion = 0;
 
+            // Dash cooldown update
+            if (jugador.dash.cooldown > 0) jugador.dash.cooldown -= dt;
+            
+            // Dash movement
+            if (jugador.dash.active) {
+                jugador.dash.timer -= dt;
+                jugador.x += jugador.dash.dx * jugador.dash.speed;
+                jugador.y += jugador.dash.dy * jugador.dash.speed;
+                // Trail particles
+                if (Math.random() > 0.5) crearParticula(jugador.x, jugador.y, '#73eaff', 'spark');
+                if (jugador.dash.timer <= 0) jugador.dash.active = false;
+            }
+
             // Movimiento
             let mx = 0, my = 0;
             if (teclas['w']) my = -1; if (teclas['s']) my = 1;
             if (teclas['a']) mx = -1; if (teclas['d']) mx = 1;
-            if (mx !== 0 || my !== 0) {
+            if ((mx !== 0 || my !== 0) && !jugador.dash.active) {
                 const len = Math.hypot(mx, my);
                 const currentSpeed = jugador.slowed > 0 ? stats.velocidad * 0.5 : stats.velocidad;
                 jugador.x += (mx/len) * currentSpeed; jugador.y += (my/len) * currentSpeed;
@@ -992,6 +1007,36 @@
             if (!scar.reloading && scar.balas < scar.maxBalas) {
                 scar.reloading = true; scar.reloadTimer = scar.reloadTime; mostrarTexto(jugador.x, jugador.y - 40, "RECARGANDO...", "#aaa");
             }
+        }
+        
+        function iniciarDash() {
+            if (jugador.dash.cooldown > 0 || jugador.dash.active) return;
+            
+            // Get direction from WASD keys or facing direction
+            let dx = 0, dy = 0;
+            if (teclas['w']) dy = -1;
+            if (teclas['s']) dy = 1;
+            if (teclas['a']) dx = -1;
+            if (teclas['d']) dx = 1;
+            
+            // If no direction keys pressed, dash towards mouse
+            if (dx === 0 && dy === 0) {
+                dx = Math.cos(jugador.angle);
+                dy = Math.sin(jugador.angle);
+            } else {
+                const len = Math.hypot(dx, dy);
+                dx /= len; dy /= len;
+            }
+            
+            jugador.dash.active = true;
+            jugador.dash.timer = jugador.dash.duration;
+            jugador.dash.cooldown = jugador.dash.cooldownTime;
+            jugador.dash.dx = dx;
+            jugador.dash.dy = dy;
+            
+            // Visual effect
+            crearParticula(jugador.x, jugador.y, '#73eaff', 'explosion');
+            mostrarTexto(jugador.x, jugador.y - 30, "DASH!", '#73eaff');
         }
 
         function intentarAccion() {
@@ -1186,20 +1231,24 @@
                 case 'invers': // Reflective Shield
                     seniorPAttack.shield = true;
                     seniorPAttack.shieldTimer = 4000;
-                    crearParticula(boss.x, boss.y, '#9b59b6', 'explosion');
-                    mostrarTexto(boss.x, boss.y - 60, "🛡️ ESCUDO!", '#9b59b6');
+                    crearParticula(boss.x, boss.y, '#73eaff', 'explosion');
+                    mostrarTexto(boss.x, boss.y - 60, "🛡️ ESCUDO!", '#73eaff');
                     break;
                     
-                case 'escalar': // Cross Laser (8 lasers in X pattern)
+                case 'escalar': // Cross Laser (8 lasers - + in red, X in blue)
                     for (let i = 0; i < 8; i++) {
                         const laserAngle = (Math.PI / 4) * i;
+                        // + pattern (0, 90, 180, 270 degrees) = red
+                        // X pattern (45, 135, 225, 315 degrees) = blue
+                        const isPlusPattern = (i % 2 === 0); // 0, 2, 4, 6 are + pattern
                         seniorPAttack.lasers.push({
                             x: boss.x, y: boss.y,
                             angle: laserAngle,
                             length: 0,
                             maxLength: 1000,
                             timer: 3000,
-                            damage: 10
+                            damage: 10,
+                            isPlus: isPlusPattern // true = red (+), false = blue (X)
                         });
                     }
                     break;
@@ -1278,8 +1327,8 @@
                     }
                     break;
                     
-                case 'funcions': // Spawn Minions
-                    for (let i = 0; i < 5; i++) {
+                case 'funcions': // Spawn X and Y minions
+                    for (let i = 0; i < 8; i++) {
                         const minionAngle = (Math.PI * 2 / 8) * i;
                         const minion = {
                             x: boss.x + Math.cos(minionAngle) * 100,
@@ -1288,8 +1337,9 @@
                             radio: 14,
                             hp: 20,
                             maxHp: 20,
-                            color: '#73eaff',
-                            tipo: 'minion',
+                            color: '#000000',
+                            tipo: 'minionXY',
+                            symbol: i % 2 === 0 ? 'X' : 'Y', // Alternate between X and Y
                             angle: 0,
                             xpReward: 30,
                             dmg: 2,
@@ -1299,9 +1349,9 @@
                         };
                         enemigos.push(minion);
                         seniorPAttack.minions.push(minion);
-                        crearParticula(minion.x, minion.y, '#73eaff', 'explosion');
+                        crearParticula(minion.x, minion.y, '#000000', 'explosion');
                     }
-                    mostrarTexto(boss.x, boss.y - 60, "f(x) = 8 esbirros!", '#73eaff');
+                    mostrarTexto(boss.x, boss.y - 60, "f(x,y) = Variables!", '#000000');
                     break;
             }
         }
@@ -2230,11 +2280,11 @@
                     if (seniorPAttack.shield) {
                         ctx.beginPath();
                         ctx.arc(0, 0, e.radio + 20, 0, Math.PI * 2);
-                        ctx.strokeStyle = `rgba(155, 89, 182, ${0.5 + Math.sin(Date.now()/200) * 0.3})`;
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${0.5 + Math.sin(Date.now()/200) * 0.3})`;
                         ctx.lineWidth = 5;
                         ctx.stroke();
                         ctx.shadowBlur = 30;
-                        ctx.shadowColor = '#9b59b6';
+                        ctx.shadowColor = '#73eaff';
                     }
                     
                     // Get current sprite based on attack state OR hit state
@@ -2251,10 +2301,10 @@
                         // Use fixed dimensions so all sprites appear the same size
                         ctx.drawImage(spriteToUse, -SENIOR_P_FIXED_WIDTH/2, -SENIOR_P_FIXED_HEIGHT/2, SENIOR_P_FIXED_WIDTH, SENIOR_P_FIXED_HEIGHT);
                     } else {
-                        // Fallback: Purple square with glasses if image fails
-                        ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#800080';
+                        // Fallback: Light blue square with glasses if image fails
+                        ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#73eaff';
                         ctx.shadowBlur = 30;
-                        ctx.shadowColor = '#9b59b6';
+                        ctx.shadowColor = '#73eaff';
                         ctx.fillRect(-e.radio, -e.radio, e.radio * 2, e.radio * 2);
                         
                         // Draw glasses
@@ -2267,11 +2317,35 @@
                     ctx.shadowBlur = 0;
                     ctx.restore();
                     
-                    // HP bar for Senior P
+                    // HP bar for Senior P - light blue
                     if (e.hp < e.maxHp) {
                         ctx.fillStyle = '#333'; ctx.fillRect(e.x - 50, e.y - e.radio - 20, 100, 10);
-                        ctx.fillStyle = '#9b59b6'; ctx.fillRect(e.x - 50, e.y - e.radio - 20, 100 * (e.hp / e.maxHp), 10);
+                        ctx.fillStyle = '#73eaff'; ctx.fillRect(e.x - 50, e.y - e.radio - 20, 100 * (e.hp / e.maxHp), 10);
                     }
+                    return;
+                }
+                
+                // Draw X/Y Minions (Funcions ability) - Black squares with X or Y symbol
+                if (e.tipo === 'minionXY') {
+                    ctx.save();
+                    ctx.translate(e.x, e.y);
+                    
+                    // Black square
+                    if (e.hitFlash > 0) {
+                        ctx.fillStyle = '#ffffff';
+                    } else {
+                        ctx.fillStyle = '#000000';
+                    }
+                    ctx.fillRect(-e.radio, -e.radio, e.radio * 2, e.radio * 2);
+                    
+                    // White letter X or Y
+                    ctx.fillStyle = e.hitFlash > 0 ? '#000000' : '#ffffff';
+                    ctx.font = `bold ${e.radio * 1.5}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(e.symbol || 'X', 0, 2);
+                    
+                    ctx.restore();
                     return;
                 }
                 
@@ -2440,10 +2514,12 @@
                     const endX = boss.x + Math.cos(laser.angle) * laser.length;
                     const endY = boss.y + Math.sin(laser.angle) * laser.length;
                     
-                    ctx.strokeStyle = '#e74c3c';
+                    // + pattern = red, X pattern = blue (#73eaff)
+                    const laserColor = laser.isPlus ? '#e74c3c' : '#73eaff';
+                    ctx.strokeStyle = laserColor;
                     ctx.lineWidth = 8;
                     ctx.shadowBlur = 20;
-                    ctx.shadowColor = '#e74c3c';
+                    ctx.shadowColor = laserColor;
                     ctx.beginPath();
                     ctx.moveTo(boss.x, boss.y);
                     ctx.lineTo(endX, endY);
@@ -2459,18 +2535,18 @@
                     ctx.shadowBlur = 0;
                 });
                 
-                // Draw Acid Pools (Logaritmes + pH)
+                // Draw Acid Pools (Logaritmes + pH) - GREEN POISON color
                 seniorPAttack.acidPools.forEach(pool => {
                     const alpha = Math.min(1, pool.timer / 2000);
-                    ctx.fillStyle = `rgba(142, 68, 173, ${alpha * 0.5})`;
+                    ctx.fillStyle = `rgba(46, 204, 113, ${alpha * 0.5})`;
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#8e44ad';
+                    ctx.shadowColor = '#27ae60';
                     ctx.beginPath();
                     ctx.arc(pool.x, pool.y, pool.radio, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Bubbles
-                    ctx.fillStyle = `rgba(155, 89, 182, ${alpha * 0.8})`;
+                    // Bubbles - poison green
+                    ctx.fillStyle = `rgba(39, 174, 96, ${alpha * 0.8})`;
                     for (let i = 0; i < 5; i++) {
                         const bx = pool.x + Math.cos(Date.now()/500 + i) * pool.radio * 0.5;
                         const by = pool.y + Math.sin(Date.now()/500 + i) * pool.radio * 0.5;
@@ -2481,26 +2557,26 @@
                     ctx.shadowBlur = 0;
                 });
                 
-                // Draw Gauss Warning Areas (La Campana de Gauss)
+                // Draw Gauss Warning Areas (La Campana de Gauss) - LIGHT BLUE
                 if (seniorPAttack.gaussAreas) {
                     seniorPAttack.gaussAreas.forEach(area => {
                         const alpha = 0.3 + 0.3 * Math.sin(Date.now() / 100); // Pulsing effect
                         const warningProgress = 1 - (area.warningTime / 500);
                         
-                        // Warning circle - red pulsing ring
-                        ctx.strokeStyle = `rgba(231, 76, 60, ${alpha})`;
-                        ctx.fillStyle = `rgba(231, 76, 60, ${alpha * 0.3})`;
+                        // Warning circle - light blue pulsing ring
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${alpha})`;
+                        ctx.fillStyle = `rgba(115, 234, 255, ${alpha * 0.3})`;
                         ctx.lineWidth = 4;
                         ctx.shadowBlur = 20;
-                        ctx.shadowColor = '#e74c3c';
+                        ctx.shadowColor = '#73eaff';
                         
                         ctx.beginPath();
                         ctx.arc(area.x, area.y, area.radio, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.stroke();
                         
-                        // Target crosshair
-                        ctx.strokeStyle = `rgba(255, 0, 0, ${alpha + 0.2})`;
+                        // Target crosshair - light blue
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${alpha + 0.2})`;
                         ctx.lineWidth = 2;
                         ctx.beginPath();
                         ctx.moveTo(area.x - 20, area.y);
@@ -2519,29 +2595,29 @@
                     });
                 }
                 
-                // Draw Sine Projectiles (Trigonometria)
+                // Draw Sine Projectiles (Trigonometria) - LIGHT BLUE
                 seniorPAttack.sineProjectiles.forEach(proj => {
                     const waveOffset = Math.sin(proj.phase) * 50;
                     const perpAngle = proj.baseAngle + Math.PI/2;
                     const displayX = proj.x + Math.cos(perpAngle) * waveOffset;
                     const displayY = proj.y + Math.sin(perpAngle) * waveOffset;
                     
-                    ctx.fillStyle = '#9b59b6';
+                    ctx.fillStyle = '#73eaff';
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#9b59b6';
+                    ctx.shadowColor = '#73eaff';
                     ctx.beginPath();
                     ctx.arc(displayX, displayY, 12, 0, Math.PI * 2);
                     ctx.fill();
                     
                     // Math symbol inside
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = '#000';
                     ctx.font = 'bold 12px Arial';
                     ctx.textAlign = 'center';
                     ctx.fillText('∿', displayX, displayY + 4);
                     ctx.shadowBlur = 0;
                 });
                 
-                // Draw Temp Walls (Rectes en el Pla)
+                // Draw Temp Walls (Rectes en el Pla) - LIGHT BLUE
                 seniorPAttack.tempWalls.forEach(wall => {
                     const halfWidth = wall.width / 2;
                     ctx.save();
@@ -2550,10 +2626,10 @@
                     
                     const alpha = Math.min(1, wall.timer / 1000);
                     ctx.fillStyle = `rgba(52, 73, 94, ${alpha * 0.9})`;
-                    ctx.strokeStyle = `rgba(155, 89, 182, ${alpha})`;
+                    ctx.strokeStyle = `rgba(115, 234, 255, ${alpha})`;
                     ctx.lineWidth = 3;
                     ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#9b59b6';
+                    ctx.shadowColor = '#73eaff';
                     
                     ctx.fillRect(-halfWidth, -10, wall.width, 20);
                     ctx.strokeRect(-halfWidth, -10, wall.width, 20);
@@ -2641,6 +2717,32 @@
                 ctx.fillStyle = scar.balas > 5 ? '#f1c40f' : 'red'; ctx.font = "bold 14px Arial";
                 ctx.textAlign = "center";
                 ctx.fillText(`${scar.balas}/${scar.maxBalas}`, canvas.width/2, sy + 60);
+            }
+            
+            // Dash cooldown indicator
+            const dashX = canvas.width - 100;
+            const dashY = canvas.height - 60;
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(dashX, dashY, 80, 30);
+            ctx.strokeStyle = jugador.dash.cooldown <= 0 ? '#73eaff' : '#555';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(dashX, dashY, 80, 30);
+            
+            if (jugador.dash.cooldown <= 0) {
+                ctx.fillStyle = '#73eaff';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('SPACE', dashX + 40, dashY + 14);
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText('DASH', dashX + 40, dashY + 25);
+            } else {
+                const cdPercent = jugador.dash.cooldown / jugador.dash.cooldownTime;
+                ctx.fillStyle = '#73eaff';
+                ctx.fillRect(dashX + 2, dashY + 22, (1 - cdPercent) * 76, 6);
+                ctx.fillStyle = '#888';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('DASH', dashX + 40, dashY + 14);
             }
         }
         
