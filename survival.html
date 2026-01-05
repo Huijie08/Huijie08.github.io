@@ -165,6 +165,11 @@
             border-color: #9b59b6;
             box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
         }
+        .boss-card-selected {
+            border-color: #9b59b6 !important;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.6);
+            transform: translateY(-5px) scale(1.05);
+        }
         .boss-card-locked {
             background: #1a1a1a;
             cursor: not-allowed;
@@ -389,7 +394,7 @@
         <div class="boss-selection">
             <h3 style="color: #f1c40f; margin-bottom: 20px;">📚 SELECCIONA TU OPONENTE</h3>
             <div class="boss-cards">
-                <div class="boss-card boss-card-available" onclick="seleccionarBoss('seniorP')">
+                <div id="boss-card-seniorP" class="boss-card boss-card-available boss-card-selected">
                     <div class="boss-icon" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">👨‍🏫</div>
                     <h4>Senior P</h4>
                     <p style="color: #888; font-size: 11px;">Profesor de Matemáticas</p>
@@ -408,7 +413,9 @@
             </div>
         </div>
         
-        <div class="start-instructions" style="margin-top: 30px;">
+        <button id="play-btn" class="start-btn" style="margin-top: 30px;">▶ JUGAR</button>
+        
+        <div class="start-instructions" style="margin-top: 20px;">
             <h3>🎮 CONTROLES</h3>
             <kbd>WASD</kbd> Mover &nbsp;|&nbsp; 
             <kbd>1-7</kbd> Herramientas &nbsp;|&nbsp;
@@ -2455,22 +2462,33 @@
             requestAnimationFrame(loop);
         }
         
-        function seleccionarBoss(bossType) {
-            if (bossType === 'seniorP') {
-                selectedBoss = 'seniorP';
-                document.getElementById('start-screen').classList.add('hidden');
-                document.querySelector('.navbar').style.display = 'none';
-                gameStarted = true;
-                gamePhase = 'prep';
-                prepTimer = 30000;
-                esNoche = false;
-                mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 30 SEGUNDOS");
+        // Boss is pre-selected as seniorP (only option for now)
+        let selectedBossType = 'seniorP';
+        
+        function iniciarPartida() {
+            if (!selectedBossType) {
+                mostrarNotificacion("❌ Selecciona un oponente primero");
+                return;
             }
+            selectedBoss = selectedBossType;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.querySelector('.navbar').style.display = 'none';
+            gameStarted = true;
+            gamePhase = 'prep';
+            prepTimer = 30000;
+            esNoche = false;
+            mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 30 SEGUNDOS");
         }
         
         function volverAlMenu() { 
             location.reload(); 
         }
+        
+        // Setup play button event listener
+        document.getElementById('play-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            iniciarPartida();
+        });
         
         generarMundo(); requestAnimationFrame(loop);
     </script>
