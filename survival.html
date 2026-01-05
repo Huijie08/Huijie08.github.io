@@ -587,6 +587,9 @@
         function spawnEnemigo() {
             // SOLO SPAWNEAR DE NOCHE
             if (!esNoche) return;
+            
+            // Limit max enemies to prevent performance issues
+            if (enemigos.length >= 100) return;
 
             let ex, ey, dist, att = 0;
             // Spawn lejos del jugador pero no infinito
@@ -614,8 +617,12 @@
         }
 
         function actualizarEntidades(dt) {
+            // Limit projectiles to prevent memory issues
+            if (proyectiles.length > 100) proyectiles.splice(0, 30);
+            
             for (let i = enemigos.length - 1; i >= 0; i--) {
                 const e = enemigos[i];
+                if (!e) continue; // Guard against undefined
                 e.angle = Math.atan2(jugador.y - e.y, jugador.x - e.x);
                 let vx = Math.cos(e.angle) * e.velocidad, vy = Math.sin(e.angle) * e.velocidad;
                 
@@ -657,11 +664,45 @@
                     if (vida <= 0) { gameOver = true; document.getElementById('death-stats').textContent = `Días: ${diaContador} (Lvl ${nivel})`; document.getElementById('gameOverScreen').style.display = 'block'; }
                 }
 
+                // Explosive area damage is handled separately to avoid array mutation during iteration
+            }
+            
+            // Process explosive deaths separately to avoid array mutation issues
+            const explosivesToProcess = [];
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const e = enemigos[i];
                 if (e.hp <= 0 && e.tipo === 'explosivo') {
-                    // Daño de área al morir
-                    enemigos.forEach((other, idx) => {
-                         if (i !== idx && Math.hypot(e.x - other.x, e.y - other.y) < 100) dañarEnemigo(other, idx, 10);
-                    });
+                    explosivesToProcess.push({ x: e.x, y: e.y, index: i });
+                }
+            }
+            
+            // Apply area damage from explosives (without modifying array during iteration)
+            explosivesToProcess.forEach(exp => {
+                enemigos.forEach(other => {
+                    if (other.hp > 0 && Math.hypot(exp.x - other.x, exp.y - other.y) < 100) {
+                        other.hp -= 10;
+                        other.hitFlash = 150;
+                        mostrarTexto(other.x, other.y - 20, '10', 'orange');
+                    }
+                });
+            });
+            
+            // Clean up dead enemies after all damage is applied
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const e = enemigos[i];
+                if (e.hp <= 0) {
+                    crearParticula(e.x, e.y, e.color, 'explosion');
+                    crearParticula(e.x, e.y, 'red', 'explosion');
+                    ganarXP(e.xpReward);
+                    actualizarCombo();
+                    
+                    // LOOT DROP CHANCE
+                    if (Math.random() < 0.15) {
+                        const lootType = Math.random() < 0.6 ? 'health' : 'ammo';
+                        lootDrops.push({ x: e.x, y: e.y, type: lootType, timer: 10000 });
+                    }
+                    
+                    enemigos.splice(i, 1);
                 }
             }
 
@@ -694,26 +735,20 @@
         }
 
         function dañarEnemigo(e, index, daño) {
+            if (!e || e.hp <= 0) return; // Guard against null/already dead enemies
+            
             e.hp -= daño; 
             e.hitFlash = 150; // White flash for 150ms
             mostrarTexto(e.x, e.y-20, Math.floor(daño), 'white');
-            e.x -= Math.cos(e.angle)*5; e.y -= Math.sin(e.angle)*5;
-            if (e.hp <= 0) { 
-                enemigos.splice(index, 1); 
-                crearParticula(e.x, e.y, e.color, 'explosion'); 
-                crearParticula(e.x, e.y, 'red', 'explosion'); 
-                ganarXP(e.xpReward);
-                actualizarCombo(); // Combo system
-                
-                // LOOT DROP CHANCE
-                if (Math.random() < 0.15) { // 15% chance
-                    const lootType = Math.random() < 0.6 ? 'health' : 'ammo';
-                    lootDrops.push({ x: e.x, y: e.y, type: lootType, timer: 10000 }); // 10 seconds to collect
-                }
-            }
+            e.x -= Math.cos(e.angle || 0)*5; 
+            e.y -= Math.sin(e.angle || 0)*5;
+            // Death is handled in the cleanup phase of actualizarEntidades
         }
         
         function actualizarLoot(dt) {
+            // Limit loot drops to prevent memory issues
+            if (lootDrops.length > 50) lootDrops.splice(0, 20);
+            
             for (let i = lootDrops.length - 1; i >= 0; i--) {
                 const loot = lootDrops[i];
                 loot.timer -= dt;
@@ -735,10 +770,16 @@
         }
 
         function crearParticula(x, y, color, tipo) {
+            // Limit particle creation when too many exist
+            if (particulas.length > 300) return;
+            
             if (tipo === 'explosion') for(let i=0; i<6; i++) particulas.push({ x, y, color, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, vida: 1, tipo: 'circulo', size: Math.random()*5 });
             else particulas.push({ x, y, color, vx: 0, vy: -1, vida: 0.5, tipo: 'circulo', size: 3 });
         }
-        function mostrarTexto(x, y, texto, color) { particulas.push({ x, y, color, texto, vida: 1.2, tipo: 'texto', vy: -0.8 }); }
+        function mostrarTexto(x, y, texto, color) { 
+            if (particulas.length > 300) return;
+            particulas.push({ x, y, color, texto, vida: 1.2, tipo: 'texto', vy: -0.8 }); 
+        }
         function mostrarNotificacion(txt) { const n = document.getElementById('wave-warning'); n.textContent = txt; n.style.opacity = 1; setTimeout(() => n.style.opacity = 0, 3000); }
 
         // --- DIBUJADO DETALLADO ---
