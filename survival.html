@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Survival Defense: The Long Night</title>
+    <title>Student vs Teachers: Boss Rush</title>
     
     <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -146,6 +146,47 @@
         .zombie-ice { background: #00bcd4; }
         .zombie-armored { background: #607d8b; }
         .zombie-seniorP { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); box-shadow: 0 0 10px #9b59b6; }
+        
+        /* Boss Selection Cards */
+        .boss-selection { margin: 20px 0; }
+        .boss-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .boss-card {
+            width: 150px; padding: 20px; border-radius: 15px;
+            text-align: center; transition: all 0.2s;
+            border: 2px solid #444;
+        }
+        .boss-card h4 { margin: 10px 0 5px 0; color: #fff; }
+        .boss-card-available {
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            cursor: pointer;
+        }
+        .boss-card-available:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: #9b59b6;
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+        .boss-card-locked {
+            background: #1a1a1a;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .boss-icon {
+            width: 60px; height: 60px; border-radius: 50%;
+            margin: 0 auto; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 30px;
+        }
+        .boss-difficulty { font-size: 10px; margin-top: 5px; display: block; }
+        
+        /* Victory Screen */
+        #victory-screen {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.98); color: white;
+            padding: 50px; text-align: center; border-radius: 20px;
+            border: 2px solid #2ecc71; box-shadow: 0 0 100px rgba(46, 204, 113, 0.5);
+            z-index: 50; pointer-events: auto;
+        }
         
         /* Navbar adjustments for game */
         .navbar { display: flex; z-index: 1000; }
@@ -340,14 +381,34 @@
         </ul>
     </nav>
 
-    <!-- 🎮 START SCREEN -->
+    <!-- 🎮 START SCREEN - BOSS SELECTION -->
     <div id="start-screen">
-        <h1 class="game-title">SURVIVAL DEFENSE</h1>
-        <p class="game-subtitle">THE LONG NIGHT</p>
+        <h1 class="game-title">STUDENT vs TEACHERS</h1>
+        <p class="game-subtitle">BOSS RUSH</p>
         
-        <button class="start-btn" onclick="iniciarJuego()">▶ JUGAR</button>
+        <div class="boss-selection">
+            <h3 style="color: #f1c40f; margin-bottom: 20px;">📚 SELECCIONA TU OPONENTE</h3>
+            <div class="boss-cards">
+                <div class="boss-card boss-card-available" onclick="seleccionarBoss('seniorP')">
+                    <div class="boss-icon" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">👨‍🏫</div>
+                    <h4>Senior P</h4>
+                    <p style="color: #888; font-size: 11px;">Profesor de Matemáticas</p>
+                    <span class="boss-difficulty" style="color: #e74c3c;">★★★ DIFÍCIL</span>
+                </div>
+                <div class="boss-card boss-card-locked">
+                    <div class="boss-icon" style="background: #444;">🔒</div>
+                    <h4 style="color: #666;">???</h4>
+                    <p style="color: #555; font-size: 11px;">Próximamente</p>
+                </div>
+                <div class="boss-card boss-card-locked">
+                    <div class="boss-icon" style="background: #444;">🔒</div>
+                    <h4 style="color: #666;">???</h4>
+                    <p style="color: #555; font-size: 11px;">Próximamente</p>
+                </div>
+            </div>
+        </div>
         
-        <div class="start-instructions">
+        <div class="start-instructions" style="margin-top: 30px;">
             <h3>🎮 CONTROLES</h3>
             <kbd>WASD</kbd> Mover &nbsp;|&nbsp; 
             <kbd>1-7</kbd> Herramientas &nbsp;|&nbsp;
@@ -356,41 +417,13 @@
             <kbd>R</kbd> Recargar &nbsp;|&nbsp;
             <kbd>Rueda</kbd> Cambiar Slot
         </div>
-        
-        <div class="zombie-preview">
-            <div class="zombie-type">
-                <div class="icon zombie-walker">🧟</div>
-                Caminante
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-runner">💨</div>
-                Corredor
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-tank">🛡️</div>
-                Tanque
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-toxic">☠️</div>
-                Tóxico
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-explosive">💥</div>
-                Explosivo
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-ice">❄️</div>
-                Golem Hielo
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-armored">⚔️</div>
-                Caballero
-            </div>
-            <div class="zombie-type">
-                <div class="icon zombie-seniorP">👨‍🏫</div>
-                <span style="color: #9b59b6; font-weight: bold;">SENIOR P</span>
-            </div>
-        </div>
+    </div>
+    
+    <!-- 🏆 VICTORY SCREEN -->
+    <div id="victory-screen" style="display: none;">
+        <h1 style="color: #2ecc71; font-size: 60px; margin: 0;">🎉 ¡VICTORIA!</h1>
+        <p id="victory-stats" style="font-size: 24px; color: #aaa; margin-top: 10px;">Has derrotado a Senior P</p>
+        <button onclick="volverAlMenu()">VOLVER AL MENÚ</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -487,9 +520,9 @@
     </div>
 
     <div id="gameOverScreen">
-        <h1 style="color:#e74c3c; font-size: 60px; margin: 0;">ELIMINADO</h1>
-        <p id="death-stats" style="font-size:24px; color:#aaa; margin-top:10px;">Sobreviviste X días.</p>
-        <button onclick="reiniciarJuego()">NUEVA PARTIDA</button>
+        <h1 style="color:#e74c3c; font-size: 60px; margin: 0;">GAME OVER</h1>
+        <p id="death-stats" style="font-size:24px; color:#aaa; margin-top:10px;">El profesor te ha derrotado.</p>
+        <button onclick="volverAlMenu()">VOLVER AL MENÚ</button>
     </div>
 
     <script>
@@ -541,15 +574,29 @@
         
         // BOSS SYSTEM
         let boss = null;
+        let selectedBoss = null;
         
-        // SENIOR P BOSS SYSTEM (Day 3 Special Boss)
+        // GAME PHASES: 'menu', 'prep', 'combat', 'victory', 'defeat'
+        let gamePhase = 'menu';
+        let prepTimer = 30000; // 30 seconds preparation
+        
+        // SENIOR P BOSS SYSTEM
         let seniorPActive = false;
         let seniorPDefeated = false;
-        const bossImage = new Image();
-        bossImage.src = 'images/boss.jpg';
-        let bossImageLoaded = false;
-        bossImage.onload = () => { bossImageLoaded = true; };
-        bossImage.onerror = () => { console.warn('Boss image failed to load, using fallback'); };
+        
+        // Senior P Sprite Images - Dynamic based on ability
+        const seniorPSprites = {};
+        const spriteNames = ['base', 'invers-multiplicatiu-modular', 'producte-escalar', 'la-campana-de-gauss', 'logaritmes-ph', 'trigonometria', 'rectes-en-el-pla', 'funcions'];
+        let currentSeniorPSprite = 'base';
+        let spritesLoaded = 0;
+        
+        // Load all Senior P sprites
+        spriteNames.forEach(name => {
+            seniorPSprites[name] = new Image();
+            seniorPSprites[name].src = `Senior P/seniorp-${name}.png`;
+            seniorPSprites[name].onload = () => { spritesLoaded++; };
+            seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
+        });
         
         // Senior P attack system
         let seniorPAttack = { 
@@ -566,13 +613,13 @@
         };
         
         const SENIOR_P_ATTACKS = [
-            { id: 'invers', nombre: "L'Invers Multiplicatiu Modular", desc: "Escudo reflector" },
-            { id: 'escalar', nombre: "Producte Escalar", desc: "Láser en cruz" },
-            { id: 'gauss', nombre: "La Campana de Gauss", desc: "Explosión de área" },
-            { id: 'logaritmes', nombre: "Logaritmes + pH", desc: "Charcos de ácido" },
-            { id: 'trigonometria', nombre: "Trigonometria", desc: "Proyectiles ondulantes" },
-            { id: 'rectes', nombre: "Rectes en el Pla", desc: "Muros temporales" },
-            { id: 'funcions', nombre: "Funcions", desc: "Invocar esbirros" }
+            { id: 'invers', nombre: "L'Invers Multiplicatiu Modular", desc: "Escudo reflector", sprite: 'invers-multiplicatiu-modular' },
+            { id: 'escalar', nombre: "Producte Escalar", desc: "Láser en cruz", sprite: 'producte-escalar' },
+            { id: 'gauss', nombre: "La Campana de Gauss", desc: "Explosión de área", sprite: 'la-campana-de-gauss' },
+            { id: 'logaritmes', nombre: "Logaritmes + pH", desc: "Charcos de ácido", sprite: 'logaritmes-ph' },
+            { id: 'trigonometria', nombre: "Trigonometria", desc: "Proyectiles ondulantes", sprite: 'trigonometria' },
+            { id: 'rectes', nombre: "Rectes en el Pla", desc: "Muros temporales", sprite: 'rectes-en-el-pla' },
+            { id: 'funcions', nombre: "Funcions", desc: "Invocar esbirros", sprite: 'funcions' }
         ];
         
         // DAILY EVENTS
@@ -822,7 +869,7 @@
 
         // --- UPDATE LOOP ---
         function actualizar(dt) {
-            if (perkModalOpen) return; // Pause game during perk selection
+            if (perkModalOpen || gamePhase === 'menu' || gamePhase === 'victory' || gamePhase === 'defeat') return;
             
             if (screenshake > 0) screenshake = Math.max(0, screenshake * 0.9);
             
@@ -862,105 +909,41 @@
                 if (scar.reloadTimer <= 0) { scar.balas = scar.maxBalas; scar.reloading = false; bar.style.display = 'none'; mostrarTexto(jugador.x, jugador.y - 40, "LISTO", "#f1c40f"); }
             } else document.getElementById('reload-bar-container').style.display = 'none';
 
-            // --- LÓGICA DÍA / NOCHE / SPAWN ---
-            // If Senior P is active, freeze day/night cycle until defeated
-            if (!seniorPActive) {
-                tiempoJuego += dt;
-            }
-            
             const timerUI = document.getElementById('wave-countdown');
             const timerTitle = document.getElementById('wave-title');
             const timerBox = document.getElementById('wave-timer');
             
-            // Update Senior P if active
-            if (seniorPActive && boss && boss.tipo === 'seniorP') {
-                actualizarSeniorP(dt);
-            }
-
-            if (!esNoche) {
-                // DÍA
-                let restante = DURACION_DIA - tiempoJuego;
-                if (restante <= 0) {
-                    esNoche = true; 
-                    tiempoJuego = 0; 
-                    
-                    // SENIOR P on Day 3 (special boss)
-                    if (diaContador === 3 && !seniorPDefeated) {
-                        spawnSeniorP();
-                        seniorPActive = true;
-                        mostrarNotificacion("⚠️ SENIOR P HA LLEGADO ⚠️");
-                    }
-                    // BOSS every 5 days (except Day 3 if Senior P)
-                    else if (diaContador % 5 === 0 && diaContador !== 3) {
-                        spawnBoss();
-                        mostrarNotificacion("¡JEFE FINAL APARECIÓ!");
-                    } else if (diaContador !== 3 || seniorPDefeated) {
-                        mostrarNotificacion("¡HORDA NOCTURNA!");
-                    }
-                    
-                    timerBox.style.borderColor = "#e74c3c";
-                    timerBox.style.color = "#e74c3c";
-                    spawnRate = currentEvent?.efecto === 'horda' ? 200 : 400;
-                }
-                timerTitle.innerText = "PREPARACIÓN";
+            // --- BOSS RUSH PHASE LOGIC ---
+            if (gamePhase === 'prep') {
+                // PREPARATION PHASE - 30 seconds to gather resources
+                prepTimer -= dt;
+                timerTitle.innerText = "⚔️ PREPARACIÓN";
                 timerTitle.style.color = "#2ecc71";
-                timerUI.innerText = (restante/1000).toFixed(1) + "s";
-            } else {
-                // NOCHE
-                let restante = seniorPActive ? 999 : DURACION_NOCHE - tiempoJuego; // Freeze timer during Senior P
+                timerUI.innerText = (prepTimer/1000).toFixed(1) + "s";
+                timerBox.style.borderColor = "#2ecc71";
+                timerBox.style.color = "#2ecc71";
                 
-                // Only end night if Senior P is not active or is defeated
-                if (restante <= 0 && !seniorPActive) {
-                    esNoche = false; 
-                    tiempoJuego = 0; 
-                    diaContador++; 
-                    boss = null;
-                    document.getElementById('boss-hp-container').style.display = 'none';
-                    document.getElementById('senior-p-attack').style.display = 'none';
-                    
-                    // Random event chance at dawn
-                    if (Math.random() < 0.4) {
-                        currentEvent = EVENTOS[Math.floor(Math.random() * EVENTOS.length)];
-                        document.getElementById('event-banner').style.display = 'block';
-                        document.getElementById('event-banner').textContent = `⚡ ${currentEvent.nombre}: ${currentEvent.desc}`;
-                        mostrarNotificacion(`EVENTO: ${currentEvent.nombre}`);
-                    } else {
-                        currentEvent = null;
-                        document.getElementById('event-banner').style.display = 'none';
-                    }
-                    
-                    mostrarNotificacion(`DÍA ${diaContador} - ZONA SEGURA`);
-                    timerBox.style.borderColor = "#fff";
-                    timerBox.style.color = "#fff";
-                    vida = Math.min(vidaMax, vida + 30);
-                    
-                    // Regeneración recursos
-                    arboles.forEach(a => { if(!a.activo && diaContador >= a.respawnDia) { a.activo = true; a.vida = a.maxVida; a.recursos = 100; crearParticula(a.x, a.y, '#2ecc71', 'explosion'); } });
-                    rocas.forEach(r => { if(!r.activo && diaContador >= r.respawnDia) { r.activo = true; r.vida = r.maxVida; r.recursos = 80; crearParticula(r.x, r.y, '#95a5a6', 'explosion'); } });
+                if (prepTimer <= 0) {
+                    // Transition to combat phase
+                    gamePhase = 'combat';
+                    spawnSeniorP();
+                    seniorPActive = true;
+                    esNoche = true;
+                    mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
+                    timerBox.style.borderColor = "#9b59b6";
+                    timerBox.style.color = "#9b59b6";
                 }
+            } else if (gamePhase === 'combat') {
+                // COMBAT PHASE - Fight the boss
+                timerTitle.innerText = "👨‍🏫 SENIOR P";
+                timerTitle.style.color = "#9b59b6";
+                timerUI.innerText = "¡COMBATE!";
                 
-                timerTitle.innerText = seniorPActive ? "👨‍🏫 SENIOR P" : (boss ? "¡JEFE!" : "SOBREVIVE");
-                timerTitle.style.color = seniorPActive ? "#9b59b6" : "#e74c3c";
-                timerUI.innerText = (restante/1000).toFixed(1) + "s";
-
-                // Spawner - Don't spawn zombies during Senior P fight
-                if (!seniorPActive) {
-                    waveTimer += dt;
-                    const effectiveSpawnRate = currentEvent?.efecto === 'frenesi' ? spawnRate * 0.7 : spawnRate;
-                    if (waveTimer > effectiveSpawnRate) { 
-                        spawnEnemigo(); 
-                        waveTimer = 0; 
-                        if (spawnRate > 200) spawnRate -= 10; 
-                    }
+                // Update Senior P boss
+                if (boss && boss.tipo === 'seniorP') {
+                    actualizarSeniorP(dt);
                 }
-                
-                // Acid rain damage
-                if (currentEvent?.efecto === 'acido') {
-                    // Check if player is outside base (not near walls)
-                    const nearWall = muros.some(m => Math.hypot(jugador.x - m.x - 25, jugador.y - m.y - 25) < 100);
-                    if (!nearWall) {
-                        vida -= dt / 500; // Slow damage
-                        if (Math.random() < 0.1) crearParticula(jugador.x + (Math.random()-0.5)*30, jugador.y - 20, '#8e44ad', 'golpe');
+            }
                     }
                 }
             }
@@ -1156,6 +1139,9 @@
                 seniorPAttack.current = attack;
                 seniorPAttack.timer = 3000; // Attack duration
                 
+                // Change sprite to attack sprite
+                currentSeniorPSprite = attack.sprite;
+                
                 // Show attack name
                 const attackBanner = document.getElementById('senior-p-attack');
                 attackBanner.textContent = `📐 ${attack.nombre}`;
@@ -1172,6 +1158,8 @@
                     seniorPAttack.current = null;
                     seniorPAttack.cooldown = 3000 + Math.random() * 2000;
                     document.getElementById('senior-p-attack').style.display = 'none';
+                    // Return to base sprite
+                    currentSeniorPSprite = 'base';
                 }
             }
             
@@ -1690,7 +1678,12 @@
                     if (hasPerk('armadura')) playerDmg *= 0.75;
                     
                     vida -= playerDmg; screenshake = 5; crearParticula(jugador.x, jugador.y, 'red', 'golpe');
-                    if (vida <= 0) { gameOver = true; document.getElementById('death-stats').textContent = `Días: ${diaContador} (Lvl ${nivel})`; document.getElementById('gameOverScreen').style.display = 'block'; }
+                    if (vida <= 0) { 
+                        gameOver = true; 
+                        gamePhase = 'defeat';
+                        document.getElementById('death-stats').textContent = `Senior P te ha derrotado. (Nivel ${nivel})`;
+                        document.getElementById('gameOverScreen').style.display = 'block'; 
+                    }
                 }
             }
             
@@ -1728,14 +1721,14 @@
                     ganarXP(e.xpReward || 15);
                     actualizarCombo();
                     
-                    // Check if Senior P died
+                    // Check if Senior P died - VICTORY!
                     if (e.tipo === 'seniorP') {
                         boss = null;
                         seniorPActive = false;
                         seniorPDefeated = true;
+                        gamePhase = 'victory';
                         document.getElementById('boss-hp-container').style.display = 'none';
                         document.getElementById('senior-p-attack').style.display = 'none';
-                        mostrarNotificacion("🎉 ¡SENIOR P DERROTADO! 🎉");
                         
                         // Clear all Senior P attack effects
                         seniorPAttack.lasers = [];
@@ -1743,13 +1736,9 @@
                         seniorPAttack.sineProjectiles = [];
                         seniorPAttack.tempWalls = [];
                         
-                        // Big loot drop
-                        for (let l = 0; l < 10; l++) {
-                            lootDrops.push({ x: e.x + (Math.random()-0.5)*80, y: e.y + (Math.random()-0.5)*80, type: Math.random() < 0.5 ? 'health' : 'ammo', timer: 20000 });
-                        }
-                        
-                        // Resume day/night cycle - end night immediately
-                        tiempoJuego = DURACION_NOCHE - 100;
+                        // Show victory screen
+                        document.getElementById('victory-stats').textContent = `¡Has derrotado a Senior P! - Nivel: ${nivel}`;
+                        document.getElementById('victory-screen').style.display = 'block';
                     }
                     // Check if regular boss died
                     else if (e === boss) {
@@ -2044,7 +2033,7 @@
                 // Decay hit flash
                 if (e.hitFlash > 0) e.hitFlash -= 16;
                 
-                // SENIOR P - Draw with sprite image
+                // SENIOR P - Draw with dynamic sprite based on current attack
                 if (e.tipo === 'seniorP') {
                     ctx.save();
                     ctx.translate(e.x, e.y);
@@ -2060,12 +2049,16 @@
                         ctx.shadowColor = '#9b59b6';
                     }
                     
+                    // Get current sprite based on attack state
+                    const spriteToUse = seniorPSprites[currentSeniorPSprite] || seniorPSprites['base'];
+                    const spriteLoaded = spriteToUse && spriteToUse.complete && spriteToUse.naturalWidth > 0;
+                    
                     // Draw sprite or fallback
-                    if (bossImageLoaded && e.hitFlash <= 0) {
-                        const size = e.radio * 2;
-                        ctx.drawImage(bossImage, -size/2, -size/2, size, size);
+                    if (spriteLoaded && e.hitFlash <= 0) {
+                        const size = e.radio * 2.5; // Slightly larger for better visibility
+                        ctx.drawImage(spriteToUse, -size/2, -size/2, size, size);
                     } else {
-                        // Fallback: Red square if image fails
+                        // Fallback: Purple square with glasses if image fails
                         ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#800080';
                         ctx.shadowBlur = 30;
                         ctx.shadowColor = '#9b59b6';
@@ -2392,9 +2385,10 @@
             ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(10, 10, 220, 80);
             ctx.fillStyle = '#fff'; ctx.font = "bold 16px Segoe UI"; ctx.textAlign = "left";
             ctx.fillText(`🌲 ${Math.floor(madera)}`, 25, 40); ctx.fillText(`🪨 ${Math.floor(piedra)}`, 110, 40);
-            ctx.font = "12px Segoe UI"; ctx.fillStyle = esNoche ? "#e74c3c" : "#2ecc71";
-            ctx.fillText(esNoche ? "PELIGRO" : "SEGURO", 25, 60);
-            ctx.fillStyle = '#3498db'; ctx.fillText(`DÍA ${diaContador}`, 25, 75);
+            ctx.font = "12px Segoe UI"; 
+            ctx.fillStyle = gamePhase === 'prep' ? "#2ecc71" : (gamePhase === 'combat' ? "#9b59b6" : "#fff");
+            ctx.fillText(gamePhase === 'prep' ? "PREPARACIÓN" : (gamePhase === 'combat' ? "¡COMBATE!" : ""), 25, 60);
+            ctx.fillStyle = '#9b59b6'; ctx.fillText(`vs SENIOR P`, 25, 75);
 
             const w = Math.min(400, canvas.width - 40), x = canvas.width/2 - w/2, y = canvas.height - 80;
             ctx.fillStyle = '#222'; ctx.fillRect(x, y, w, 25);
@@ -2451,18 +2445,32 @@
         let lastTime = 0;
         function loop(timestamp) {
             const dt = timestamp - lastTime; lastTime = timestamp;
-            if (gameStarted && !gameOver && !perkModalOpen) { actualizar(dt); dibujar(); }
-            else if (gameStarted && !gameOver && perkModalOpen) { dibujar(); } // Still draw but don't update
+            if (gameStarted && gamePhase !== 'menu' && gamePhase !== 'victory' && gamePhase !== 'defeat' && !perkModalOpen) { 
+                actualizar(dt); 
+                dibujar(); 
+            }
+            else if (gameStarted && !gameOver && perkModalOpen) { dibujar(); } // Still draw but don't update during perk selection
+            else if (gamePhase === 'victory' || gamePhase === 'defeat') { dibujar(); } // Draw but don't update on end screens
             requestAnimationFrame(loop);
         }
         
-        function iniciarJuego() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.querySelector('.navbar').style.display = 'none';
-            gameStarted = true;
+        function seleccionarBoss(bossType) {
+            if (bossType === 'seniorP') {
+                selectedBoss = 'seniorP';
+                document.getElementById('start-screen').classList.add('hidden');
+                document.querySelector('.navbar').style.display = 'none';
+                gameStarted = true;
+                gamePhase = 'prep';
+                prepTimer = 30000;
+                esNoche = false;
+                mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 30 SEGUNDOS");
+            }
         }
         
-        function reiniciarJuego() { location.reload(); }
+        function volverAlMenu() { 
+            location.reload(); 
+        }
+        
         generarMundo(); requestAnimationFrame(loop);
     </script>
 </body>
