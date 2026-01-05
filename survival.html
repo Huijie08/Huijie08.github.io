@@ -541,7 +541,8 @@
 
         // --- CONSTANTES DEL MUNDO ---
         const MUNDO_ANCHO = 2500, MUNDO_ALTO = 2500, TILE_SIZE = 50;
-        const SENIOR_P_SPRITE_SCALE = 2.5; // Sprite size multiplier for Senior P boss
+        const SENIOR_P_SPRITE_SCALE = 3.5; // Sprite size multiplier for Senior P boss (increased for bigger boss)
+        const SENIOR_P_ASPECT_RATIO = 1.4; // Height/Width ratio for vertical rectangle
         
         // --- ESTADO DEL JUEGO ---
         let camara = { x: 0, y: 0 };
@@ -1086,7 +1087,7 @@
                 hp: 1500,
                 maxHp: 1500,
                 radio: 50,
-                velocidad: 0.6,
+                velocidad: 1.2,
                 dmg: 3,
                 angle: 0, 
                 hitFlash: 0, 
@@ -1105,7 +1106,8 @@
                 acidPools: [],
                 sineProjectiles: [],
                 tempWalls: [],
-                minions: []
+                minions: [],
+                gaussAreas: [] // Visual warning areas for Gauss explosions
             };
             
             enemigos.push(boss);
@@ -1197,12 +1199,26 @@
                     
                 case 'gauss': // Area Explosion (Gaussian curve)
                     for (let i = 0; i < 5; i++) {
+                        // Calculate target position for this explosion
+                        const targetX = jugador.x + (Math.random() - 0.5) * 200;
+                        const targetY = jugador.y + (Math.random() - 0.5) * 200;
+                        
+                        // Add warning area that shows before explosion
+                        seniorPAttack.gaussAreas.push({
+                            x: targetX,
+                            y: targetY,
+                            radio: 80,
+                            warningTime: i * 400 + 300, // Time before explosion
+                            exploded: false
+                        });
+                        
                         setTimeout(() => {
                             if (!boss) return;
-                            const targetX = jugador.x + (Math.random() - 0.5) * 200;
-                            const targetY = jugador.y + (Math.random() - 0.5) * 200;
                             crearParticula(targetX, targetY, '#e74c3c', 'explosion');
                             crearParticula(targetX, targetY, '#f39c12', 'explosion');
+                            for (let k = 0; k < 10; k++) {
+                                crearParticula(targetX + (Math.random() - 0.5) * 80, targetY + (Math.random() - 0.5) * 80, '#e74c3c', 'explosion');
+                            }
                             
                             // Check player damage
                             if (Math.hypot(jugador.x - targetX, jugador.y - targetY) < 80) {
@@ -1210,7 +1226,7 @@
                                 screenshake = 10;
                                 crearParticula(jugador.x, jugador.y, 'red', 'golpe');
                             }
-                        }, i * 400);
+                        }, i * 400 + 300);
                     }
                     break;
                     
@@ -1373,6 +1389,19 @@
                 
                 if (wall.timer <= 0) {
                     seniorPAttack.tempWalls.splice(i, 1);
+                }
+            }
+            
+            // Update Gauss warning areas
+            if (seniorPAttack.gaussAreas) {
+                for (let i = seniorPAttack.gaussAreas.length - 1; i >= 0; i--) {
+                    const area = seniorPAttack.gaussAreas[i];
+                    area.warningTime -= dt;
+                    
+                    if (area.warningTime <= 0) {
+                        area.exploded = true;
+                        seniorPAttack.gaussAreas.splice(i, 1);
+                    }
                 }
             }
         }
@@ -1788,25 +1817,50 @@
             for (let i = proyectiles.length-1; i >= 0; i--) {
                 const p = proyectiles[i]; p.x += p.vx; p.y += p.vy; p.vida--;
                 let hit = false;
-                for (let j = enemigos.length-1; j >= 0; j--) {
-                    const e = enemigos[j];
-                    if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { 
-                        dañarEnemigo(e, j, p.dmg); 
-                        crearParticula(e.x, e.y, '#f1c40f', 'explosion'); 
+                
+                // Check collision with Senior P temp walls (Rectes en el Pla)
+                if (seniorPAttack && seniorPAttack.tempWalls) {
+                    for (const wall of seniorPAttack.tempWalls) {
+                        // Transform projectile position to wall's local coordinates
+                        const dx = p.x - wall.x;
+                        const dy = p.y - wall.y;
+                        const cos = Math.cos(-wall.angle);
+                        const sin = Math.sin(-wall.angle);
+                        const localX = dx * cos - dy * sin;
+                        const localY = dx * sin + dy * cos;
                         
-                        // Explosive bullets perk
-                        if (p.explosive) {
-                            enemigos.forEach(other => {
-                                if (other !== e && Math.hypot(other.x - e.x, other.y - e.y) < 60) {
-                                    dañarEnemigo(other, -1, p.dmg * 0.5);
-                                    crearParticula(other.x, other.y, '#f39c12', 'explosion');
-                                }
-                            });
-                            screenshake = 5;
+                        // Check if projectile is within wall bounds
+                        const halfWidth = wall.width / 2;
+                        if (Math.abs(localX) < halfWidth && Math.abs(localY) < 15) {
+                            hit = true;
+                            crearParticula(p.x, p.y, '#9b59b6', 'explosion');
+                            mostrarTexto(p.x, p.y - 10, "¡BLOQUEADO!", "#9b59b6");
+                            break;
                         }
-                        
-                        hit = true; 
-                        break; 
+                    }
+                }
+                
+                if (!hit) {
+                    for (let j = enemigos.length-1; j >= 0; j--) {
+                        const e = enemigos[j];
+                        if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { 
+                            dañarEnemigo(e, j, p.dmg); 
+                            crearParticula(e.x, e.y, '#f1c40f', 'explosion'); 
+                            
+                            // Explosive bullets perk
+                            if (p.explosive) {
+                                enemigos.forEach(other => {
+                                    if (other !== e && Math.hypot(other.x - e.x, other.y - e.y) < 60) {
+                                        dañarEnemigo(other, -1, p.dmg * 0.5);
+                                        crearParticula(other.x, other.y, '#f39c12', 'explosion');
+                                    }
+                                });
+                                screenshake = 5;
+                            }
+                            
+                            hit = true; 
+                            break; 
+                        }
                     }
                 }
                 if (hit || p.vida <= 0) proyectiles.splice(i, 1);
@@ -2060,8 +2114,9 @@
                     
                     // Draw sprite or fallback
                     if (spriteLoaded && e.hitFlash <= 0) {
-                        const size = e.radio * SENIOR_P_SPRITE_SCALE;
-                        ctx.drawImage(spriteToUse, -size/2, -size/2, size, size);
+                        const sizeW = e.radio * SENIOR_P_SPRITE_SCALE;
+                        const sizeH = sizeW * SENIOR_P_ASPECT_RATIO; // Taller than wide
+                        ctx.drawImage(spriteToUse, -sizeW/2, -sizeH/2, sizeW, sizeH);
                     } else {
                         // Fallback: Purple square with glasses if image fails
                         ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#800080';
@@ -2292,6 +2347,44 @@
                     }
                     ctx.shadowBlur = 0;
                 });
+                
+                // Draw Gauss Warning Areas (La Campana de Gauss)
+                if (seniorPAttack.gaussAreas) {
+                    seniorPAttack.gaussAreas.forEach(area => {
+                        const alpha = 0.3 + 0.3 * Math.sin(Date.now() / 100); // Pulsing effect
+                        const warningProgress = 1 - (area.warningTime / 500);
+                        
+                        // Warning circle - red pulsing ring
+                        ctx.strokeStyle = `rgba(231, 76, 60, ${alpha})`;
+                        ctx.fillStyle = `rgba(231, 76, 60, ${alpha * 0.3})`;
+                        ctx.lineWidth = 4;
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#e74c3c';
+                        
+                        ctx.beginPath();
+                        ctx.arc(area.x, area.y, area.radio, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Target crosshair
+                        ctx.strokeStyle = `rgba(255, 0, 0, ${alpha + 0.2})`;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(area.x - 20, area.y);
+                        ctx.lineTo(area.x + 20, area.y);
+                        ctx.moveTo(area.x, area.y - 20);
+                        ctx.lineTo(area.x, area.y + 20);
+                        ctx.stroke();
+                        
+                        // Draw math symbol
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('σ', area.x, area.y + 5);
+                        
+                        ctx.shadowBlur = 0;
+                    });
+                }
                 
                 // Draw Sine Projectiles (Trigonometria)
                 seniorPAttack.sineProjectiles.forEach(proj => {
