@@ -534,6 +534,7 @@
 
         // --- CONSTANTES DEL MUNDO ---
         const MUNDO_ANCHO = 2500, MUNDO_ALTO = 2500, TILE_SIZE = 50;
+        const SENIOR_P_SPRITE_SCALE = 2.5; // Sprite size multiplier for Senior P boss
         
         // --- ESTADO DEL JUEGO ---
         let camara = { x: 0, y: 0 };
@@ -593,7 +594,7 @@
         // Load all Senior P sprites
         spriteNames.forEach(name => {
             seniorPSprites[name] = new Image();
-            seniorPSprites[name].src = `Senior P/seniorp-${name}.png`;
+            seniorPSprites[name].src = `Senior%20P/seniorp-${name}.png`;
             seniorPSprites[name].onload = () => { spritesLoaded++; };
             seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
         });
@@ -2055,7 +2056,7 @@
                     
                     // Draw sprite or fallback
                     if (spriteLoaded && e.hitFlash <= 0) {
-                        const size = e.radio * 2.5; // Slightly larger for better visibility
+                        const size = e.radio * SENIOR_P_SPRITE_SCALE;
                         ctx.drawImage(spriteToUse, -size/2, -size/2, size, size);
                     } else {
                         // Fallback: Purple square with glasses if image fails
