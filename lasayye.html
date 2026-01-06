@@ -28,11 +28,14 @@
             background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             z-index: 999;
             pointer-events: auto;
             image-rendering: pixelated;
+            overflow-y: auto;
+            padding: 20px 15px 40px 15px;
+            box-sizing: border-box;
         }
         
         /* Pixel grid overlay */
@@ -166,19 +169,23 @@
         /* Game Instructions */
         .game-info {
             display: flex;
-            gap: 40px;
+            gap: 20px;
             margin-top: 25px;
             flex-wrap: wrap;
             justify-content: center;
+            padding: 0 10px;
+            max-width: 100%;
         }
         
         .info-box {
             background: rgba(20, 30, 40, 0.8);
             border: 2px solid #444;
             border-radius: 10px;
-            padding: 15px 25px;
+            padding: 15px 20px;
             text-align: center;
-            min-width: 180px;
+            min-width: 160px;
+            max-width: 200px;
+            flex: 1;
         }
         
         .info-box h4 {
@@ -203,6 +210,33 @@
             font-family: monospace;
             color: #73eaff;
             font-size: 0.75rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+            .game-subtitle {
+                font-size: 0.9rem;
+                letter-spacing: 6px;
+            }
+            .boss-preview {
+                padding: 15px 25px;
+            }
+            .boss-preview img {
+                width: 100px;
+                height: 130px;
+            }
+            .start-btn {
+                font-size: 1.2rem;
+                padding: 14px 50px;
+            }
+            .info-box {
+                min-width: 140px;
+                padding: 10px 15px;
+            }
         }
         
         /* Victory Screen */
@@ -646,6 +680,15 @@
             seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
         });
         
+        // ============ SLOT IMAGES ============
+        // Load tool slot images
+        const slotImages = {};
+        const slotImageNames = ['pico', 'muro', 'torre', 'scar', 'demo', 'trap', 'mina'];
+        slotImageNames.forEach((name, index) => {
+            slotImages[index] = new Image();
+            slotImages[index].src = `images/slot-${name}.png`;
+        });
+        
         // ============ SOUND SYSTEM ============
         // Senior P ability sounds - naming convention: seniorp-[ability]-sound.mp3
         const seniorPSounds = {};
@@ -665,9 +708,30 @@
             seniorPSounds[key].volume = 0.5;
         });
         
-        // SCAR weapon sound
+        // SCAR weapon sound - REDUCED VOLUME
         const scarSound = new Audio('sonidos/scar.mp3');
-        scarSound.volume = 0.3;
+        scarSound.volume = 0.15; // Reduced from 0.3
+        
+        // Pico mining sound
+        const picoSound = new Audio('sonidos/pico.mp3');
+        picoSound.volume = 0.4;
+        
+        // SCAR reload sound
+        const reloadSound = new Audio('sonidos/recarga-scar.mp3');
+        reloadSound.volume = 0.5;
+        
+        // Menu music (loops on start screen)
+        const menuMusic = new Audio('sonidos/pantalla-de-inicio-sound.mp3');
+        menuMusic.loop = true;
+        menuMusic.volume = 0.4;
+        
+        // Boss fight music (loops during combat)
+        const bossMusic = new Audio('sonidos/seniorp-fondo-sound.mp3');
+        bossMusic.loop = true;
+        bossMusic.volume = 0.5;
+        
+        // Increase trigonometry sound volume
+        seniorPSounds['trigonometria'].volume = 0.8; // Increased from 0.5
         
         // Helper function to play sound (handles cloning for rapid fire)
         function playSound(sound) {
@@ -677,11 +741,16 @@
             clone.play().catch(() => {}); // Catch and ignore autoplay errors
         }
         
-        // Senior P attack system
+        // Start menu music when page loads
+        window.addEventListener('load', () => {
+            menuMusic.play().catch(() => {});
+        });
+        
+        // Senior P attack system - REDUCED COOLDOWN for more frequent attacks
         let seniorPAttack = { 
             current: null, 
             timer: 0, 
-            cooldown: 3000,
+            cooldown: 2000, // Reduced from 3000 for more frequent attacks
             shield: false,
             shieldTimer: 0,
             lasers: [],
@@ -1017,6 +1086,10 @@
                     mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
                     // Hide wave timer during combat
                     timerBox.style.display = 'none';
+                    // Start boss music
+                    menuMusic.pause();
+                    bossMusic.currentTime = 0;
+                    bossMusic.play().catch(() => {});
                 }
             } else if (gamePhase === 'combat') {
                 // COMBAT PHASE - Fight the boss
@@ -1071,6 +1144,7 @@
         function iniciarRecarga() {
             if (!scar.reloading && scar.balas < scar.maxBalas) {
                 scar.reloading = true; scar.reloadTimer = scar.reloadTime; mostrarTexto(jugador.x, jugador.y - 40, "RECARGANDO...", "#aaa");
+                playSound(reloadSound); // Play reload sound
             }
         }
         
@@ -1386,7 +1460,7 @@
                     }
                     break;
                     
-                case 'rectes': // Temporary Walls
+                case 'rectes': // Temporary Walls - INCREASED DURABILITY
                     for (let i = 0; i < 16; i++) {
                         const wallAngle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x) + (Math.random() - 0.5) * 1.5;
                         const wallDist = 120 + i * 60;
@@ -1395,7 +1469,7 @@
                             y: boss.y + Math.sin(wallAngle) * wallDist,
                             angle: wallAngle + Math.PI/2,
                             width: 180,
-                            timer: 8000
+                            timer: 12000 // Increased from 8000 for longer duration
                         });
                     }
                     break;
@@ -1590,6 +1664,9 @@
         function usarPico() {
             const hitPos = { x: jugador.x + Math.cos(jugador.angle)*25, y: jugador.y + Math.sin(jugador.angle)*25 };
             crearParticula(hitPos.x, hitPos.y, 'rgba(255,255,255,0.5)', 'golpe');
+            
+            // Play pico sound
+            playSound(picoSound);
             
             // Check for collector placement first
             if (pendingCollector) {
@@ -1845,6 +1922,7 @@
                     if (vida <= 0) { 
                         gameOver = true; 
                         gamePhase = 'defeat';
+                        bossMusic.pause(); // Stop boss music on defeat
                         document.getElementById('death-stats').textContent = `Senior P te ha derrotado. (Nivel ${nivel})`;
                         document.getElementById('gameOverScreen').style.display = 'block'; 
                     }
@@ -1893,6 +1971,9 @@
                         gamePhase = 'victory';
                         document.getElementById('boss-hp-container').style.display = 'none';
                         document.getElementById('senior-p-attack').style.display = 'none';
+                        
+                        // Stop boss music
+                        bossMusic.pause();
                         
                         // Clear all Senior P attack effects
                         seniorPAttack.lasers = [];
@@ -2838,14 +2919,23 @@
             }
             
             ctx.shadowBlur = 0;
-            ctx.fillStyle = a ? '#f1c40f' : 'white'; 
-            ctx.textAlign = "center"; 
-            ctx.font = a ? "bold 14px Arial" : "bold 12px Arial"; 
-            ctx.fillText(k, x + 25, y + 22);
+            
+            // Try to draw slot image
+            const slotImg = slotImages[i];
+            if (slotImg && slotImg.complete && slotImg.naturalWidth > 0) {
+                ctx.drawImage(slotImg, x + 5, y + 3, 40, 30);
+            } else {
+                // Fallback to text icon if image not loaded
+                ctx.fillStyle = a ? '#f1c40f' : 'white'; 
+                ctx.textAlign = "center"; 
+                ctx.font = a ? "bold 14px Arial" : "bold 12px Arial"; 
+                ctx.fillText(k, x + 25, y + 22);
+            }
+            
             ctx.font = "8px Arial"; 
             ctx.fillStyle = a ? "#fff" : "#aaa";
             const names = ["PICO", "MURO", "TORRE", "SCAR", "DEMO", "TRAP", "MINA"];
-            ctx.fillText(names[i], x + 25, y + 38);
+            ctx.fillText(names[i], x + 25, y + 40);
         }
 
         let lastTime = 0;
@@ -2875,6 +2965,7 @@
             gamePhase = 'prep';
             prepTimer = 10000;
             esNoche = false;
+            // Menu music continues during prep phase, switches to boss music when combat starts
             mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 10 SEGUNDOS");
         }
         
