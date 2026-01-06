@@ -728,7 +728,7 @@
         // Boss fight music (loops during combat)
         const bossMusic = new Audio('sonidos/seniorp-fondo-sound.mp3');
         bossMusic.loop = true;
-        bossMusic.volume = 0.5;
+        bossMusic.volume = 0.25; // Lowered to focus on ability sounds
         
         // Increase trigonometry sound volume
         seniorPSounds['trigonometria'].volume = 0.8; // Increased from 0.5
@@ -1323,6 +1323,35 @@
                 boss.y += Math.sin(angle) * boss.velocidad;
             }
             
+            // BOSS DESTROYS PLAYER WALLS - faster destruction rate
+            const bossRadius = 80; // Boss collision radius
+            for (let i = muros.length - 1; i >= 0; i--) {
+                const m = muros[i];
+                if (Math.hypot(boss.x - (m.x + 25), boss.y - (m.y + 25)) < bossRadius + 30) {
+                    m.vida -= 3; // Fast wall destruction (3 damage per frame)
+                    crearParticula(m.x + 25, m.y + 25, '#ff6b6b', 'golpe');
+                    if (m.vida <= 0) {
+                        muros.splice(i, 1);
+                        crearParticula(m.x + 25, m.y + 25, '#fff', 'explosion');
+                        mostrarTexto(m.x, m.y, "💥 DESTRUIDO", "#e74c3c");
+                    }
+                }
+            }
+            
+            // Also destroy torretas (turrets)
+            for (let i = torretas.length - 1; i >= 0; i--) {
+                const t = torretas[i];
+                if (Math.hypot(boss.x - (t.x + 25), boss.y - (t.y + 25)) < bossRadius + 30) {
+                    t.vida -= 5; // Even faster turret destruction
+                    crearParticula(t.x + 25, t.y + 25, '#e74c3c', 'golpe');
+                    if (t.vida <= 0) {
+                        torretas.splice(i, 1);
+                        crearParticula(t.x + 25, t.y + 25, '#f39c12', 'explosion');
+                        mostrarTexto(t.x, t.y, "💥 TORRETA", "#e74c3c");
+                    }
+                }
+            }
+            
             // Attack cooldown
             seniorPAttack.cooldown -= dt;
             
@@ -1357,7 +1386,7 @@
                 seniorPAttack.timer -= dt;
                 if (seniorPAttack.timer <= 0) {
                     seniorPAttack.current = null;
-                    seniorPAttack.cooldown = 3000 + Math.random() * 2000;
+                    seniorPAttack.cooldown = 2000 + Math.random() * 1500; // Faster attacks
                     document.getElementById('senior-p-attack').style.display = 'none';
                     // Return to base sprite
                     currentSeniorPSprite = 'base';
@@ -2843,60 +2872,49 @@
         }
 
         function dibujarHUD() {
-            ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(10, 10, 220, 80);
-            ctx.fillStyle = '#fff'; ctx.font = "bold 16px Segoe UI"; ctx.textAlign = "left";
-            ctx.fillText(`🌲 ${Math.floor(madera)}`, 25, 40); ctx.fillText(`🪨 ${Math.floor(piedra)}`, 110, 40);
-            ctx.font = "12px Segoe UI"; 
-            ctx.fillStyle = gamePhase === 'prep' ? "#2ecc71" : (gamePhase === 'combat' ? "#9b59b6" : "#fff");
-            ctx.fillText(gamePhase === 'prep' ? "PREPARACIÓN" : (gamePhase === 'combat' ? "¡COMBATE!" : ""), 25, 60);
-            ctx.fillStyle = '#9b59b6'; ctx.fillText(`vs SENIOR P`, 25, 75);
-
-            const w = Math.min(400, canvas.width - 40), x = canvas.width/2 - w/2, y = canvas.height - 80;
-            ctx.fillStyle = '#222'; ctx.fillRect(x, y, w, 25);
-            ctx.fillStyle = vida > 30 ? '#c0392b' : '#e74c3c'; ctx.fillRect(x, y, Math.max(0, (vida/vidaMax)*w), 25);
-            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, 25);
+            // ===== HEALTH BAR (BOTTOM-LEFT) =====
+            const hpW = Math.min(250, canvas.width * 0.25);
+            const hpX = 15;
+            const hpY = canvas.height - 50;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(hpX - 5, hpY - 5, hpW + 10, 35);
+            ctx.fillStyle = '#222'; ctx.fillRect(hpX, hpY, hpW, 25);
+            ctx.fillStyle = vida > 30 ? '#c0392b' : '#e74c3c'; 
+            ctx.fillRect(hpX, hpY, Math.max(0, (vida/vidaMax)*hpW), 25);
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(hpX, hpY, hpW, 25);
             ctx.fillStyle = '#fff'; ctx.textAlign = "center"; ctx.font = "bold 14px Arial"; 
-            ctx.fillText(`${Math.floor(vida)} / ${vidaMax}`, canvas.width/2, y + 18);
+            ctx.fillText(`❤️ ${Math.floor(vida)} / ${vidaMax}`, hpX + hpW/2, hpY + 18);
             
-            // 7 slots now
+            // Game phase indicator above health bar
+            ctx.textAlign = "left";
+            ctx.font = "12px Segoe UI"; 
+            ctx.fillStyle = gamePhase === 'prep' ? "#2ecc71" : (gamePhase === 'combat' ? "#73eaff" : "#fff");
+            ctx.fillText(gamePhase === 'prep' ? "⏱️ PREPARACIÓN" : (gamePhase === 'combat' ? "⚔️ COMBATE" : ""), hpX, hpY - 15);
+            
+            // ===== TOOL SLOTS (BOTTOM-RIGHT) =====
             const slotWidth = 50;
             const totalWidth = slotWidth * 7 + 5 * 6;
-            const sx = canvas.width/2 - totalWidth/2, sy = canvas.height - 135;
+            const sx = canvas.width - totalWidth - 15;
+            const sy = canvas.height - 60;
             
             for (let i = 0; i < 7; i++) {
                 dibujarSlot(sx + i * (slotWidth + 5), sy, i, String(i + 1), slotActivo === i);
             }
             
+            // ===== RESOURCES (ABOVE SLOTS) =====
+            const resX = sx;
+            const resY = sy - 35;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(resX - 5, resY - 5, 150, 30);
+            ctx.fillStyle = '#fff'; ctx.font = "bold 16px Segoe UI"; ctx.textAlign = "left";
+            ctx.fillText(`🌲 ${Math.floor(madera)}`, resX + 5, resY + 15);
+            ctx.fillText(`🪨 ${Math.floor(piedra)}`, resX + 80, resY + 15);
+            
+            // SCAR ammo counter (show below slots when SCAR is selected)
             if (slotActivo === 3) {
                 ctx.fillStyle = scar.balas > 5 ? '#f1c40f' : 'red'; ctx.font = "bold 14px Arial";
                 ctx.textAlign = "center";
-                ctx.fillText(`${scar.balas}/${scar.maxBalas}`, canvas.width/2, sy + 60);
-            }
-            
-            // Dash cooldown indicator
-            const dashX = canvas.width - 100;
-            const dashY = canvas.height - 60;
-            ctx.fillStyle = 'rgba(0,0,0,0.6)';
-            ctx.fillRect(dashX, dashY, 80, 30);
-            ctx.strokeStyle = jugador.dash.cooldown <= 0 ? '#73eaff' : '#555';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(dashX, dashY, 80, 30);
-            
-            if (jugador.dash.cooldown <= 0) {
-                ctx.fillStyle = '#73eaff';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('SPACE', dashX + 40, dashY + 14);
-                ctx.font = 'bold 10px Arial';
-                ctx.fillText('DASH', dashX + 40, dashY + 25);
-            } else {
-                const cdPercent = jugador.dash.cooldown / jugador.dash.cooldownTime;
-                ctx.fillStyle = '#73eaff';
-                ctx.fillRect(dashX + 2, dashY + 22, (1 - cdPercent) * 76, 6);
-                ctx.fillStyle = '#888';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('DASH', dashX + 40, dashY + 14);
+                ctx.fillText(`${scar.balas}/${scar.maxBalas}`, sx + totalWidth/2, sy + 55);
             }
         }
         
