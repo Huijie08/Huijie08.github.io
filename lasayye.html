@@ -96,47 +96,87 @@
             50% { text-shadow: 0 0 60px rgba(115, 234, 255, 1), 0 4px 0 #3498db, 0 8px 0 #2980b9, 4px 4px 0 #2980b9; }
         }
         
+        /* Boss Selection Container */
+        .boss-selection {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
         /* Boss Preview Card */
         .boss-preview {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 20px 0;
-            padding: 25px 40px;
+            padding: 20px 30px;
             background: linear-gradient(180deg, rgba(30, 40, 50, 0.9) 0%, rgba(20, 30, 40, 0.95) 100%);
-            border: 3px solid #73eaff;
+            border: 3px solid #555;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(115, 234, 255, 0.3), inset 0 0 50px rgba(115, 234, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+        
+        .boss-preview:hover {
+            transform: translateY(-5px);
+            border-color: #888;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .boss-preview.selected {
+            border-color: #73eaff;
+            box-shadow: 0 0 30px rgba(115, 234, 255, 0.5), inset 0 0 30px rgba(115, 234, 255, 0.1);
+        }
+        
+        .boss-preview.selected-btor {
+            border-color: #ff9800;
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.5), inset 0 0 30px rgba(255, 152, 0, 0.1);
         }
         
         .boss-preview img {
-            width: 150px;
-            height: 180px;
+            width: 120px;
+            height: 150px;
             object-fit: contain;
             image-rendering: pixelated;
-            filter: drop-shadow(0 0 20px rgba(115, 234, 255, 0.5));
-            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px rgba(115, 234, 255, 0.4));
+            margin-bottom: 12px;
+        }
+        
+        .boss-preview.selected-btor img {
+            filter: drop-shadow(0 0 15px rgba(255, 152, 0, 0.4));
         }
         
         .boss-preview h3 {
             font-family: 'Poppins', sans-serif;
             color: #73eaff;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin: 0 0 5px 0;
             text-shadow: 0 0 10px rgba(115, 234, 255, 0.5);
         }
         
+        .boss-preview.selected-btor h3 {
+            color: #ff9800;
+            text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        }
+        
         .boss-preview p {
             color: #888;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin: 0;
         }
         
         .boss-preview .difficulty {
             color: #e74c3c;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-top: 8px;
             letter-spacing: 2px;
+        }
+        
+        .boss-preview .difficulty.medium {
+            color: #f39c12;
         }
         
         .start-btn {
@@ -457,12 +497,24 @@
         <h1 class="game-title">La Sayye</h1>
         <p class="game-subtitle">Estudiante vs Profesores</p>
         
-        <!-- Boss Preview with actual image -->
-        <div class="boss-preview">
-            <img src="Senior P/seniorp-base.png" alt="Senior P" onerror="this.style.display='none'">
-            <h3>👨‍🏫 Senior P</h3>
-            <p>Profesor de Matemáticas</p>
-            <span class="difficulty">★★★ DIFÍCIL</span>
+        <!-- Boss Selection -->
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">Selecciona tu oponente:</p>
+        <div class="boss-selection">
+            <!-- Senior P Boss Card -->
+            <div class="boss-preview selected" id="boss-seniorP" onclick="selectBoss('seniorP')">
+                <img src="Senior P/seniorp-base.png" alt="Senior P" onerror="this.style.display='none'">
+                <h3>👨‍🏫 Senior P</h3>
+                <p>Profesor de Matemáticas</p>
+                <span class="difficulty">★★★ DIFÍCIL</span>
+            </div>
+            
+            <!-- B-Tor Boss Card -->
+            <div class="boss-preview" id="boss-btor" onclick="selectBoss('btor')">
+                <img src="B-Tor/btor-base.png" alt="B-Tor" onerror="this.style.display='none'">
+                <h3>🔧 B-Tor</h3>
+                <p>Profesor de Tecnología</p>
+                <span class="difficulty medium">★★☆ MEDIO</span>
+            </div>
         </div>
         
         <button id="play-btn" class="start-btn">▶ JUGAR</button>
@@ -679,6 +731,31 @@
             seniorPSprites[name].onload = () => { spritesLoaded++; };
             seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
         });
+        
+        // ============ B-TOR BOSS SYSTEM ============
+        const btorSprites = {};
+        const btorSpriteNames = ['base'];
+        let currentBtorSprite = 'base';
+        
+        // B-Tor sprite sizes
+        const BTOR_FIXED_WIDTH = 200;
+        const BTOR_FIXED_HEIGHT = 200;
+        
+        // Load B-Tor sprites
+        btorSpriteNames.forEach(name => {
+            btorSprites[name] = new Image();
+            btorSprites[name].src = `B-Tor/btor-${name}.png`;
+            btorSprites[name].onload = () => { console.log(`B-Tor sprite loaded: ${name}`); };
+            btorSprites[name].onerror = () => { console.warn(`Failed to load B-Tor sprite: btor-${name}.png`); };
+        });
+        
+        // B-Tor arena background
+        const btorArenaImage = new Image();
+        btorArenaImage.src = 'B-Tor/sala-steam.png';
+        
+        // B-Tor map is smaller (square arena - 1800x1800)
+        const BTOR_MUNDO_ANCHO = 1800;
+        const BTOR_MUNDO_ALTO = 1800;
         
         // ============ SLOT IMAGES ============
         // Load tool slot images
@@ -1054,8 +1131,13 @@
             // Cámara suave
             let shakeX = (Math.random() - 0.5) * screenshake;
             let shakeY = (Math.random() - 0.5) * screenshake;
-            camara.x = Math.max(0, Math.min(jugador.x - canvas.width/2 + shakeX, MUNDO_ANCHO - canvas.width));
-            camara.y = Math.max(0, Math.min(jugador.y - canvas.height/2 + shakeY, MUNDO_ALTO - canvas.height));
+            
+            // Use correct world bounds based on selected boss
+            const worldWidth = selectedBoss === 'btor' ? BTOR_MUNDO_ANCHO : MUNDO_ANCHO;
+            const worldHeight = selectedBoss === 'btor' ? BTOR_MUNDO_ALTO : MUNDO_ALTO;
+            
+            camara.x = Math.max(0, Math.min(jugador.x - canvas.width/2 + shakeX, worldWidth - canvas.width));
+            camara.y = Math.max(0, Math.min(jugador.y - canvas.height/2 + shakeY, worldHeight - canvas.height));
             ratonMundo.x = ratonPantalla.x + camara.x; ratonMundo.y = ratonPantalla.y + camara.y;
 
             // Recarga
@@ -1084,10 +1166,18 @@
                 if (prepTimer <= 0) {
                     // Transition to combat phase
                     gamePhase = 'combat';
-                    spawnSeniorP();
-                    seniorPActive = true;
+                    
+                    // Spawn appropriate boss based on selection
+                    if (selectedBoss === 'seniorP') {
+                        spawnSeniorP();
+                        seniorPActive = true;
+                        mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
+                    } else if (selectedBoss === 'btor') {
+                        spawnBTor();
+                        mostrarNotificacion("⚠️ ¡B-TOR HA LLEGADO! ⚠️");
+                    }
+                    
                     // Keep daytime - don't set esNoche = true
-                    mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
                     // Hide wave timer during combat
                     timerBox.style.display = 'none';
                     // Start boss music
@@ -1102,6 +1192,10 @@
                 // Update Senior P boss
                 if (boss && boss.tipo === 'seniorP') {
                     actualizarSeniorP(dt);
+                }
+                // Update B-Tor boss
+                if (boss && boss.tipo === 'btor') {
+                    actualizarBTor(dt);
                 }
             }
 
@@ -1138,8 +1232,12 @@
                 const currentSpeed = jugador.slowed > 0 ? stats.velocidad * 0.5 : stats.velocidad;
                 jugador.x += (mx/len) * currentSpeed; jugador.y += (my/len) * currentSpeed;
             }
-            jugador.x = Math.max(20, Math.min(MUNDO_ANCHO-20, jugador.x));
-            jugador.y = Math.max(20, Math.min(MUNDO_ALTO-20, jugador.y));
+            
+            // Clamp player to correct world bounds
+            const playerWorldWidth = selectedBoss === 'btor' ? BTOR_MUNDO_ANCHO : MUNDO_ANCHO;
+            const playerWorldHeight = selectedBoss === 'btor' ? BTOR_MUNDO_ALTO : MUNDO_ALTO;
+            jugador.x = Math.max(20, Math.min(playerWorldWidth-20, jugador.x));
+            jugador.y = Math.max(20, Math.min(playerWorldHeight-20, jugador.y));
             jugador.angle = Math.atan2(ratonMundo.y - jugador.y, ratonMundo.x - jugador.x);
 
             actualizarEntidades(dt);
@@ -1640,6 +1738,143 @@
                         seniorPAttack.gaussAreas.splice(i, 1);
                     }
                 }
+            }
+        }
+        
+        // ============ B-TOR BOSS SPAWN AND UPDATE ============
+        function spawnBTor() {
+            let ex, ey;
+            do { ex = Math.random()*BTOR_MUNDO_ANCHO; ey = Math.random()*BTOR_MUNDO_ALTO; } 
+            while(Math.hypot(ex-jugador.x, ey-jugador.y) < 400);
+            
+            boss = {
+                x: ex, y: ey,
+                nombre: "B-TOR",
+                color: '#ff9800',
+                hp: 800,
+                maxHp: 800,
+                radio: 40,
+                velocidad: 1.8, // Faster than Senior P
+                dmg: 8, // Higher melee damage
+                angle: 0, 
+                hitFlash: 0, 
+                tipo: 'btor',
+                xpReward: 300,
+                attackCooldown: 0,
+                attackDuration: 0,
+                isAttacking: false
+            };
+            
+            enemigos.push(boss);
+            document.getElementById('boss-hp-container').style.display = 'block';
+            document.getElementById('boss-name').textContent = `🔧 B-TOR`;
+            // Change boss HP bar color to orange
+            document.getElementById('boss-hp-bar').style.borderColor = '#ff9800';
+            document.getElementById('boss-hp-fill').style.background = 'linear-gradient(90deg, #ff9800, #ffc107)';
+            document.getElementById('boss-name').style.color = '#ff9800';
+        }
+        
+        // B-TOR UPDATE LOGIC - Simple melee boss that follows and attacks
+        function actualizarBTor(dt) {
+            if (!boss || boss.tipo !== 'btor') return;
+            
+            // Move towards player
+            const angle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x);
+            boss.angle = angle;
+            
+            const dist = Math.hypot(jugador.x - boss.x, jugador.y - boss.y);
+            
+            // Move towards player if not close enough for melee
+            if (dist > 80) {
+                boss.x += Math.cos(angle) * boss.velocidad;
+                boss.y += Math.sin(angle) * boss.velocidad;
+            }
+            
+            // Clamp to B-Tor arena bounds
+            boss.x = Math.max(50, Math.min(BTOR_MUNDO_ANCHO - 50, boss.x));
+            boss.y = Math.max(50, Math.min(BTOR_MUNDO_ALTO - 50, boss.y));
+            
+            // Melee attack cooldown
+            boss.attackCooldown -= dt;
+            
+            // Melee attack when close
+            if (dist < 100 && boss.attackCooldown <= 0) {
+                boss.isAttacking = true;
+                boss.attackDuration = 300; // 300ms attack animation
+                boss.attackCooldown = 1200; // Attack every 1.2 seconds
+                
+                // Deal damage to player
+                let damage = boss.dmg;
+                if (hasPerk('armadura')) damage *= 0.75;
+                vida -= damage;
+                screenshake = 8;
+                crearParticula(jugador.x, jugador.y, '#ff9800', 'explosion');
+                mostrarTexto(jugador.x, jugador.y - 30, `-${Math.floor(damage)}`, '#ff9800');
+                
+                if (vida <= 0) {
+                    vida = 0;
+                    gameOver = true;
+                    gamePhase = 'defeat';
+                    bossMusic.pause();
+                    document.getElementById('gameOverScreen').style.display = 'block';
+                }
+            }
+            
+            // Update attack animation
+            if (boss.attackDuration > 0) {
+                boss.attackDuration -= dt;
+                if (boss.attackDuration <= 0) {
+                    boss.isAttacking = false;
+                }
+            }
+            
+            // B-Tor destroys player walls on contact
+            const bossRadius = 60;
+            for (let i = muros.length - 1; i >= 0; i--) {
+                const m = muros[i];
+                if (Math.hypot(boss.x - (m.x + 25), boss.y - (m.y + 25)) < bossRadius + 30) {
+                    m.vida -= 5;
+                    crearParticula(m.x + 25, m.y + 25, '#ff9800', 'golpe');
+                    if (m.vida <= 0) {
+                        muros.splice(i, 1);
+                        crearParticula(m.x + 25, m.y + 25, '#fff', 'explosion');
+                        mostrarTexto(m.x, m.y, "💥 DESTRUIDO", "#ff9800");
+                    }
+                }
+            }
+            
+            // Also destroy turrets
+            for (let i = torretas.length - 1; i >= 0; i--) {
+                const t = torretas[i];
+                if (Math.hypot(boss.x - (t.x + 25), boss.y - (t.y + 25)) < bossRadius + 30) {
+                    t.vida -= 8;
+                    crearParticula(t.x + 25, t.y + 25, '#ff9800', 'golpe');
+                    if (t.vida <= 0) {
+                        torretas.splice(i, 1);
+                        crearParticula(t.x + 25, t.y + 25, '#fff', 'explosion');
+                        mostrarTexto(t.x, t.y, "💥 DESTRUIDO", "#ff9800");
+                    }
+                }
+            }
+            
+            // Update boss HP bar
+            const hpPercent = (boss.hp / boss.maxHp) * 100;
+            document.getElementById('boss-hp-fill').style.width = hpPercent + '%';
+            
+            // Check for victory
+            if (boss.hp <= 0) {
+                gamePhase = 'victory';
+                bossMusic.pause();
+                document.getElementById('boss-hp-container').style.display = 'none';
+                document.getElementById('victory-screen').style.display = 'block';
+                document.getElementById('victory-stats').textContent = `Has derrotado a B-Tor`;
+                crearParticula(boss.x, boss.y, '#ff9800', 'explosion');
+                crearParticula(boss.x, boss.y, '#ffc107', 'explosion');
+                
+                // Remove boss from enemies
+                const bossIdx = enemigos.findIndex(e => e === boss);
+                if (bossIdx !== -1) enemigos.splice(bossIdx, 1);
+                boss = null;
             }
         }
         
@@ -2195,9 +2430,190 @@
         }
         function mostrarNotificacion(txt) { const n = document.getElementById('wave-warning'); n.textContent = txt; n.style.opacity = 1; setTimeout(() => n.style.opacity = 0, 3000); }
 
+        // --- B-TOR ARENA DIBUJADO ---
+        function dibujarArenaBTor() {
+            // Dark background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
+            
+            // Draw the sala-steam.png background image
+            if (btorArenaImage.complete && btorArenaImage.naturalWidth > 0) {
+                // Scale and tile the image to fit the arena
+                const imgSize = Math.min(btorArenaImage.naturalWidth, BTOR_MUNDO_ANCHO);
+                ctx.drawImage(btorArenaImage, 0, 0, BTOR_MUNDO_ANCHO, BTOR_MUNDO_ALTO);
+            } else {
+                // Fallback: draw a simple grid floor
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(0, 0, BTOR_MUNDO_ANCHO, BTOR_MUNDO_ALTO);
+                
+                // Grid pattern
+                ctx.strokeStyle = 'rgba(255, 152, 0, 0.2)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x <= BTOR_MUNDO_ANCHO; x += 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, BTOR_MUNDO_ALTO);
+                    ctx.stroke();
+                }
+                for (let y = 0; y <= BTOR_MUNDO_ALTO; y += 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(BTOR_MUNDO_ANCHO, y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Arena boundary
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(10, 10, BTOR_MUNDO_ANCHO - 20, BTOR_MUNDO_ALTO - 20);
+            
+            const isVis = (o, p) => !(o.x+p < camara.x || o.x-p > camara.x+canvas.width || o.y+p < camara.y || o.y-p > camara.y+canvas.height);
+            
+            // Draw trees
+            arboles.forEach(a => {
+                if (!isVis(a, 40) || !a.activo) return;
+                ctx.fillStyle = '#2d6b22';
+                ctx.beginPath(); ctx.arc(a.x, a.y - 10, a.radio, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#6b4423';
+                ctx.fillRect(a.x - 6, a.y + 5, 12, 20);
+            });
+            
+            // Draw rocks
+            rocas.forEach(r => {
+                if (!r.activo || !isVis(r, 40)) return;
+                ctx.fillStyle = '#7f8c8d';
+                ctx.beginPath(); ctx.ellipse(r.x, r.y, r.ancho, r.alto, 0, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw walls
+            muros.forEach(m => {
+                if (!isVis(m, 50)) return;
+                ctx.fillStyle = m.tipo === 'madera' ? '#6d4c41' : '#546e7a';
+                ctx.fillRect(m.x, m.y, TILE_SIZE, TILE_SIZE);
+            });
+            
+            // Draw turrets
+            torretas.forEach(t => {
+                if (!isVis(t, 50)) return;
+                ctx.fillStyle = '#95a5a6';
+                ctx.fillRect(t.x + 10, t.y + 10, 30, 30);
+                ctx.fillStyle = '#333';
+                ctx.beginPath(); ctx.arc(t.x + 25, t.y + 25, 12, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw traps
+            trampas.forEach(t => {
+                if (!isVis(t, 50)) return;
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(t.x + 5, t.y + 5, 40, 40);
+            });
+            
+            // Draw mines
+            minas.forEach(m => {
+                if (!isVis(m, 50)) return;
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(m.x + 25, m.y + 25, 15, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw projectiles
+            proyectiles.forEach(p => {
+                ctx.fillStyle = p.color || '#f1c40f';
+                ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw enemies (including B-Tor boss)
+            enemigos.forEach(e => {
+                if (!isVis(e, 100)) return;
+                
+                if (e.tipo === 'btor') {
+                    // Draw B-Tor boss
+                    const sprite = btorSprites['base'];
+                    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+                        ctx.save();
+                        ctx.translate(e.x, e.y);
+                        
+                        // Flash when hit
+                        if (e.hitFlash > 0) {
+                            ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 30) * 0.3;
+                        }
+                        
+                        // Attack animation - scale up briefly
+                        let scale = 1;
+                        if (e.isAttacking) {
+                            scale = 1.2;
+                            ctx.fillStyle = 'rgba(255, 152, 0, 0.3)';
+                            ctx.beginPath();
+                            ctx.arc(0, 0, 100, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        
+                        ctx.drawImage(sprite, -BTOR_FIXED_WIDTH * scale / 2, -BTOR_FIXED_HEIGHT * scale / 2, BTOR_FIXED_WIDTH * scale, BTOR_FIXED_HEIGHT * scale);
+                        ctx.restore();
+                    } else {
+                        // Fallback to colored rectangle
+                        ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.color;
+                        ctx.fillRect(e.x - 40, e.y - 50, 80, 100);
+                        ctx.fillStyle = '#000';
+                        ctx.textAlign = 'center';
+                        ctx.font = 'bold 20px Poppins';
+                        ctx.fillText('B-TOR', e.x, e.y);
+                    }
+                } else {
+                    // Regular enemy
+                    ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.color;
+                    ctx.beginPath(); ctx.arc(e.x, e.y, e.radio, 0, Math.PI * 2); ctx.fill();
+                }
+            });
+            
+            // Draw player
+            ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color;
+            ctx.beginPath(); ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2); ctx.fill();
+            
+            // Player direction indicator
+            ctx.fillStyle = '#c0392b';
+            const dirX = jugador.x + Math.cos(jugador.angle) * 20;
+            const dirY = jugador.y + Math.sin(jugador.angle) * 20;
+            ctx.beginPath(); ctx.arc(dirX, dirY, 5, 0, Math.PI * 2); ctx.fill();
+            
+            // Draw particles
+            particulas.forEach(p => {
+                if (p.tipo === 'texto') {
+                    ctx.fillStyle = p.color;
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(p.texto, p.x, p.y);
+                } else {
+                    ctx.globalAlpha = p.vida;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            });
+            
+            // Draw loot
+            lootDrops.forEach(l => {
+                ctx.fillStyle = l.type === 'health' ? '#2ecc71' : '#f1c40f';
+                ctx.beginPath(); ctx.arc(l.x, l.y, 8, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            ctx.restore();
+            
+            // Draw HUD
+            dibujarHUD();
+        }
+
         // --- DIBUJADO DETALLADO ---
         function dibujar() {
-            // MAGICAL CLASSROOM BACKGROUND (Pixelated style)
+            // Check if we're in B-Tor arena
+            if (selectedBoss === 'btor' && gameStarted) {
+                dibujarArenaBTor();
+                return;
+            }
+            
+            // MAGICAL CLASSROOM BACKGROUND (Senior P - Pixelated style)
             // Dark wooden floor with blue-green tones like an old magic classroom
             const baseColor = '#2a3a4a'; // Dark slate blue-green (pizarra)
             ctx.fillStyle = baseColor; 
@@ -2972,8 +3388,24 @@
             requestAnimationFrame(loop);
         }
         
-        // Boss is pre-selected as seniorP (only option for now)
+        // Boss is pre-selected as seniorP (default option)
         let selectedBossType = 'seniorP';
+        
+        // Boss selection function
+        function selectBoss(bossType) {
+            selectedBossType = bossType;
+            
+            // Update UI
+            document.querySelectorAll('.boss-preview').forEach(card => {
+                card.classList.remove('selected', 'selected-btor');
+            });
+            
+            if (bossType === 'seniorP') {
+                document.getElementById('boss-seniorP').classList.add('selected');
+            } else if (bossType === 'btor') {
+                document.getElementById('boss-btor').classList.add('selected-btor');
+            }
+        }
         
         function iniciarPartida() {
             if (!selectedBossType) {
@@ -2987,8 +3419,46 @@
             gamePhase = 'prep';
             prepTimer = 10000;
             esNoche = false;
+            
+            // Adjust world size for B-Tor (smaller arena)
+            if (selectedBoss === 'btor') {
+                // Regenerate world with B-Tor's smaller arena
+                generarMundoBtor();
+            }
+            
             // Menu music continues during prep phase, switches to boss music when combat starts
             mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 10 SEGUNDOS");
+        }
+        
+        // Generate world for B-Tor (smaller arena)
+        function generarMundoBtor() {
+            arboles = []; rocas = []; muros = []; enemigos = []; trampas = []; minas = []; recolectores = [];
+            
+            // Fewer resources in smaller arena
+            for (let i = 0; i < 80; i++) {
+                let x, y, dist, safety = 0;
+                do {
+                    x = Math.random() * BTOR_MUNDO_ANCHO; 
+                    y = Math.random() * BTOR_MUNDO_ALTO;
+                    dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
+                    safety++;
+                } while (dist < 400 && safety < 50);
+                arboles.push({ x, y, radio: 20 + Math.random()*15, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 100 });
+            }
+            for (let i = 0; i < 40; i++) {
+                let x, y, dist, safety = 0;
+                do {
+                    x = Math.random() * BTOR_MUNDO_ANCHO; 
+                    y = Math.random() * BTOR_MUNDO_ALTO;
+                    dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
+                    safety++;
+                } while (dist < 400 && safety < 50);
+                rocas.push({ x, y, ancho: 28, alto: 22, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 80 });
+            }
+            
+            // Move player to center of B-Tor arena
+            jugador.x = BTOR_MUNDO_ANCHO / 2;
+            jugador.y = BTOR_MUNDO_ALTO / 2;
         }
         
         function volverAlMenu() { 
