@@ -1365,7 +1365,7 @@
                         const poolY = jugador.y + (Math.random() - 0.5) * 300;
                         seniorPAttack.acidPools.push({
                             x: poolX, y: poolY,
-                            radio: 40,
+                            radio: 80,
                             timer: 10000,
                             damage: 1.0
                         });
@@ -2613,7 +2613,7 @@
                     const alpha = Math.min(1, pool.timer / 2000);
                     ctx.fillStyle = `rgba(46, 204, 113, ${alpha * 0.5})`;
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#27ae60';
+                    ctx.shadowColor = '#00ff6c';
                     ctx.beginPath();
                     ctx.arc(pool.x, pool.y, pool.radio, 0, Math.PI * 2);
                     ctx.fill();
