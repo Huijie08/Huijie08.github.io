@@ -710,11 +710,11 @@
         
         // SCAR weapon sound - REDUCED VOLUME
         const scarSound = new Audio('sonidos/scar.mp3');
-        scarSound.volume = 0.15; // Reduced from 0.3
+        scarSound.volume = 0.10; // Reduced from 0.3
         
         // Pico mining sound
         const picoSound = new Audio('sonidos/pico.mp3');
-        picoSound.volume = 0.4;
+        picoSound.volume = 0.2;
         
         // SCAR reload sound
         const reloadSound = new Audio('sonidos/recarga-scar.mp3');
@@ -728,10 +728,10 @@
         // Boss fight music (loops during combat)
         const bossMusic = new Audio('sonidos/seniorp-fondo-sound.mp3');
         bossMusic.loop = true;
-        bossMusic.volume = 0.25; // Lowered to focus on ability sounds
+        bossMusic.volume = 0.10; // Lowered to focus on ability sounds
         
         // Increase trigonometry sound volume
-        seniorPSounds['trigonometria'].volume = 0.8; // Increased from 0.5
+        seniorPSounds['trigonometria'].volume = 1; // Increased from 0.5
         
         // Helper function to play sound (handles cloning for rapid fire)
         function playSound(sound) {
