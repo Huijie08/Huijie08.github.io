@@ -751,7 +751,7 @@
         
         // B-Tor arena background
         const btorArenaImage = new Image();
-        btorArenaImage.src = 'B-Tor/sala-steam.png';
+        btorArenaImage.src = 'B-Tor/sala-steam.jpg';
         
         // B-Tor map is smaller (square arena - 1800x1800)
         const BTOR_MUNDO_ANCHO = 1800;
@@ -2472,20 +2472,46 @@
             
             const isVis = (o, p) => !(o.x+p < camara.x || o.x-p > camara.x+canvas.width || o.y+p < camara.y || o.y-p > camara.y+canvas.height);
             
-            // Draw trees
+            // Draw wooden chairs (arboles in B-Tor = chairs for wood)
             arboles.forEach(a => {
                 if (!isVis(a, 40) || !a.activo) return;
-                ctx.fillStyle = '#2d6b22';
-                ctx.beginPath(); ctx.arc(a.x, a.y - 10, a.radio, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#6b4423';
-                ctx.fillRect(a.x - 6, a.y + 5, 12, 20);
+                // Draw wooden chair
+                // Seat (brown square)
+                ctx.fillStyle = '#8B4513'; // Saddle brown
+                ctx.fillRect(a.x - 12, a.y - 5, 24, 20);
+                
+                // Chair back (vertical)
+                ctx.fillStyle = '#654321'; // Dark brown
+                ctx.fillRect(a.x - 12, a.y - 30, 4, 35);
+                ctx.fillRect(a.x + 8, a.y - 30, 4, 35);
+                
+                // Back rest (horizontal bar)
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(a.x - 12, a.y - 28, 24, 6);
+                
+                // Chair legs
+                ctx.fillStyle = '#5D4037';
+                ctx.fillRect(a.x - 10, a.y + 15, 4, 12);
+                ctx.fillRect(a.x + 6, a.y + 15, 4, 12);
             });
             
-            // Draw rocks
+            // Draw white tables (rocas in B-Tor = tables for stone)
+            // Tables are horizontally short and vertically long
             rocas.forEach(r => {
-                if (!r.activo || !isVis(r, 40)) return;
-                ctx.fillStyle = '#7f8c8d';
-                ctx.beginPath(); ctx.ellipse(r.x, r.y, r.ancho, r.alto, 0, 0, Math.PI * 2); ctx.fill();
+                if (!r.activo || !isVis(r, 50)) return;
+                // Table top - white/light gray
+                ctx.fillStyle = '#ECEFF1'; // Light gray white
+                ctx.fillRect(r.x - r.ancho/2, r.y - r.alto/2, r.ancho, r.alto);
+                
+                // Table border
+                ctx.strokeStyle = '#B0BEC5';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(r.x - r.ancho/2, r.y - r.alto/2, r.ancho, r.alto);
+                
+                // Table legs (4 corners)
+                ctx.fillStyle = '#78909C';
+                ctx.fillRect(r.x - r.ancho/2 + 2, r.y + r.alto/2, 4, 8);
+                ctx.fillRect(r.x + r.ancho/2 - 6, r.y + r.alto/2, 4, 8);
             });
             
             // Draw walls
@@ -3430,30 +3456,59 @@
             mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 10 SEGUNDOS");
         }
         
-        // Generate world for B-Tor (smaller arena)
+        // Generate world for B-Tor (smaller arena with chairs and tables in CENTER)
         function generarMundoBtor() {
             arboles = []; rocas = []; muros = []; enemigos = []; trampas = []; minas = []; recolectores = [];
             
-            // Fewer resources in smaller arena
-            for (let i = 0; i < 80; i++) {
+            // Define center area bounds (avoid edges and corners)
+            // Center area: from 300 to 1500 (leaving 300px margins on all sides)
+            const centerMinX = 300;
+            const centerMaxX = BTOR_MUNDO_ANCHO - 300;
+            const centerMinY = 300;
+            const centerMaxY = BTOR_MUNDO_ALTO - 300;
+            
+            // Generate wooden chairs (for wood) - spawn in center area only
+            for (let i = 0; i < 60; i++) {
                 let x, y, dist, safety = 0;
                 do {
-                    x = Math.random() * BTOR_MUNDO_ANCHO; 
-                    y = Math.random() * BTOR_MUNDO_ALTO;
+                    x = centerMinX + Math.random() * (centerMaxX - centerMinX);
+                    y = centerMinY + Math.random() * (centerMaxY - centerMinY);
                     dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
                     safety++;
-                } while (dist < 400 && safety < 50);
-                arboles.push({ x, y, radio: 20 + Math.random()*15, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 100 });
+                } while (dist < 200 && safety < 50); // Keep spawn point clear for player
+                arboles.push({ 
+                    x, y, 
+                    radio: 15, // Smaller hitbox for chair
+                    vida: 3, 
+                    maxVida: 3, 
+                    activo: true, 
+                    respawnDia: 0, 
+                    recursos: 80,
+                    tipo: 'silla' // Mark as chair for B-Tor
+                });
             }
-            for (let i = 0; i < 40; i++) {
+            
+            // Generate white tables (for stone) - spawn in center area only
+            // Tables are horizontally short and vertically long
+            for (let i = 0; i < 30; i++) {
                 let x, y, dist, safety = 0;
                 do {
-                    x = Math.random() * BTOR_MUNDO_ANCHO; 
-                    y = Math.random() * BTOR_MUNDO_ALTO;
+                    x = centerMinX + Math.random() * (centerMaxX - centerMinX);
+                    y = centerMinY + Math.random() * (centerMaxY - centerMinY);
                     dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
                     safety++;
-                } while (dist < 400 && safety < 50);
-                rocas.push({ x, y, ancho: 28, alto: 22, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 80 });
+                } while (dist < 200 && safety < 50);
+                rocas.push({ 
+                    x, y, 
+                    ancho: 20, // Horizontally SHORT
+                    alto: 40,  // Vertically LONG
+                    vida: 4, 
+                    maxVida: 4, 
+                    activo: true, 
+                    respawnDia: 0, 
+                    recursos: 60,
+                    tipo: 'mesa' // Mark as table for B-Tor
+                });
             }
             
             // Move player to center of B-Tor arena
