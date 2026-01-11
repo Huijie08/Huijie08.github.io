@@ -688,6 +688,7 @@
         let slotActivo = 0, materialMuro = 'madera';
         let xp = 0, nivel = 1, xpParaSiguiente = 100;
         let spawnRate = 2000, waveTimer = 0;
+        let usedInmortal = false; // Track if Inmortal perk has been used
 
         // ARMA
         let scar = { balas: 32, maxBalas: 32, reloading: false, reloadTime: 2000, reloadTimer: 0, damage: 3, fireRate: 100 };
@@ -864,16 +865,29 @@
         // PERKS SYSTEM
         let activePerks = [];
         const PERKS = [
-            { id: 'explosivas', nombre: '💥 Balas Explosivas', desc: 'Daño en área al impactar', rarity: 'epic', icon: '💥' },
-            { id: 'vampirismo', nombre: '🧛 Vampirismo', desc: 'Cura 5 HP al matar', rarity: 'rare', icon: '🧛' },
-            { id: 'ingeniero', nombre: '🔧 Ingeniero', desc: 'Torretas se auto-reparan', rarity: 'common', icon: '🔧' },
+            // COMMON PERKS
             { id: 'piesligeros', nombre: '👟 Pies Ligeros', desc: '+20% velocidad', rarity: 'common', icon: '👟' },
+            { id: 'municion', nombre: '🔫 Munición Extra', desc: '+50% capacidad cargador', rarity: 'common', icon: '🔫' },
+            { id: 'imantado', nombre: '🧲 Imantado', desc: 'Loot se atrae al jugador', rarity: 'common', icon: '🧲' },
+            { id: 'ingeniero', nombre: '🔧 Ingeniero', desc: 'Torretas se auto-reparan', rarity: 'common', icon: '🔧' },
+            { id: 'rapidez', nombre: '⚡ Rapidez', desc: 'Recarga 30% más rápida', rarity: 'common', icon: '⚡' },
+            { id: 'recolector', nombre: '🪓 Recolector', desc: '+50% recursos al picar', rarity: 'common', icon: '🪓' },
+            // RARE PERKS
+            { id: 'vampirismo', nombre: '🧛 Vampirismo', desc: 'Cura 5 HP al matar', rarity: 'rare', icon: '🧛' },
             { id: 'armadura', nombre: '🛡️ Armadura', desc: '-25% daño recibido', rarity: 'rare', icon: '🛡️' },
             { id: 'critico', nombre: '🎯 Golpe Crítico', desc: '20% chance 2x daño', rarity: 'rare', icon: '🎯' },
+            { id: 'dobledash', nombre: '🏃 Doble Dash', desc: 'Cooldown del dash -50%', rarity: 'rare', icon: '🏃' },
+            { id: 'fortaleza', nombre: '🏰 Fortaleza', desc: 'Muros +100% HP', rarity: 'rare', icon: '🏰' },
+            { id: 'francotirador', nombre: '🎯 Francotirador', desc: '+30% daño a distancia', rarity: 'rare', icon: '🔭' },
+            // EPIC PERKS
+            { id: 'explosivas', nombre: '💥 Balas Explosivas', desc: 'Daño en área al impactar', rarity: 'epic', icon: '💥' },
             { id: 'regeneracion', nombre: '💚 Regeneración', desc: 'Recupera 1 HP/seg', rarity: 'epic', icon: '💚' },
-            { id: 'municion', nombre: '🔫 Munición Extra', desc: '+50% capacidad cargador', rarity: 'common', icon: '🔫' },
-            { id: 'berserker', nombre: '🔥 Berserker', desc: '+50% daño con poca vida', rarity: 'legendary', icon: '🔥' },
-            { id: 'imantado', nombre: '🧲 Imantado', desc: 'Loot se atrae al jugador', rarity: 'common', icon: '🧲' }
+            { id: 'vidaextra', nombre: '❤️ Vida Extra', desc: '+50 HP máximo', rarity: 'epic', icon: '❤️' },
+            { id: 'torretas', nombre: '🔫 Torretas Mortíferas', desc: 'Torretas +50% daño', rarity: 'epic', icon: '🗼' },
+            // LEGENDARY PERKS
+            { id: 'berserker', nombre: '🔥 Berserker', desc: '+100% daño con poca vida', rarity: 'legendary', icon: '🔥' },
+            { id: 'inmortal', nombre: '💀 Inmortal', desc: 'Sobrevive un golpe mortal (1 vez)', rarity: 'legendary', icon: '💀' },
+            { id: 'multishot', nombre: '🌟 Multi-Disparo', desc: 'Dispara 3 balas a la vez', rarity: 'legendary', icon: '🌟' }
         ];
 
         // INPUT
@@ -918,9 +932,16 @@
             perkModalOpen = false;
             document.getElementById('perk-modal').style.display = 'none';
             
-            // Apply perk effects
+            // Apply perk effects immediately
             if (perk.id === 'piesligeros') stats.velocidad = Math.min(stats.velocidad * 1.2, STAT_CAPS.velocidad);
             if (perk.id === 'municion') scar.maxBalas = Math.floor(scar.maxBalas * 1.5);
+            if (perk.id === 'rapidez') scar.reloadTime = Math.floor(scar.reloadTime * 0.7);
+            if (perk.id === 'recolector') stats.recoleccion *= 1.5;
+            if (perk.id === 'dobledash') jugador.dash.cooldownTime = Math.floor(jugador.dash.cooldownTime * 0.5);
+            if (perk.id === 'fortaleza') stats.muroHpMult *= 2;
+            if (perk.id === 'vidaextra') { vidaMax += 50; vida = Math.min(vida + 50, vidaMax); }
+            if (perk.id === 'torretas') stats.turretDmg = Math.floor(stats.turretDmg * 1.5);
+            if (perk.id === 'francotirador') scar.damage = Math.floor(scar.damage * 1.3);
             
             // Update active perks display
             updateActivePerksUI();
@@ -1000,46 +1021,75 @@
             document.getElementById('lvl-turret').textContent = stats.lvlTurret;
         }
         
+        // ===== CENTRALIZED UPGRADE SYSTEM =====
+        // Configuration for all shop upgrades
+        const UPGRADES = {
+            pico: {
+                baseCostWood: 120, baseCostStone: 60,
+                levelKey: 'lvlPico', maxLevel: 10,
+                apply: () => { stats.picoDmg += 0.3; stats.recoleccion += 0.3; },
+                successMsg: "🛠️ Pico mejorado!"
+            },
+            velocidad: {
+                baseCostWood: 150, baseCostStone: 0,
+                levelKey: 'lvlVel', maxLevel: 5,
+                apply: () => { stats.velocidad = Math.min(stats.velocidad + 0.5, STAT_CAPS.velocidad); },
+                successMsg: "👟 Velocidad aumentada!"
+            },
+            torreta: {
+                baseCostWood: 200, baseCostStone: 150,
+                levelKey: 'lvlTurret', maxLevel: 8,
+                apply: () => { stats.turretDmg += 1.5; stats.turretRange += 30; },
+                successMsg: "🔫 Torretas mejoradas!"
+            },
+            muro: {
+                baseCostWood: 0, baseCostStone: 300,
+                levelKey: 'lvlMuro', maxLevel: 10,
+                apply: () => { stats.muroHpMult += 0.3; },
+                successMsg: "🛡️ Muros reforzados!"
+            }
+        };
+        
         function calcularCosto(base, nivel, multiplicador = 1.5) {
             return Math.floor(base * Math.pow(multiplicador, nivel - 1));
         }
 
         function comprar(item) {
-            if (item === 'pico') {
-                if (stats.lvlPico >= STAT_CAPS.lvlPico) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
-                const costoMadera = calcularCosto(120, stats.lvlPico);
-                const costoPiedra = calcularCosto(60, stats.lvlPico);
-                if (madera >= costoMadera && piedra >= costoPiedra) {
-                    madera -= costoMadera; piedra -= costoPiedra;
-                    stats.lvlPico++; stats.picoDmg += 0.3; stats.recoleccion += 0.3;
-                }
-            } else if (item === 'velocidad') {
-                if (stats.lvlVel >= STAT_CAPS.lvlVel) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
-                const costo = calcularCosto(150, stats.lvlVel);
-                if (madera >= costo) {
-                    madera -= costo; stats.lvlVel++;
-                    stats.velocidad = Math.min(stats.velocidad + 0.5, STAT_CAPS.velocidad);
-                }
-            } else if (item === 'torreta') {
-                if (stats.lvlTurret >= STAT_CAPS.lvlTurret) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
-                const costoMadera = calcularCosto(200, stats.lvlTurret);
-                const costoPiedra = calcularCosto(150, stats.lvlTurret);
-                if (madera >= costoMadera && piedra >= costoPiedra) {
-                    madera -= costoMadera; piedra -= costoPiedra;
-                    stats.lvlTurret++; stats.turretDmg += 1.5; stats.turretRange += 30;
-                }
-            } else if (item === 'muro') {
-                if (stats.lvlMuro >= STAT_CAPS.lvlMuro) { mostrarNotificacion("¡NIVEL MÁXIMO!"); return; }
-                const costo = calcularCosto(300, stats.lvlMuro);
-                if (piedra >= costo) {
-                    piedra -= costo; stats.lvlMuro++; stats.muroHpMult += 0.3;
-                }
-            } else if (item === 'recolector') {
+            // Handle special items first
+            if (item === 'recolector') {
                 if (madera >= 200 && piedra >= 100) {
                     madera -= 200; piedra -= 100;
                     mostrarNotificacion("Click en árbol/roca para colocar recolector");
-                    pendingCollector = true; // Flag for collector placement mode
+                    pendingCollector = true;
+                } else {
+                    mostrarNotificacion("❌ Recursos insuficientes");
                 }
+                actualizarTiendaUI();
+                return;
+            }
+            
+            // Standard upgrades
+            const upgrade = UPGRADES[item];
+            if (!upgrade) return;
+            
+            const currentLevel = stats[upgrade.levelKey];
+            if (currentLevel >= upgrade.maxLevel) { 
+                mostrarNotificacion("¡NIVEL MÁXIMO!"); 
+                return; 
+            }
+            
+            const costWood = upgrade.baseCostWood > 0 ? calcularCosto(upgrade.baseCostWood, currentLevel) : 0;
+            const costStone = upgrade.baseCostStone > 0 ? calcularCosto(upgrade.baseCostStone, currentLevel) : 0;
+            
+            if (madera >= costWood && piedra >= costStone) {
+                madera -= costWood;
+                piedra -= costStone;
+                stats[upgrade.levelKey]++;
+                upgrade.apply();
+                mostrarNotificacion(upgrade.successMsg);
+                crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+            } else {
+                mostrarNotificacion("❌ Recursos insuficientes");
             }
             actualizarTiendaUI();
         }
@@ -1310,12 +1360,21 @@
                 mostrarTexto(jugador.x, jugador.y - 30, "¡CRÍTICO!", "#f1c40f");
             }
             
-            // Berserker perk
+            // Berserker perk - now +100% damage at low HP
             if (hasPerk('berserker') && vida < vidaMax * 0.3) {
-                dmg *= 1.5;
+                dmg *= 2;
             }
             
-            proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(angle) * 22, vy: Math.sin(angle) * 22, vida: 40, dmg: dmg, tipo: 'bala', explosive: hasPerk('explosivas') });
+            // Multishot perk - fire 3 bullets in a spread
+            if (hasPerk('multishot')) {
+                const spreadAngles = [-0.15, 0, 0.15]; // Small spread
+                spreadAngles.forEach(spread => {
+                    const bulletAngle = angle + spread;
+                    proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(bulletAngle) * 22, vy: Math.sin(bulletAngle) * 22, vida: 40, dmg: dmg * 0.7, tipo: 'bala', explosive: hasPerk('explosivas'), source: 'player' });
+                });
+            } else {
+                proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(angle) * 22, vy: Math.sin(angle) * 22, vida: 40, dmg: dmg, tipo: 'bala', explosive: hasPerk('explosivas'), source: 'player' });
+            }
         }
         
         // SPIKE TRAP
@@ -1812,11 +1871,19 @@
                 mostrarTexto(jugador.x, jugador.y - 30, `-${Math.floor(damage)}`, '#ff9800');
                 
                 if (vida <= 0) {
-                    vida = 0;
-                    gameOver = true;
-                    gamePhase = 'defeat';
-                    bossMusic.pause();
-                    document.getElementById('gameOverScreen').style.display = 'block';
+                    // Inmortal perk - survive one fatal hit
+                    if (hasPerk('inmortal') && !usedInmortal) {
+                        vida = 1;
+                        usedInmortal = true;
+                        mostrarNotificacion("💀 ¡INMORTAL ACTIVADO!");
+                        crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+                    } else {
+                        vida = 0;
+                        gameOver = true;
+                        gamePhase = 'defeat';
+                        bossMusic.pause();
+                        document.getElementById('gameOverScreen').style.display = 'block';
+                    }
                 }
             }
             
@@ -1993,7 +2060,7 @@
             for (let i = enemigos.length - 1; i >= 0; i--) {
                 const en = enemigos[i];
                 if (Math.hypot(en.x - ratonMundo.x, en.y - ratonMundo.y) < en.radio + 30) {
-                    if (Math.hypot(jugador.x - en.x, jugador.y - en.y) < ALCANCE_PICO + en.radio) { dañarEnemigo(en, i, stats.picoDmg * 5); return; }
+                    if (Math.hypot(jugador.x - en.x, jugador.y - en.y) < ALCANCE_PICO + en.radio) { dañarEnemigo(en, i, stats.picoDmg * 5, 'player'); return; }
                 }
             }
         }
@@ -2188,11 +2255,20 @@
                     
                     vida -= playerDmg; screenshake = 5; crearParticula(jugador.x, jugador.y, 'red', 'golpe');
                     if (vida <= 0) { 
-                        gameOver = true; 
-                        gamePhase = 'defeat';
-                        bossMusic.pause(); // Stop boss music on defeat
-                        document.getElementById('death-stats').textContent = `Senior P te ha derrotado. (Nivel ${nivel})`;
-                        document.getElementById('gameOverScreen').style.display = 'block'; 
+                        // Inmortal perk - survive one fatal hit
+                        if (hasPerk('inmortal') && !usedInmortal) {
+                            vida = 1;
+                            usedInmortal = true;
+                            mostrarNotificacion("💀 ¡INMORTAL ACTIVADO!");
+                            crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+                        } else {
+                            vida = 0;
+                            gameOver = true; 
+                            gamePhase = 'defeat';
+                            bossMusic.pause(); // Stop boss music on defeat
+                            document.getElementById('death-stats').textContent = `${selectedBoss === 'btor' ? 'B-Tor' : 'Senior P'} te ha derrotado. (Nivel ${nivel})`;
+                            document.getElementById('gameOverScreen').style.display = 'block'; 
+                        }
                     }
                 }
             }
@@ -2287,7 +2363,7 @@
                     let target = null, min = t.alcance;
                     enemigos.forEach(e => { const d = Math.hypot(e.x-(t.x+25), e.y-(t.y+25)); if(d < min) { min = d; target = e; } });
                     if (target) {
-                        proyectiles.push({ x: t.x+25, y: t.y+25, vx: (target.x-(t.x+25))/min*12, vy: (target.y-(t.y+25))/min*12, vida: 50, dmg: stats.turretDmg, tipo: 'bala' });
+                        proyectiles.push({ x: t.x+25, y: t.y+25, vx: (target.x-(t.x+25))/min*12, vy: (target.y-(t.y+25))/min*12, vida: 50, dmg: stats.turretDmg, tipo: 'bala', source: 'turret' });
                         t.cooldown = 800;
                     }
                 }
@@ -2323,14 +2399,15 @@
                     for (let j = enemigos.length-1; j >= 0; j--) {
                         const e = enemigos[j];
                         if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { 
-                            dañarEnemigo(e, j, p.dmg); 
+                            // Pass source from projectile (turret or player)
+                            dañarEnemigo(e, j, p.dmg, p.source || 'player'); 
                             crearParticula(e.x, e.y, '#f1c40f', 'explosion'); 
                             
                             // Explosive bullets perk
                             if (p.explosive) {
                                 enemigos.forEach(other => {
                                     if (other !== e && Math.hypot(other.x - e.x, other.y - e.y) < 60) {
-                                        dañarEnemigo(other, -1, p.dmg * 0.5);
+                                        dañarEnemigo(other, -1, p.dmg * 0.5, p.source || 'player');
                                         crearParticula(other.x, other.y, '#f39c12', 'explosion');
                                     }
                                 });
@@ -2351,15 +2428,17 @@
             }
         }
 
-        function dañarEnemigo(e, index, daño) {
+        // Source types: 'player' (pico, SCAR), 'turret', 'trap', 'mine', 'explosive'
+        function dañarEnemigo(e, index, daño, source = 'player') {
             if (!e || e.hp <= 0) return;
             
-            // Senior P shield - reflect damage
-            if (e.tipo === 'seniorP' && seniorPAttack.shield) {
+            // Senior P shield - ONLY reflect damage from player attacks (pico, SCAR)
+            // Turrets, traps, and mines should NOT be reflected
+            if (e.tipo === 'seniorP' && seniorPAttack.shield && source === 'player') {
                 vida -= daño * 0.5; // Reflect half damage to player
                 screenshake = 3;
-                crearParticula(e.x, e.y, '#9b59b6', 'explosion');
-                mostrarTexto(e.x, e.y - 30, "¡REFLEJADO!", "#9b59b6");
+                crearParticula(e.x, e.y, '#73eaff', 'explosion');
+                mostrarTexto(e.x, e.y - 30, "¡REFLEJADO!", "#73eaff");
                 crearParticula(jugador.x, jugador.y, '#e74c3c', 'golpe');
                 return; // No damage to boss
             }
@@ -2373,6 +2452,22 @@
                     mostrarTexto(e.x, e.y - 30, "¡ARMADURA ROTA!", "#607d8b");
                     crearParticula(e.x, e.y, '#607d8b', 'explosion');
                 }
+            }
+            
+            // Apply critical hit perk
+            if (hasPerk('critico') && source === 'player' && Math.random() < 0.2) {
+                daño *= 2;
+                mostrarTexto(e.x, e.y - 40, "¡CRÍTICO!", "#f1c40f");
+            }
+            
+            // Berserker perk - +100% damage when low HP
+            if (hasPerk('berserker') && source === 'player' && vida < vidaMax * 0.3) {
+                daño *= 2;
+            }
+            
+            // Francotirador perk (only for SCAR - projectile damage)
+            if (hasPerk('francotirador') && source === 'player') {
+                daño *= 1.1; // Stacks with scar.damage increase
             }
             
             e.hp -= daño; 
@@ -3489,24 +3584,24 @@
             }
             
             // Generate white tables (for stone) - spawn in center area only
-            // Tables are horizontally short and vertically long
-            for (let i = 0; i < 30; i++) {
+            // Tables are horizontally short (60px) and vertically long (240px)
+            for (let i = 0; i < 20; i++) { // Fewer tables since they're bigger
                 let x, y, dist, safety = 0;
                 do {
                     x = centerMinX + Math.random() * (centerMaxX - centerMinX);
                     y = centerMinY + Math.random() * (centerMaxY - centerMinY);
                     dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
                     safety++;
-                } while (dist < 200 && safety < 50);
+                } while (dist < 250 && safety < 50); // Larger clear zone for bigger tables
                 rocas.push({ 
                     x, y, 
-                    ancho: 20, // Horizontally SHORT
-                    alto: 40,  // Vertically LONG
-                    vida: 4, 
-                    maxVida: 4, 
+                    ancho: 60, // Horizontally short (60px)
+                    alto: 240,  // Vertically long (240px)
+                    vida: 6, // More hits for bigger table
+                    maxVida: 6, 
                     activo: true, 
                     respawnDia: 0, 
-                    recursos: 60,
+                    recursos: 120, // More resources for bigger table
                     tipo: 'mesa' // Mark as table for B-Tor
                 });
             }
