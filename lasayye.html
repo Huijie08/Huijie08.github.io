@@ -2060,7 +2060,24 @@
             for (let i = enemigos.length - 1; i >= 0; i--) {
                 const en = enemigos[i];
                 if (Math.hypot(en.x - ratonMundo.x, en.y - ratonMundo.y) < en.radio + 30) {
-                    if (Math.hypot(jugador.x - en.x, jugador.y - en.y) < ALCANCE_PICO + en.radio) { dañarEnemigo(en, i, stats.picoDmg * 5, 'player'); return; }
+                    if (Math.hypot(jugador.x - en.x, jugador.y - en.y) < ALCANCE_PICO + en.radio) { 
+                        // Calculate melee damage with perks
+                        let meleeDmg = stats.picoDmg * 5;
+                        
+                        // Critical hit perk
+                        if (hasPerk('critico') && Math.random() < 0.2) {
+                            meleeDmg *= 2;
+                            mostrarTexto(en.x, en.y - 40, "¡CRÍTICO!", "#f1c40f");
+                        }
+                        
+                        // Berserker perk - +100% damage when low HP
+                        if (hasPerk('berserker') && vida < vidaMax * 0.3) {
+                            meleeDmg *= 2;
+                        }
+                        
+                        dañarEnemigo(en, i, meleeDmg, 'player'); 
+                        return; 
+                    }
                 }
             }
         }
@@ -2454,21 +2471,8 @@
                 }
             }
             
-            // Apply critical hit perk
-            if (hasPerk('critico') && source === 'player' && Math.random() < 0.2) {
-                daño *= 2;
-                mostrarTexto(e.x, e.y - 40, "¡CRÍTICO!", "#f1c40f");
-            }
-            
-            // Berserker perk - +100% damage when low HP
-            if (hasPerk('berserker') && source === 'player' && vida < vidaMax * 0.3) {
-                daño *= 2;
-            }
-            
-            // Francotirador perk (only for SCAR - projectile damage)
-            if (hasPerk('francotirador') && source === 'player') {
-                daño *= 1.1; // Stacks with scar.damage increase
-            }
+            // Note: Critical hit, berserker, francotirador perks are applied in dispararSCAR() 
+            // for projectile damage, and in usarPico() for melee damage to avoid double application
             
             e.hp -= daño; 
             e.hitFlash = 150;
