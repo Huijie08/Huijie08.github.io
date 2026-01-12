@@ -767,6 +767,23 @@
             slotImages[index].src = `images/slot-${name}.png`;
         });
         
+        // ============ BODY IMAGES ============
+        // Load player body images based on selected tool
+        const bodyImages = {};
+        const bodyImageNames = ['pico', 'muro', 'torre', 'scar', 'demo', 'trap', 'mina'];
+        bodyImageNames.forEach((name, index) => {
+            bodyImages[index] = new Image();
+            bodyImages[index].src = `images/body-${name}.png`;
+        });
+        let bodyImagesLoaded = false;
+        let bodyLoadCount = 0;
+        bodyImageNames.forEach((name, index) => {
+            bodyImages[index].onload = () => {
+                bodyLoadCount++;
+                if (bodyLoadCount >= bodyImageNames.length) bodyImagesLoaded = true;
+            };
+        });
+        
         // ============ SOUND SYSTEM ============
         // Senior P ability sounds - naming convention: seniorp-[ability]-sound.mp3
         const seniorPSounds = {};
@@ -2693,15 +2710,33 @@
                 }
             });
             
-            // Draw player
-            ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color;
-            ctx.beginPath(); ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2); ctx.fill();
-            
-            // Player direction indicator
-            ctx.fillStyle = '#c0392b';
-            const dirX = jugador.x + Math.cos(jugador.angle) * 20;
-            const dirY = jugador.y + Math.sin(jugador.angle) * 20;
-            ctx.beginPath(); ctx.arc(dirX, dirY, 5, 0, Math.PI * 2); ctx.fill();
+            // Draw player with body sprite
+            const currentBodyImage = bodyImages[slotActivo];
+            if (bodyImagesLoaded && currentBodyImage && currentBodyImage.complete && currentBodyImage.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(jugador.x, jugador.y);
+                // Rotate to face mouse direction (+90 degrees because sprites face up by default)
+                ctx.rotate(jugador.angle + Math.PI / 2);
+                // Draw body sprite centered
+                const bodyWidth = 50;
+                const bodyHeight = 60;
+                // Add dash effect (flash white)
+                if (jugador.dash.active) {
+                    ctx.globalAlpha = 0.7;
+                }
+                ctx.drawImage(currentBodyImage, -bodyWidth / 2, -bodyHeight / 2, bodyWidth, bodyHeight);
+                ctx.restore();
+            } else {
+                // Fallback to circle if body image not loaded
+                ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color;
+                ctx.beginPath(); ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2); ctx.fill();
+                
+                // Player direction indicator (fallback only)
+                ctx.fillStyle = '#c0392b';
+                const dirX = jugador.x + Math.cos(jugador.angle) * 20;
+                const dirY = jugador.y + Math.sin(jugador.angle) * 20;
+                ctx.beginPath(); ctx.arc(dirX, dirY, 5, 0, Math.PI * 2); ctx.fill();
+            }
             
             // Draw particles
             particulas.forEach(p => {
