@@ -738,9 +738,9 @@
         const btorSpriteNames = ['base'];
         let currentBtorSprite = 'base';
         
-        // B-Tor sprite sizes
-        const BTOR_FIXED_WIDTH = 200;
-        const BTOR_FIXED_HEIGHT = 200;
+        // B-Tor sprite sizes - LARGER
+        const BTOR_FIXED_WIDTH = 250;
+        const BTOR_FIXED_HEIGHT = 250;
         
         // Load B-Tor sprites
         btorSpriteNames.forEach(name => {
@@ -2717,9 +2717,9 @@
                 ctx.translate(jugador.x, jugador.y);
                 // Rotate to face mouse direction (+90 degrees because sprites face up by default)
                 ctx.rotate(jugador.angle + Math.PI / 2);
-                // Draw body sprite centered
-                const bodyWidth = 50;
-                const bodyHeight = 60;
+                // Draw body sprite centered - LARGER SIZE
+                const bodyWidth = 80;
+                const bodyHeight = 96;
                 // Add dash effect (flash white)
                 if (jugador.dash.active) {
                     ctx.globalAlpha = 0.7;
@@ -3225,25 +3225,51 @@
 
             ctx.fillStyle = '#f39c12'; proyectiles.forEach(p => { if(isVis(p, 10)) { ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); } });
 
-            ctx.save(); ctx.translate(jugador.x, jugador.y);
-            // Alcances
-            if (slotActivo === 0) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_PICO, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([5,5]); ctx.stroke(); }
-            if ([1,2,4].includes(slotActivo)) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_CONSTRUCCION, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.setLineDash([2,10]); ctx.stroke(); }
-            
-            ctx.rotate(jugador.angle);
-            // Cuerpo Jugador
-            ctx.fillStyle = jugador.color; ctx.beginPath(); ctx.arc(0, 0, jugador.radio, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            // Mochila
-            ctx.fillStyle = '#d35400'; ctx.fillRect(-12, -8, 6, 16);
-            // Manos
-            ctx.fillStyle = jugador.color; ctx.beginPath(); ctx.arc(12, 12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(12, -12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            
-            // Armas
-            if (slotActivo === 0) { ctx.fillStyle = '#95a5a6'; ctx.fillRect(15, -15, 20, 5); ctx.fillRect(30, -25, 5, 25); }
-            else if (slotActivo === 3) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(15, -8, 30, 8); ctx.fillStyle = '#111'; ctx.fillRect(45, -8, 5, 8); ctx.fillStyle = '#7f8c8d'; ctx.fillRect(20, -12, 10, 4); }
-            else if (slotActivo === 4) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(15, -5, 15, 10); ctx.fillRect(25, -10, 5, 20); } 
-            else { ctx.fillStyle = '#e67e22'; ctx.fillRect(15, -5, 10, 10); }
-            ctx.restore();
+            // Draw player with body sprite (same as B-Tor arena)
+            const currentBodyImageSeniorP = bodyImages[slotActivo];
+            if (bodyImagesLoaded && currentBodyImageSeniorP && currentBodyImageSeniorP.complete && currentBodyImageSeniorP.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(jugador.x, jugador.y);
+                
+                // Alcances (range indicators)
+                ctx.setLineDash([5,5]);
+                if (slotActivo === 0) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_PICO, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.stroke(); }
+                if ([1,2,4].includes(slotActivo)) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_CONSTRUCCION, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.setLineDash([2,10]); ctx.stroke(); }
+                ctx.setLineDash([]);
+                
+                // Rotate to face mouse direction (+90 degrees because sprites face up by default)
+                ctx.rotate(jugador.angle + Math.PI / 2);
+                // Draw body sprite centered - LARGER SIZE
+                const bodyWidthSP = 80;
+                const bodyHeightSP = 96;
+                // Add dash effect (flash white)
+                if (jugador.dash.active) {
+                    ctx.globalAlpha = 0.7;
+                }
+                ctx.drawImage(currentBodyImageSeniorP, -bodyWidthSP / 2, -bodyHeightSP / 2, bodyWidthSP, bodyHeightSP);
+                ctx.restore();
+            } else {
+                // Fallback to old circle-based player (if images fail to load)
+                ctx.save(); ctx.translate(jugador.x, jugador.y);
+                // Alcances
+                if (slotActivo === 0) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_PICO, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([5,5]); ctx.stroke(); }
+                if ([1,2,4].includes(slotActivo)) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_CONSTRUCCION, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.setLineDash([2,10]); ctx.stroke(); }
+                
+                ctx.rotate(jugador.angle);
+                // Cuerpo Jugador
+                ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color; ctx.beginPath(); ctx.arc(0, 0, jugador.radio, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                // Mochila
+                ctx.fillStyle = '#d35400'; ctx.fillRect(-12, -8, 6, 16);
+                // Manos
+                ctx.fillStyle = jugador.color; ctx.beginPath(); ctx.arc(12, 12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(12, -12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                
+                // Armas
+                if (slotActivo === 0) { ctx.fillStyle = '#95a5a6'; ctx.fillRect(15, -15, 20, 5); ctx.fillRect(30, -25, 5, 25); }
+                else if (slotActivo === 3) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(15, -8, 30, 8); ctx.fillStyle = '#111'; ctx.fillRect(45, -8, 5, 8); ctx.fillStyle = '#7f8c8d'; ctx.fillRect(20, -12, 10, 4); }
+                else if (slotActivo === 4) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(15, -5, 15, 10); ctx.fillRect(25, -10, 5, 20); } 
+                else { ctx.fillStyle = '#e67e22'; ctx.fillRect(15, -5, 10, 10); }
+                ctx.restore();
+            }
 
             // Cursor Construcción/Demolición
             if ([1, 2, 4, 5, 6].includes(slotActivo)) {
@@ -3635,7 +3661,7 @@
                 rocas.push({ 
                     x, y, 
                     ancho: 60, // Horizontally short (60px)
-                    alto: 240,  // Vertically long (240px)
+                    alto: 200,  // Vertically long (200px)
                     vida: 6, // More hits for bigger table
                     maxVida: 6, 
                     activo: true, 
