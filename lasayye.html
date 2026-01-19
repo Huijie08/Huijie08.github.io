@@ -1,0 +1,3698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Sayye</title>
+    
+    <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🎨 ESTILOS COMUNES -->
+    <link rel="stylesheet" href="css/common.css">
+    
+    <style>
+        body {
+            margin: 0; overflow: hidden; background-color: #1a1a2e;
+            font-family: 'Poppins', sans-serif; user-select: none;
+        }
+        canvas { display: block; cursor: crosshair; }
+        
+        /* 🎮 START SCREEN - Pixel Art Style */
+        #start-screen {
+            position: fixed;
+            top: 60px; left: 0;
+            width: 100%; height: calc(100% - 60px);
+            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 999;
+            pointer-events: auto;
+            image-rendering: pixelated;
+            overflow-y: auto;
+            padding: 20px 15px 40px 15px;
+            box-sizing: border-box;
+        }
+        
+        /* Pixel grid overlay */
+        #start-screen::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px),
+                        repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px);
+            pointer-events: none;
+        }
+        
+        /* Floating math symbols */
+        .float-symbol {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(115, 234, 255, 0.15);
+            animation: floatSymbol 8s ease-in-out infinite;
+            font-family: 'Georgia', serif;
+        }
+        
+        @keyframes floatSymbol {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
+            50% { transform: translateY(-20px) rotate(10deg); opacity: 0.3; }
+        }
+        
+        #start-screen.hidden { display: none; }
+        
+        .game-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: #73eaff;
+            text-shadow: 0 0 40px rgba(115, 234, 255, 0.8), 
+                         0 4px 0 #2980b9,
+                         0 8px 0 #1a5276,
+                         4px 4px 0 #1a5276;
+            letter-spacing: 8px;
+            text-align: center;
+            margin-bottom: 5px;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-transform: uppercase;
+        }
+        
+        .game-subtitle {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #888;
+            letter-spacing: 12px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 40px rgba(115, 234, 255, 0.8), 0 4px 0 #2980b9, 0 8px 0 #1a5276, 4px 4px 0 #1a5276; }
+            50% { text-shadow: 0 0 60px rgba(115, 234, 255, 1), 0 4px 0 #3498db, 0 8px 0 #2980b9, 4px 4px 0 #2980b9; }
+        }
+        
+        /* Boss Selection Container */
+        .boss-selection {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* Boss Preview Card */
+        .boss-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(180deg, rgba(30, 40, 50, 0.9) 0%, rgba(20, 30, 40, 0.95) 100%);
+            border: 3px solid #555;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+        
+        .boss-preview:hover {
+            transform: translateY(-5px);
+            border-color: #888;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .boss-preview.selected {
+            border-color: #73eaff;
+            box-shadow: 0 0 30px rgba(115, 234, 255, 0.5), inset 0 0 30px rgba(115, 234, 255, 0.1);
+        }
+        
+        .boss-preview.selected-btor {
+            border-color: #ff9800;
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.5), inset 0 0 30px rgba(255, 152, 0, 0.1);
+        }
+        
+        .boss-preview img {
+            width: 120px;
+            height: 150px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 15px rgba(115, 234, 255, 0.4));
+            margin-bottom: 12px;
+        }
+        
+        .boss-preview.selected-btor img {
+            filter: drop-shadow(0 0 15px rgba(255, 152, 0, 0.4));
+        }
+        
+        .boss-preview h3 {
+            font-family: 'Poppins', sans-serif;
+            color: #73eaff;
+            font-size: 1.2rem;
+            margin: 0 0 5px 0;
+            text-shadow: 0 0 10px rgba(115, 234, 255, 0.5);
+        }
+        
+        .boss-preview.selected-btor h3 {
+            color: #ff9800;
+            text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        }
+        
+        .boss-preview p {
+            color: #888;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        
+        .boss-preview .difficulty {
+            color: #e74c3c;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+        
+        .boss-preview .difficulty.medium {
+            color: #f39c12;
+        }
+        
+        .start-btn {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #73eaff 0%, #4dd0e1 100%);
+            border: none;
+            color: #1a1a2e;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 18px 70px;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 4px;
+            box-shadow: 0 6px 0 #2980b9, 0 12px 30px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+            margin: 20px 0;
+            text-transform: uppercase;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #2980b9, 0 18px 40px rgba(0,0,0,0.6);
+        }
+        
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #2980b9, 0 6px 15px rgba(0,0,0,0.4);
+        }
+        
+        /* Game Instructions */
+        .game-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 10px;
+            max-width: 100%;
+        }
+        
+        .info-box {
+            background: rgba(20, 30, 40, 0.8);
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 160px;
+            max-width: 200px;
+            flex: 1;
+        }
+        
+        .info-box h4 {
+            color: #73eaff;
+            font-size: 0.9rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .info-box p {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .info-box kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: monospace;
+            color: #73eaff;
+            font-size: 0.75rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+            .game-subtitle {
+                font-size: 0.9rem;
+                letter-spacing: 6px;
+            }
+            .boss-preview {
+                padding: 15px 25px;
+            }
+            .boss-preview img {
+                width: 100px;
+                height: 130px;
+            }
+            .start-btn {
+                font-size: 1.2rem;
+                padding: 14px 50px;
+            }
+            .info-box {
+                min-width: 140px;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Victory Screen */
+        #victory-screen {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.98); color: white;
+            padding: 50px; text-align: center; border-radius: 20px;
+            border: 2px solid #2ecc71; box-shadow: 0 0 100px rgba(46, 204, 113, 0.5);
+            z-index: 50; pointer-events: auto;
+        }
+        
+        /* Navbar adjustments for game */
+        .navbar { display: flex; z-index: 1000; }
+        
+        #ui-layer { position: absolute; pointer-events: none; width: 100%; height: 100%; top: 0; left: 0; }
+        
+        /* XP Bar */
+        #xp-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: #111; z-index: 10; }
+        #xp-bar { height: 100%; background: linear-gradient(90deg, #3498db, #2980b9); width: 0%; transition: width 0.2s; box-shadow: 0 0 10px #3498db; }
+        #level-badge {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            background: #222; color: #3498db; padding: 2px 12px;
+            border: 1px solid #3498db; border-radius: 10px; font-weight: bold; font-size: 14px;
+        }
+
+        /* Reload Bar */
+        #reload-bar-container {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60px);
+            width: 50px; height: 5px; background: rgba(0,0,0,0.5); border: 1px solid white;
+        }
+        #reload-bar { width: 0%; height: 100%; background: #f1c40f; }
+        
+        /* Combo Display */
+        #combo-display {
+            position: absolute; top: 100px; right: 20px;
+            background: rgba(0,0,0,0.85); color: #f39c12;
+            padding: 12px 25px; border-radius: 12px;
+            font-size: 20px; font-weight: bold;
+            border: 2px solid #f39c12;
+            display: none; transition: all 0.2s;
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.6);
+            text-shadow: 0 0 10px #f39c12;
+        }
+        #combo-display.active { display: block; animation: comboPulse 0.3s ease; }
+        @keyframes comboPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        /* Timer de Oleada */
+        #wave-timer {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 10px 40px; border-radius: 30px;
+            border: 2px solid #fff;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+        #wave-timer h2 { margin: 0; font-size: 14px; color: #aaa; letter-spacing: 2px; }
+        #wave-timer span { font-size: 32px; font-weight: bold; font-family: monospace; display: block; line-height: 1; margin-top: 5px; }
+        
+        /* Boss HP Bar - At top of screen, smaller */
+        #boss-hp-container {
+            display: none; position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            width: 350px; max-width: 80%;
+            background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 15px;
+            border: 2px solid #73eaff;
+        }
+        #boss-name { text-align: center; color: #73eaff; font-size: 14px; font-weight: bold; margin-bottom: 3px; text-shadow: 0 0 10px #73eaff; }
+        #boss-hp-bar { width: 100%; height: 12px; background: #333; border: 2px solid #73eaff; border-radius: 6px; overflow: hidden; }
+        #boss-hp-fill { height: 100%; background: linear-gradient(90deg, #73eaff, #4dd0e1); transition: width 0.2s; }
+        
+        /* Event Banner */
+        #event-banner {
+            display: none; position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
+            background: rgba(115, 234, 255, 0.9); color: black;
+            padding: 10px 30px; border-radius: 20px;
+            font-size: 16px; font-weight: bold;
+            border: 2px solid #4dd0e1;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            animation: eventPulse 2s ease-in-out infinite;
+        }
+        @keyframes eventPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        /* Senior P Attack Banner - Below boss HP bar */
+        #senior-p-attack {
+            display: none; position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(115, 234, 255, 0.9) 0%, rgba(77, 208, 225, 0.9) 100%);
+            color: #000000; padding: 8px 25px; border-radius: 8px;
+            font-size: 16px; font-weight: bold; font-family: 'Georgia', serif;
+            border: 2px solid #000000;
+            text-shadow: 0 0 5px #ffffff;
+            box-shadow: 0 0 20px rgba(115, 234, 255, 0.6);
+            animation: seniorPAttackPulse 1s ease-in-out infinite;
+            z-index: 100;
+        }
+        @keyframes seniorPAttackPulse { 
+            0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(115, 234, 255, 0.6); } 
+            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 30px rgba(115, 234, 255, 0.8); } 
+        }
+        
+        /* Perk Selection Modal */
+        #perk-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 200;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        #perk-modal h2 { color: #3498db; font-size: 36px; margin-bottom: 10px; text-shadow: 0 0 20px #3498db; }
+        #perk-modal p { color: #aaa; margin-bottom: 30px; }
+        .perk-cards { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .perk-card {
+            width: 200px; background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            border: 3px solid #3498db; border-radius: 15px; padding: 25px;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .perk-card:hover { transform: translateY(-10px) scale(1.05); border-color: #f1c40f; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .perk-card .icon { font-size: 50px; margin-bottom: 15px; }
+        .perk-card h3 { color: #f1c40f; margin: 0 0 10px 0; font-size: 18px; }
+        .perk-card p { color: #bbb; font-size: 12px; margin: 0; }
+        .perk-rarity-common { border-color: #95a5a6; }
+        .perk-rarity-rare { border-color: #3498db; }
+        .perk-rarity-epic { border-color: #9b59b6; }
+        .perk-rarity-legendary { border-color: #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.5); }
+
+        /* Game Over */
+        #gameOverScreen {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.98); color: white;
+            padding: 50px; text-align: center; border-radius: 20px;
+            border: 2px solid #e74c3c; box-shadow: 0 0 100px rgba(231, 76, 60, 0.5);
+            z-index: 50; pointer-events: auto;
+        }
+        
+        /* Tienda */
+        #shop-modal {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 20, 15, 0.98); color: white;
+            width: min(750px, 95%); padding: 25px; border-radius: 15px;
+            border: 1px solid #f1c40f; z-index: 40; pointer-events: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+        .shop-item {
+            background: #222; padding: 12px; border-radius: 8px; border: 1px solid #444; cursor: pointer;
+            transition: transform 0.1s, background 0.1s; position: relative; overflow: hidden;
+        }
+        .shop-item:hover { background: #333; border-color: #f1c40f; transform: translateY(-3px); }
+        .shop-item h3 { margin: 0 0 5px 0; color: #f1c40f; font-size: 14px; }
+        .cost { font-size: 11px; color: #bbb; display: block; margin-bottom: 3px;}
+        .shop-section { margin-top: 20px; }
+        .shop-section h4 { color: #2ecc71; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+
+        button {
+            background-color: #e74c3c; color: white; border: none;
+            padding: 15px 40px; font-size: 20px; font-weight: bold;
+            cursor: pointer; border-radius: 5px; margin-top: 20px; letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #c0392b; }
+
+        #controls-hint {
+            position: absolute; bottom: 30px; right: 20px;
+            color: rgba(255,255,255,0.6); font-size: 12px; text-align: right;
+            background: rgba(0,0,0,0.7); padding: 12px; border-radius: 10px; pointer-events: none;
+            line-height: 1.5;
+        }
+        
+        .notification {
+            position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+            font-size: 40px; color: #fff; font-weight: bold;
+            text-shadow: 0 0 20px red; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s; width: 100%; text-align: center; z-index: 30; font-family: 'Impact', sans-serif; letter-spacing: 3px;
+        }
+        
+        /* Slow effect indicator */
+        #slow-indicator {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(0,188,212,0.1) 0%, rgba(0,188,212,0.3) 100%);
+            animation: slowPulse 0.5s ease-in-out infinite;
+        }
+        @keyframes slowPulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+        
+        /* Active perks display */
+        #active-perks {
+            position: absolute; top: 100px; left: 10px;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .active-perk { background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #f1c40f; }
+    </style>
+</head>
+<body>
+    <!-- 🧭 NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-logo">HUIJIE LIN</a>
+        <ul class="navbar-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="redes-sociales.html">Redes Sociales</a></li>
+            <li><a href="animes.html">Animes</a></li>
+            <li><a href="huijiegpt.html">HuijieGPT</a></li>
+            <li><a href="pomodoro.html">Pomodoro</a></li>
+            <li><a href="lasayye.html" class="active">La Sayye</a></li>
+            <li><a href="https://huijielin.notion.site/calendar-huijie" target="_blank">Calendario</a></li>
+        </ul>
+    </nav>
+
+    <!-- 🎮 START SCREEN - PIXEL ART STYLE -->
+    <div id="start-screen">
+        <!-- Floating math symbols for decoration -->
+        <span class="float-symbol" style="top: 10%; left: 5%;">π</span>
+        <span class="float-symbol" style="top: 25%; right: 8%; animation-delay: -2s;">∑</span>
+        <span class="float-symbol" style="bottom: 20%; left: 10%; animation-delay: -4s;">∫</span>
+        <span class="float-symbol" style="top: 40%; right: 15%; animation-delay: -1s;">∞</span>
+        <span class="float-symbol" style="bottom: 30%; right: 5%; animation-delay: -3s;">Δ</span>
+        <span class="float-symbol" style="top: 15%; left: 20%; animation-delay: -5s;">θ</span>
+        
+        <h1 class="game-title">La Sayye</h1>
+        <p class="game-subtitle">Estudiante vs Profesores</p>
+        
+        <!-- Boss Selection -->
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">Selecciona tu oponente:</p>
+        <div class="boss-selection">
+            <!-- Senior P Boss Card -->
+            <div class="boss-preview selected" id="boss-seniorP" onclick="selectBoss('seniorP')">
+                <img src="Senior P/seniorp-base.png" alt="Senior P" onerror="this.style.display='none'">
+                <h3>👨‍🏫 Senior P</h3>
+                <p>Profesor de Matemáticas</p>
+                <span class="difficulty">★★★ DIFÍCIL</span>
+            </div>
+            
+            <!-- B-Tor Boss Card -->
+            <div class="boss-preview" id="boss-btor" onclick="selectBoss('btor')">
+                <img src="B-Tor/btor-base.png" alt="B-Tor" onerror="this.style.display='none'">
+                <h3>🔧 B-Tor</h3>
+                <p>Profesor de Tecnología</p>
+                <span class="difficulty medium">★★☆ MEDIO</span>
+            </div>
+        </div>
+        
+        <button id="play-btn" class="start-btn">▶ JUGAR</button>
+        
+        <!-- Game Info Boxes -->
+        <div class="game-info">
+            <div class="info-box">
+                <h4>🎮 Controles</h4>
+                <p>
+                    <kbd>WASD</kbd> Mover<br>
+                    <kbd>Space</kbd> Dash<br>
+                    <kbd>Click</kbd> Atacar
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>⚔️ Objetivo</h4>
+                <p>
+                    Prepárate 10 segundos<br>
+                    Recoge recursos<br>
+                    ¡Derrota al profesor!
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>🛠️ Herramientas</h4>
+                <p>
+                    <kbd>1-7</kbd> Seleccionar<br>
+                    <kbd>E</kbd> Tienda<br>
+                    <kbd>R</kbd> Recargar
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 🏆 VICTORY SCREEN -->
+    <div id="victory-screen" style="display: none;">
+        <h1 style="color: #2ecc71; font-size: 60px; margin: 0;">🎉 ¡VICTORIA!</h1>
+        <p id="victory-stats" style="font-size: 24px; color: #aaa; margin-top: 10px;">Has derrotado a Senior P</p>
+        <button onclick="volverAlMenu()">VOLVER AL MENÚ</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="wave-timer">
+        <h2 id="wave-title">PRÓXIMA OLEADA</h2>
+        <span id="wave-countdown">00:00</span>
+    </div>
+    
+    <!-- Boss HP Bar -->
+    <div id="boss-hp-container">
+        <div id="boss-name">BOSS</div>
+        <div id="boss-hp-bar"><div id="boss-hp-fill" style="width:100%"></div></div>
+    </div>
+    
+    <!-- Event Banner -->
+    <div id="event-banner">⚡ EVENTO: Ninguno</div>
+    
+    <!-- Senior P Attack Banner -->
+    <div id="senior-p-attack">📐 Ataque Matemático</div>
+
+    <div id="xp-container"><div id="xp-bar"></div></div>
+    <div id="level-badge">LVL 1</div>
+    <div id="reload-bar-container"><div id="reload-bar"></div></div>
+    
+    <!-- COMBO DISPLAY -->
+    <div id="combo-display">🔥 COMBO x<span id="combo-mult">1.0</span></div>
+    
+    <!-- Slow Effect Indicator -->
+    <div id="slow-indicator"></div>
+    
+    <!-- Active Perks Display -->
+    <div id="active-perks"></div>
+    
+    <!-- Perk Selection Modal -->
+    <div id="perk-modal">
+        <h2>⬆️ ¡SUBISTE DE NIVEL!</h2>
+        <p>Elige una mejora:</p>
+        <div class="perk-cards" id="perk-cards"></div>
+    </div>
+
+    <div id="ui-layer">
+        <div class="notification" id="wave-warning">¡HORDA INMINENTE!</div>
+        <div id="controls-hint">
+            [1] Pico | [2] Muro | [3] Torreta<br>
+            [4] SCAR | [5] Demoler<br>
+            [6] Trampa | [7] Mina<br>
+            [R] Recargar | [E] TIENDA
+        </div>
+    </div>
+
+    <div id="shop-modal">
+        <h2 style="margin:0; text-align:center; color:#f1c40f; letter-spacing:1px;">SUMINISTROS <span style="font-size:12px; color:#666;">[E] CERRAR</span></h2>
+        <div style="text-align:center; margin:15px 0; font-size:18px; border-bottom:1px solid #333; padding-bottom:10px;">
+            🌲 <span id="shop-wood" style="color:#2ecc71">0</span> | 🪨 <span id="shop-stone" style="color:#95a5a6">0</span>
+        </div>
+        
+        <div class="shop-section">
+            <h4>🔧 MEJORAS</h4>
+            <div class="shop-grid">
+                <div class="shop-item" onclick="comprar('pico')">
+                    <h3>🛠️ Pico Reforzado</h3>
+                    <span class="cost">120 Madera, 60 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-pico">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('velocidad')">
+                    <h3>👟 Botas Tácticas</h3>
+                    <span class="cost">150 Madera</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-vel">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('torreta')">
+                    <h3>🔫 Torreta MK-II</h3>
+                    <span class="cost">200 Madera, 150 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-turret">1</span></div>
+                </div>
+                <div class="shop-item" onclick="comprar('muro')">
+                    <h3>🛡️ Muro Reforzado</h3>
+                    <span class="cost">300 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Nivel <span id="lvl-muro">1</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shop-section">
+            <h4>🏗️ AUTOMATIZACIÓN</h4>
+            <div class="shop-grid">
+                <div class="shop-item" onclick="comprar('recolector')">
+                    <h3>🤖 Recolector Auto</h3>
+                    <span class="cost">200 Madera, 100 Piedra</span>
+                    <div style="font-size:10px; color:#888;">Coloca sobre recurso</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameOverScreen">
+        <h1 style="color:#e74c3c; font-size: 60px; margin: 0;">GAME OVER</h1>
+        <p id="death-stats" style="font-size:24px; color:#aaa; margin-top:10px;">El profesor te ha derrotado.</p>
+        <button onclick="volverAlMenu()">VOLVER AL MENÚ</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false }); 
+        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- CONSTANTES DEL MUNDO ---
+        const MUNDO_ANCHO = 2500, MUNDO_ALTO = 2500, TILE_SIZE = 50;
+        
+        // --- ESTADO DEL JUEGO ---
+        let camara = { x: 0, y: 0 };
+        let gameOver = false, shopOpen = false, perkModalOpen = false;
+        let gameStarted = false;
+        
+        // TIEMPO (Supervivencia)
+        let tiempoJuego = 0;
+        const DURACION_DIA = 30000;
+        const DURACION_NOCHE = 25000;
+        let esNoche = false;
+        let diaContador = 1;
+        const DIAS_PARA_REGENERAR = 2;
+
+        // ENTIDADES
+        let arboles = [], rocas = [], muros = [], enemigos = [], particulas = [], torretas = [], proyectiles = [];
+        let trampas = [], minas = [], recolectores = [];
+        const jugador = { x: MUNDO_ANCHO/2, y: MUNDO_ALTO/2, radio: 15, color: '#f1c40f', angle: 0, slowed: 0, 
+                          dash: { active: false, timer: 0, cooldown: 0, speed: 25, duration: 100, cooldownTime: 1500, dx: 0, dy: 0 } };
+        
+        // ECONOMIA & STATS
+        let madera = 0, piedra = 0, vida = 100, vidaMax = 100;
+        let slotActivo = 0, materialMuro = 'madera';
+        let xp = 0, nivel = 1, xpParaSiguiente = 100;
+        let spawnRate = 2000, waveTimer = 0;
+        let usedInmortal = false; // Track if Inmortal perk has been used
+
+        // ARMA
+        let scar = { balas: 32, maxBalas: 32, reloading: false, reloadTime: 2000, reloadTimer: 0, damage: 3, fireRate: 100 };
+        let stats = { picoDmg: 1, recoleccion: 1, velocidad: 5, muroHpMult: 1, turretDmg: 4, turretRange: 300, lvlPico: 1, lvlVel: 1, lvlMuro: 1, lvlTurret: 1 };
+        
+        // STAT CAPS
+        const STAT_CAPS = { velocidad: 9, fireRate: 50, lvlPico: 10, lvlVel: 5, lvlMuro: 10, lvlTurret: 8 };
+        
+        // COMBO SYSTEM
+        let combo = { count: 0, timer: 0, maxTime: 2000, multiplier: 1 };
+        
+        // LOOT DROPS
+        let lootDrops = [];
+        
+        // BOSS SYSTEM
+        let boss = null;
+        let selectedBoss = null;
+        
+        // GAME PHASES: 'menu', 'prep', 'combat', 'victory', 'defeat'
+        let gamePhase = 'menu';
+        let prepTimer = 10000; // 10 seconds preparation
+        
+        // SENIOR P BOSS SYSTEM
+        let seniorPActive = false;
+        let seniorPDefeated = false;
+        
+        // Senior P Sprite Images - Dynamic based on ability
+        const seniorPSprites = {};
+        const spriteNames = ['base', 'hit', 'invers-multiplicatiu-modular', 'producte-escalar', 'la-campana-de-gauss', 'logaritmes-ph', 'trigonometria', 'rectes-en-el-pla', 'funcions'];
+        let currentSeniorPSprite = 'base';
+        let spritesLoaded = 0;
+        
+        // Fixed sprite size - all sprites drawn at same size regardless of image dimensions
+        const SENIOR_P_FIXED_WIDTH = 280;
+        const SENIOR_P_FIXED_HEIGHT = 280;
+        
+        // Load all Senior P sprites
+        spriteNames.forEach(name => {
+            seniorPSprites[name] = new Image();
+            seniorPSprites[name].src = `Senior%20P/seniorp-${name}.png`;
+            seniorPSprites[name].onload = () => { spritesLoaded++; };
+            seniorPSprites[name].onerror = () => { console.warn(`Failed to load sprite: seniorp-${name}.png`); };
+        });
+        
+        // ============ B-TOR BOSS SYSTEM ============
+        const btorSprites = {};
+        const btorSpriteNames = ['base'];
+        let currentBtorSprite = 'base';
+        
+        // B-Tor sprite sizes - LARGER
+        const BTOR_FIXED_WIDTH = 250;
+        const BTOR_FIXED_HEIGHT = 250;
+        
+        // Load B-Tor sprites
+        btorSpriteNames.forEach(name => {
+            btorSprites[name] = new Image();
+            btorSprites[name].src = `B-Tor/btor-${name}.png`;
+            btorSprites[name].onload = () => { console.log(`B-Tor sprite loaded: ${name}`); };
+            btorSprites[name].onerror = () => { console.warn(`Failed to load B-Tor sprite: btor-${name}.png`); };
+        });
+        
+        // B-Tor arena background
+        const btorArenaImage = new Image();
+        btorArenaImage.src = 'B-Tor/aula-steam.jpg';
+        
+        // B-Tor map is smaller (square arena - 1800x1800)
+        const BTOR_MUNDO_ANCHO = 1800;
+        const BTOR_MUNDO_ALTO = 1800;
+        
+        // ============ SLOT IMAGES ============
+        // Load tool slot images
+        const slotImages = {};
+        const slotImageNames = ['pico', 'muro', 'torre', 'scar', 'demo', 'trap', 'mina'];
+        slotImageNames.forEach((name, index) => {
+            slotImages[index] = new Image();
+            slotImages[index].src = `images/slot-${name}.png`;
+        });
+        
+        // ============ BODY IMAGES ============
+        // Load player body images based on selected tool
+        const bodyImages = {};
+        const bodyImageNames = ['pico', 'muro', 'torre', 'scar', 'demo', 'trap', 'mina'];
+        bodyImageNames.forEach((name, index) => {
+            bodyImages[index] = new Image();
+            bodyImages[index].src = `images/body-${name}.png`;
+        });
+        let bodyImagesLoaded = false;
+        let bodyLoadCount = 0;
+        bodyImageNames.forEach((name, index) => {
+            bodyImages[index].onload = () => {
+                bodyLoadCount++;
+                if (bodyLoadCount >= bodyImageNames.length) bodyImagesLoaded = true;
+            };
+        });
+        
+        // ============ SOUND SYSTEM ============
+        // Senior P ability sounds - naming convention: seniorp-[ability]-sound.mp3
+        const seniorPSounds = {};
+        const soundNames = {
+            'invers': 'seniorp-invers-multiplicatiu-modular-sound',
+            'escalar': 'seniorp-producte-escalar-sound',
+            'gauss': 'seniorp-la-campana-de-gauss-sound',
+            'logaritmes': 'seniorp-logaritmes-ph-sound',
+            'trigonometria': 'seniorp-trigonometria-sound',
+            'rectes': 'seniorp-rectes-en-el-pla-sound',
+            'funcions': 'seniorp-funcions-sound'
+        };
+        
+        // Load all ability sounds
+        Object.keys(soundNames).forEach(key => {
+            seniorPSounds[key] = new Audio(`sonidos/${soundNames[key]}.mp3`);
+            seniorPSounds[key].volume = 0.5;
+        });
+        
+        // SCAR weapon sound - REDUCED VOLUME
+        const scarSound = new Audio('sonidos/scar.mp3');
+        scarSound.volume = 0.10; // Reduced from 0.3
+        
+        // Pico mining sound
+        const picoSound = new Audio('sonidos/pico.mp3');
+        picoSound.volume = 0.2;
+        
+        // SCAR reload sound
+        const reloadSound = new Audio('sonidos/recarga-scar.mp3');
+        reloadSound.volume = 0.5;
+        
+        // Menu music (loops on start screen)
+        const menuMusic = new Audio('sonidos/pantalla-de-inicio-sound.mp3');
+        menuMusic.loop = true;
+        menuMusic.volume = 0.4;
+        
+        // Boss fight music (loops during combat)
+        const bossMusic = new Audio('sonidos/seniorp-fondo-sound.mp3');
+        bossMusic.loop = true;
+        bossMusic.volume = 0.25; // Lowered to focus on ability sounds
+        
+        // Increase trigonometry sound volume
+        seniorPSounds['trigonometria'].volume = 1; // Increased from 0.5
+        seniorPSounds['gauss'].volume = 1;
+        seniorPSounds['logaritmes'].volume = 1;
+        seniorPSounds['rectes'].volume = 1;
+        seniorPSounds['funcions'].volume = 1;
+        
+        // Helper function to play sound (handles cloning for rapid fire)
+        function playSound(sound) {
+            if (!sound) return;
+            const clone = sound.cloneNode();
+            clone.volume = sound.volume;
+            clone.play().catch(() => {}); // Catch and ignore autoplay errors
+        }
+        
+        // Start menu music when page loads
+        window.addEventListener('load', () => {
+            menuMusic.play().catch(() => {});
+        });
+        
+        // Senior P attack system - REDUCED COOLDOWN for more frequent attacks
+        let seniorPAttack = { 
+            current: null, 
+            timer: 0, 
+            cooldown: 2000, // Reduced from 3000 for more frequent attacks
+            shield: false,
+            shieldTimer: 0,
+            lasers: [],
+            acidPools: [],
+            sineProjectiles: [],
+            tempWalls: [],
+            minions: []
+        };
+        
+        const SENIOR_P_ATTACKS = [
+            { id: 'invers', nombre: "L'Invers Multiplicatiu Modular", desc: "Escudo reflector", sprite: 'invers-multiplicatiu-modular' },
+            { id: 'escalar', nombre: "Producte Escalar", desc: "Láser en cruz", sprite: 'producte-escalar' },
+            { id: 'gauss', nombre: "La Campana de Gauss", desc: "Explosión de área", sprite: 'la-campana-de-gauss' },
+            { id: 'logaritmes', nombre: "Logaritmes + pH", desc: "Charcos de ácido", sprite: 'logaritmes-ph' },
+            { id: 'trigonometria', nombre: "Trigonometria", desc: "Proyectiles ondulantes", sprite: 'trigonometria' },
+            { id: 'rectes', nombre: "Rectes en el Pla", desc: "Muros temporales", sprite: 'rectes-en-el-pla' },
+            { id: 'funcions', nombre: "Funcions", desc: "Invocar esbirros", sprite: 'funcions' }
+        ];
+        
+        // DAILY EVENTS
+        let currentEvent = null;
+        const EVENTOS = [
+            { nombre: "☁️ Niebla Densa", efecto: "niebla", desc: "Visibilidad reducida" },
+            { nombre: "☠️ Lluvia Ácida", efecto: "acido", desc: "Daño fuera de base" },
+            { nombre: "⚡ Frenesí", efecto: "frenesi", desc: "Zombis más rápidos" },
+            { nombre: "💪 Horda Gigante", efecto: "horda", desc: "Más enemigos" },
+            { nombre: "🌙 Noche Eterna", efecto: "oscuro", desc: "Más oscuridad" }
+        ];
+        
+        // PERKS SYSTEM
+        let activePerks = [];
+        const PERKS = [
+            // COMMON PERKS
+            { id: 'piesligeros', nombre: '👟 Pies Ligeros', desc: '+20% velocidad', rarity: 'common', icon: '👟' },
+            { id: 'municion', nombre: '🔫 Munición Extra', desc: '+50% capacidad cargador', rarity: 'common', icon: '🔫' },
+            { id: 'imantado', nombre: '🧲 Imantado', desc: 'Loot se atrae al jugador', rarity: 'common', icon: '🧲' },
+            { id: 'ingeniero', nombre: '🔧 Ingeniero', desc: 'Torretas se auto-reparan', rarity: 'common', icon: '🔧' },
+            { id: 'rapidez', nombre: '⚡ Rapidez', desc: 'Recarga 30% más rápida', rarity: 'common', icon: '⚡' },
+            { id: 'recolector', nombre: '🪓 Recolector', desc: '+50% recursos al picar', rarity: 'common', icon: '🪓' },
+            // RARE PERKS
+            { id: 'vampirismo', nombre: '🧛 Vampirismo', desc: 'Cura 5 HP al matar', rarity: 'rare', icon: '🧛' },
+            { id: 'armadura', nombre: '🛡️ Armadura', desc: '-25% daño recibido', rarity: 'rare', icon: '🛡️' },
+            { id: 'critico', nombre: '🎯 Golpe Crítico', desc: '20% chance 2x daño', rarity: 'rare', icon: '🎯' },
+            { id: 'dobledash', nombre: '🏃 Doble Dash', desc: 'Cooldown del dash -50%', rarity: 'rare', icon: '🏃' },
+            { id: 'fortaleza', nombre: '🏰 Fortaleza', desc: 'Muros +100% HP', rarity: 'rare', icon: '🏰' },
+            { id: 'francotirador', nombre: '🎯 Francotirador', desc: '+30% daño a distancia', rarity: 'rare', icon: '🔭' },
+            // EPIC PERKS
+            { id: 'explosivas', nombre: '💥 Balas Explosivas', desc: 'Daño en área al impactar', rarity: 'epic', icon: '💥' },
+            { id: 'regeneracion', nombre: '💚 Regeneración', desc: 'Recupera 1 HP/seg', rarity: 'epic', icon: '💚' },
+            { id: 'vidaextra', nombre: '❤️ Vida Extra', desc: '+50 HP máximo', rarity: 'epic', icon: '❤️' },
+            { id: 'torretas', nombre: '🔫 Torretas Mortíferas', desc: 'Torretas +50% daño', rarity: 'epic', icon: '🗼' },
+            // LEGENDARY PERKS
+            { id: 'berserker', nombre: '🔥 Berserker', desc: '+100% daño con poca vida', rarity: 'legendary', icon: '🔥' },
+            { id: 'inmortal', nombre: '💀 Inmortal', desc: 'Sobrevive un golpe mortal (1 vez)', rarity: 'legendary', icon: '💀' },
+            { id: 'multishot', nombre: '🌟 Multi-Disparo', desc: 'Dispara 3 balas a la vez', rarity: 'legendary', icon: '🌟' }
+        ];
+
+        // INPUT
+        let teclas = {};
+        let ratonPantalla = { x: canvas.width/2, y: canvas.height/2 };
+        let ratonMundo = { x: 0, y: 0 };
+        let mousePresionado = false, cooldownAccion = 0, screenshake = 0;
+        
+        // ALCANCES
+        const ALCANCE_CONSTRUCCION = 200;
+        const ALCANCE_PICO = 70;
+
+        // --- PERK SYSTEM ---
+        function hasPerk(id) { return activePerks.some(p => p.id === id); }
+        
+        function mostrarPerkSelection() {
+            perkModalOpen = true;
+            const modal = document.getElementById('perk-modal');
+            const cardsContainer = document.getElementById('perk-cards');
+            modal.style.display = 'flex';
+            
+            // Get 3 random perks
+            const available = PERKS.filter(p => !activePerks.some(ap => ap.id === p.id));
+            const selected = [];
+            for (let i = 0; i < 3 && available.length > 0; i++) {
+                const idx = Math.floor(Math.random() * available.length);
+                selected.push(available.splice(idx, 1)[0]);
+            }
+            
+            cardsContainer.innerHTML = '';
+            selected.forEach(perk => {
+                const card = document.createElement('div');
+                card.className = `perk-card perk-rarity-${perk.rarity}`;
+                card.innerHTML = `<div class="icon">${perk.icon}</div><h3>${perk.nombre}</h3><p>${perk.desc}</p>`;
+                card.onclick = () => selectPerk(perk);
+                cardsContainer.appendChild(card);
+            });
+        }
+        
+        function selectPerk(perk) {
+            activePerks.push(perk);
+            perkModalOpen = false;
+            document.getElementById('perk-modal').style.display = 'none';
+            
+            // Apply perk effects immediately
+            if (perk.id === 'piesligeros') stats.velocidad = Math.min(stats.velocidad * 1.2, STAT_CAPS.velocidad);
+            if (perk.id === 'municion') scar.maxBalas = Math.floor(scar.maxBalas * 1.5);
+            if (perk.id === 'rapidez') scar.reloadTime = Math.floor(scar.reloadTime * 0.7);
+            if (perk.id === 'recolector') stats.recoleccion *= 1.5;
+            if (perk.id === 'dobledash') jugador.dash.cooldownTime = Math.floor(jugador.dash.cooldownTime * 0.5);
+            if (perk.id === 'fortaleza') stats.muroHpMult *= 2;
+            if (perk.id === 'vidaextra') { vidaMax += 50; vida = Math.min(vida + 50, vidaMax); }
+            if (perk.id === 'torretas') stats.turretDmg = Math.floor(stats.turretDmg * 1.5);
+            if (perk.id === 'francotirador') scar.damage = Math.floor(scar.damage * 1.3);
+            
+            // Update active perks display
+            updateActivePerksUI();
+            mostrarNotificacion(`¡${perk.nombre} ACTIVADO!`);
+        }
+        
+        function updateActivePerksUI() {
+            const container = document.getElementById('active-perks');
+            container.innerHTML = activePerks.map(p => `<div class="active-perk">${p.icon} ${p.nombre.split(' ')[1]}</div>`).join('');
+        }
+
+        // --- UTILIDADES ---
+        function ganarXP(cantidad) {
+            // Don't give XP if game is already over (victory/defeat)
+            if (gamePhase === 'victory' || gamePhase === 'defeat') return;
+            
+            const xpGanado = Math.floor(cantidad * combo.multiplier);
+            xp += xpGanado;
+            if(xp >= xpParaSiguiente) {
+                xp -= xpParaSiguiente; nivel++; xpParaSiguiente = Math.floor(xpParaSiguiente * 1.5);
+                vida = vidaMax;
+                mostrarNotificacion(`¡NIVEL ${nivel}!`);
+                crearParticula(jugador.x, jugador.y, '#3498db', 'explosion');
+                // Show perk selection only during active gameplay, not when boss is defeated
+                if (gamePhase === 'combat' || gamePhase === 'prep') {
+                    mostrarPerkSelection();
+                }
+            }
+            document.getElementById('xp-bar').style.width = (xp/xpParaSiguiente*100) + "%";
+            document.getElementById('level-badge').textContent = "LVL " + nivel;
+        }
+        
+        function actualizarCombo() {
+            combo.count++;
+            combo.timer = combo.maxTime;
+            combo.multiplier = 1 + Math.min(combo.count * 0.1, 2);
+            
+            const comboDisplay = document.getElementById('combo-display');
+            const comboMult = document.getElementById('combo-mult');
+            if (comboDisplay && comboMult) {
+                comboMult.textContent = combo.multiplier.toFixed(1);
+                comboDisplay.classList.add('active');
+            }
+            
+            // Vampirism perk
+            if (hasPerk('vampirismo')) {
+                vida = Math.min(vidaMax, vida + 5);
+                mostrarTexto(jugador.x, jugador.y - 30, "+5 HP", "#c0392b");
+            }
+        }
+        
+        function decayCombo(dt) {
+            if (combo.timer > 0) {
+                combo.timer -= dt;
+                if (combo.timer <= 0) {
+                    combo.count = 0;
+                    combo.multiplier = 1;
+                    const comboDisplay = document.getElementById('combo-display');
+                    if (comboDisplay) comboDisplay.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleShop() {
+            if (perkModalOpen) return;
+            shopOpen = !shopOpen;
+            document.getElementById('shop-modal').style.display = shopOpen ? 'block' : 'none';
+            if(shopOpen) actualizarTiendaUI();
+        }
+
+        function actualizarTiendaUI() {
+            document.getElementById('shop-wood').textContent = Math.floor(madera);
+            document.getElementById('shop-stone').textContent = Math.floor(piedra);
+            document.getElementById('lvl-pico').textContent = stats.lvlPico;
+            document.getElementById('lvl-vel').textContent = stats.lvlVel;
+            document.getElementById('lvl-muro').textContent = stats.lvlMuro;
+            document.getElementById('lvl-turret').textContent = stats.lvlTurret;
+        }
+        
+        // ===== CENTRALIZED UPGRADE SYSTEM =====
+        // Configuration for all shop upgrades
+        const UPGRADES = {
+            pico: {
+                baseCostWood: 120, baseCostStone: 60,
+                levelKey: 'lvlPico', maxLevel: 10,
+                apply: () => { stats.picoDmg += 0.3; stats.recoleccion += 0.3; },
+                successMsg: "🛠️ Pico mejorado!"
+            },
+            velocidad: {
+                baseCostWood: 150, baseCostStone: 0,
+                levelKey: 'lvlVel', maxLevel: 5,
+                apply: () => { stats.velocidad = Math.min(stats.velocidad + 0.5, STAT_CAPS.velocidad); },
+                successMsg: "👟 Velocidad aumentada!"
+            },
+            torreta: {
+                baseCostWood: 200, baseCostStone: 150,
+                levelKey: 'lvlTurret', maxLevel: 8,
+                apply: () => { stats.turretDmg += 1.5; stats.turretRange += 30; },
+                successMsg: "🔫 Torretas mejoradas!"
+            },
+            muro: {
+                baseCostWood: 0, baseCostStone: 300,
+                levelKey: 'lvlMuro', maxLevel: 10,
+                apply: () => { stats.muroHpMult += 0.3; },
+                successMsg: "🛡️ Muros reforzados!"
+            }
+        };
+        
+        function calcularCosto(base, nivel, multiplicador = 1.5) {
+            return Math.floor(base * Math.pow(multiplicador, nivel - 1));
+        }
+
+        function comprar(item) {
+            // Handle special items first
+            if (item === 'recolector') {
+                if (madera >= 200 && piedra >= 100) {
+                    madera -= 200; piedra -= 100;
+                    mostrarNotificacion("Click en árbol/roca para colocar recolector");
+                    pendingCollector = true;
+                } else {
+                    mostrarNotificacion("❌ Recursos insuficientes");
+                }
+                actualizarTiendaUI();
+                return;
+            }
+            
+            // Standard upgrades
+            const upgrade = UPGRADES[item];
+            if (!upgrade) return;
+            
+            const currentLevel = stats[upgrade.levelKey];
+            if (currentLevel >= upgrade.maxLevel) { 
+                mostrarNotificacion("¡NIVEL MÁXIMO!"); 
+                return; 
+            }
+            
+            const costWood = upgrade.baseCostWood > 0 ? calcularCosto(upgrade.baseCostWood, currentLevel) : 0;
+            const costStone = upgrade.baseCostStone > 0 ? calcularCosto(upgrade.baseCostStone, currentLevel) : 0;
+            
+            if (madera >= costWood && piedra >= costStone) {
+                madera -= costWood;
+                piedra -= costStone;
+                stats[upgrade.levelKey]++;
+                upgrade.apply();
+                mostrarNotificacion(upgrade.successMsg);
+                crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+            } else {
+                mostrarNotificacion("❌ Recursos insuficientes");
+            }
+            actualizarTiendaUI();
+        }
+        
+        let pendingCollector = false;
+
+        // --- INICIALIZACIÓN MUNDO ---
+        function generarMundo() {
+            arboles = []; rocas = []; muros = []; enemigos = []; trampas = []; minas = []; recolectores = [];
+            for (let i = 0; i < 200; i++) spawnObjeto(arboles, 'arbol');
+            for (let i = 0; i < 100; i++) spawnObjeto(rocas, 'roca');
+        }
+        
+        function spawnObjeto(array, tipo) {
+            let x, y, dist, safety = 0;
+            do {
+                x = Math.random() * MUNDO_ANCHO; y = Math.random() * MUNDO_ALTO;
+                dist = Math.hypot(x - jugador.x, y - jugador.y);
+                safety++;
+            } while (dist < 400 && safety < 50);
+
+            if (tipo === 'arbol') array.push({ x, y, radio: 20 + Math.random()*15, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 100 });
+            if (tipo === 'roca') array.push({ x, y, ancho: 28, alto: 22, vida: 5, maxVida: 5, activo: true, respawnDia: 0, recursos: 80 });
+        }
+
+        // --- INPUT HANDLING ---
+        window.addEventListener('keydown', (e) => {
+            if (gameOver || perkModalOpen) return;
+            teclas[e.key.toLowerCase()] = true;
+            if (e.key === '1') slotActivo = 0;
+            if (e.key === '2') slotActivo = 1;
+            if (e.key === '3') slotActivo = 2;
+            if (e.key === '4') slotActivo = 3; 
+            if (e.key === '5') slotActivo = 4;
+            if (e.key === '6') slotActivo = 5;
+            if (e.key === '7') slotActivo = 6;
+            if (e.key.toLowerCase() === 'e') toggleShop();
+            if (e.key.toLowerCase() === 'r') iniciarRecarga();
+            if (e.key === ' ') { e.preventDefault(); iniciarDash(); }
+        });
+        window.addEventListener('keyup', (e) => teclas[e.key.toLowerCase()] = false);
+        const rect = canvas.getBoundingClientRect();
+        window.addEventListener('mousemove', (e) => { ratonPantalla.x = e.clientX - rect.left; ratonPantalla.y = e.clientY - rect.top; });
+        window.addEventListener('mousedown', (e) => {
+            if (gameOver || shopOpen || !gameStarted || gamePhase === 'menu' || gamePhase === 'victory' || gamePhase === 'defeat') return;
+            if (e.button === 2) { if (slotActivo === 1) materialMuro = (materialMuro === 'madera') ? 'piedra' : 'madera'; }
+            else if (e.button === 0) { mousePresionado = true; if(slotActivo !== 0) cooldownAccion = 0; intentarAccion(); }
+        });
+        window.addEventListener('mouseup', () => mousePresionado = false);
+        window.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // MOUSE WHEEL - Slot switching (7 slots now)
+        window.addEventListener('wheel', (e) => {
+            if (gameOver || shopOpen || perkModalOpen) return;
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                slotActivo = (slotActivo + 1) % 7;
+            } else {
+                slotActivo = (slotActivo - 1 + 7) % 7;
+            }
+        }, { passive: false });
+
+        // --- UPDATE LOOP ---
+        function actualizar(dt) {
+            if (perkModalOpen || gamePhase === 'menu' || gamePhase === 'victory' || gamePhase === 'defeat') return;
+            
+            if (screenshake > 0) screenshake = Math.max(0, screenshake * 0.9);
+            
+            // Combo decay
+            decayCombo(dt);
+            
+            // Loot updates
+            actualizarLoot(dt);
+            
+            // Update recolectores
+            actualizarRecolectores(dt);
+            
+            // Regeneration perk
+            if (hasPerk('regeneracion') && vida < vidaMax) {
+                vida = Math.min(vidaMax, vida + dt / 1000);
+            }
+            
+            // Slow effect decay
+            if (jugador.slowed > 0) {
+                jugador.slowed -= dt;
+                document.getElementById('slow-indicator').style.display = jugador.slowed > 0 ? 'block' : 'none';
+            }
+            
+            // Cámara suave
+            let shakeX = (Math.random() - 0.5) * screenshake;
+            let shakeY = (Math.random() - 0.5) * screenshake;
+            
+            // Use correct world bounds based on selected boss
+            const worldWidth = selectedBoss === 'btor' ? BTOR_MUNDO_ANCHO : MUNDO_ANCHO;
+            const worldHeight = selectedBoss === 'btor' ? BTOR_MUNDO_ALTO : MUNDO_ALTO;
+            
+            camara.x = Math.max(0, Math.min(jugador.x - canvas.width/2 + shakeX, worldWidth - canvas.width));
+            camara.y = Math.max(0, Math.min(jugador.y - canvas.height/2 + shakeY, worldHeight - canvas.height));
+            ratonMundo.x = ratonPantalla.x + camara.x; ratonMundo.y = ratonPantalla.y + camara.y;
+
+            // Recarga
+            if (scar.reloading) {
+                scar.reloadTimer -= dt;
+                const bar = document.getElementById('reload-bar-container');
+                bar.style.display = 'block';
+                document.getElementById('reload-bar').style.width = (100 - (scar.reloadTimer/scar.reloadTime*100)) + "%";
+                if (scar.reloadTimer <= 0) { scar.balas = scar.maxBalas; scar.reloading = false; bar.style.display = 'none'; mostrarTexto(jugador.x, jugador.y - 40, "LISTO", "#f1c40f"); }
+            } else document.getElementById('reload-bar-container').style.display = 'none';
+
+            const timerUI = document.getElementById('wave-countdown');
+            const timerTitle = document.getElementById('wave-title');
+            const timerBox = document.getElementById('wave-timer');
+            
+            // --- BOSS RUSH PHASE LOGIC ---
+            if (gamePhase === 'prep') {
+                // PREPARATION PHASE - 30 seconds to gather resources
+                prepTimer -= dt;
+                timerTitle.innerText = "⚔️ PREPARACIÓN";
+                timerTitle.style.color = "#2ecc71";
+                timerUI.innerText = (prepTimer/1000).toFixed(1) + "s";
+                timerBox.style.borderColor = "#2ecc71";
+                timerBox.style.color = "#2ecc71";
+                
+                if (prepTimer <= 0) {
+                    // Transition to combat phase
+                    gamePhase = 'combat';
+                    
+                    // Spawn appropriate boss based on selection
+                    if (selectedBoss === 'seniorP') {
+                        spawnSeniorP();
+                        seniorPActive = true;
+                        mostrarNotificacion("⚠️ ¡SENIOR P HA LLEGADO! ⚠️");
+                    } else if (selectedBoss === 'btor') {
+                        spawnBTor();
+                        mostrarNotificacion("⚠️ ¡B-TOR HA LLEGADO! ⚠️");
+                    }
+                    
+                    // Keep daytime - don't set esNoche = true
+                    // Hide wave timer during combat
+                    timerBox.style.display = 'none';
+                    // Start boss music
+                    menuMusic.pause();
+                    bossMusic.currentTime = 0;
+                    bossMusic.play().catch(() => {});
+                }
+            } else if (gamePhase === 'combat') {
+                // COMBAT PHASE - Fight the boss
+                // Wave timer is hidden, boss HP bar is shown instead
+                
+                // Update Senior P boss
+                if (boss && boss.tipo === 'seniorP') {
+                    actualizarSeniorP(dt);
+                }
+                // Update B-Tor boss
+                if (boss && boss.tipo === 'btor') {
+                    actualizarBTor(dt);
+                }
+            }
+
+            // Input Acción Continua
+            if (mousePresionado && !gameOver && !shopOpen) {
+                cooldownAccion -= dt;
+                if (cooldownAccion <= 0) { 
+                    intentarAccion(); 
+                    if (slotActivo === 0) cooldownAccion = 150; 
+                    else if (slotActivo === 3) cooldownAccion = scar.fireRate;
+                    else cooldownAccion = 250; 
+                }
+            } else cooldownAccion = 0;
+
+            // Dash cooldown update
+            if (jugador.dash.cooldown > 0) jugador.dash.cooldown -= dt;
+            
+            // Dash movement
+            if (jugador.dash.active) {
+                jugador.dash.timer -= dt;
+                jugador.x += jugador.dash.dx * jugador.dash.speed;
+                jugador.y += jugador.dash.dy * jugador.dash.speed;
+                // Trail particles
+                if (Math.random() > 0.5) crearParticula(jugador.x, jugador.y, '#73eaff', 'spark');
+                if (jugador.dash.timer <= 0) jugador.dash.active = false;
+            }
+
+            // Movimiento
+            let mx = 0, my = 0;
+            if (teclas['w']) my = -1; if (teclas['s']) my = 1;
+            if (teclas['a']) mx = -1; if (teclas['d']) mx = 1;
+            if ((mx !== 0 || my !== 0) && !jugador.dash.active) {
+                const len = Math.hypot(mx, my);
+                const currentSpeed = jugador.slowed > 0 ? stats.velocidad * 0.5 : stats.velocidad;
+                jugador.x += (mx/len) * currentSpeed; jugador.y += (my/len) * currentSpeed;
+            }
+            
+            // Clamp player to correct world bounds
+            const playerWorldWidth = selectedBoss === 'btor' ? BTOR_MUNDO_ANCHO : MUNDO_ANCHO;
+            const playerWorldHeight = selectedBoss === 'btor' ? BTOR_MUNDO_ALTO : MUNDO_ALTO;
+            jugador.x = Math.max(20, Math.min(playerWorldWidth-20, jugador.x));
+            jugador.y = Math.max(20, Math.min(playerWorldHeight-20, jugador.y));
+            jugador.angle = Math.atan2(ratonMundo.y - jugador.y, ratonMundo.x - jugador.x);
+
+            actualizarEntidades(dt);
+        }
+
+        function iniciarRecarga() {
+            if (!scar.reloading && scar.balas < scar.maxBalas) {
+                scar.reloading = true; scar.reloadTimer = scar.reloadTime; mostrarTexto(jugador.x, jugador.y - 40, "RECARGANDO...", "#aaa");
+                playSound(reloadSound); // Play reload sound
+            }
+        }
+        
+        function iniciarDash() {
+            if (jugador.dash.cooldown > 0 || jugador.dash.active) return;
+            
+            // Get direction from WASD keys or facing direction
+            let dx = 0, dy = 0;
+            if (teclas['w']) dy = -1;
+            if (teclas['s']) dy = 1;
+            if (teclas['a']) dx = -1;
+            if (teclas['d']) dx = 1;
+            
+            // If no direction keys pressed, dash towards mouse
+            if (dx === 0 && dy === 0) {
+                dx = Math.cos(jugador.angle);
+                dy = Math.sin(jugador.angle);
+            } else {
+                const len = Math.hypot(dx, dy);
+                dx /= len; dy /= len;
+            }
+            
+            jugador.dash.active = true;
+            jugador.dash.timer = jugador.dash.duration;
+            jugador.dash.cooldown = jugador.dash.cooldownTime;
+            jugador.dash.dx = dx;
+            jugador.dash.dy = dy;
+            
+            // Visual effect
+            crearParticula(jugador.x, jugador.y, '#73eaff', 'explosion');
+            mostrarTexto(jugador.x, jugador.y - 30, "DASH!", '#73eaff');
+        }
+
+        function intentarAccion() {
+            if (slotActivo === 0) usarPico();
+            else if (slotActivo === 1) construirOReperarMuro();
+            else if (slotActivo === 2) construirTorreta();
+            else if (slotActivo === 3) dispararSCAR();
+            else if (slotActivo === 4) intentarDemoler();
+            else if (slotActivo === 5) construirTrampa();
+            else if (slotActivo === 6) construirMina();
+        }
+
+        function dispararSCAR() {
+            if (scar.reloading) return;
+            if (scar.balas <= 0) { iniciarRecarga(); return; }
+            scar.balas--; screenshake = 3; 
+            
+            // Play SCAR shooting sound
+            playSound(scarSound);
+            
+            // Fogonazo visual
+            crearParticula(jugador.x + Math.cos(jugador.angle)*30, jugador.y + Math.sin(jugador.angle)*30, '#ffff00', 'explosion');
+
+            const angle = jugador.angle + (Math.random() - 0.5) * 0.1;
+            
+            // Critical hit perk
+            let dmg = scar.damage;
+            if (hasPerk('critico') && Math.random() < 0.2) {
+                dmg *= 2;
+                mostrarTexto(jugador.x, jugador.y - 30, "¡CRÍTICO!", "#f1c40f");
+            }
+            
+            // Berserker perk - now +100% damage at low HP
+            if (hasPerk('berserker') && vida < vidaMax * 0.3) {
+                dmg *= 2;
+            }
+            
+            // Multishot perk - fire 3 bullets in a spread
+            if (hasPerk('multishot')) {
+                const spreadAngles = [-0.15, 0, 0.15]; // Small spread
+                spreadAngles.forEach(spread => {
+                    const bulletAngle = angle + spread;
+                    proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(bulletAngle) * 22, vy: Math.sin(bulletAngle) * 22, vida: 40, dmg: dmg * 0.7, tipo: 'bala', explosive: hasPerk('explosivas'), source: 'player' });
+                });
+            } else {
+                proyectiles.push({ x: jugador.x, y: jugador.y, vx: Math.cos(angle) * 22, vy: Math.sin(angle) * 22, vida: 40, dmg: dmg, tipo: 'bala', explosive: hasPerk('explosivas'), source: 'player' });
+            }
+        }
+        
+        // SPIKE TRAP
+        function construirTrampa() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (madera < 30 || piedra < 20) { mostrarTexto(gx, gy, "30🌲 20🪨", "#e74c3c"); return; }
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) return;
+            if (trampas.some(t => t.x === gx && t.y === gy)) return;
+            if (muros.some(m => m.x === gx && m.y === gy)) return;
+            
+            trampas.push({ x: gx, y: gy, damage: 2, cooldown: 0 });
+            madera -= 30; piedra -= 20;
+            crearParticula(gx+25, gy+25, '#95a5a6', 'explosion');
+            mostrarTexto(gx, gy, "TRAMPA", "#95a5a6");
+        }
+        
+        // PROXIMITY MINE
+        function construirMina() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (piedra < 60) { mostrarTexto(gx, gy, "60🪨", "#e74c3c"); return; }
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) return;
+            if (minas.some(m => m.x === gx && m.y === gy)) return;
+            
+            minas.push({ x: gx, y: gy, radio: 80, damage: 50 });
+            piedra -= 60;
+            crearParticula(gx+25, gy+25, '#e74c3c', 'explosion');
+            mostrarTexto(gx, gy, "MINA", "#e74c3c");
+        }
+        
+        // BOSS SPAWN
+        function spawnBoss() {
+            const bossTypes = [
+                { nombre: "TITÁN PÚTRIDO", color: '#4a0e0e', hp: 500 * diaContador, radio: 80, velocidad: 0.8, dmg: 5 },
+                { nombre: "GOLEM ANCESTRAL", color: '#1a3a1a', hp: 800 * diaContador, radio: 100, velocidad: 0.5, dmg: 8 },
+                { nombre: "BESTIA DE LA NOCHE", color: '#2c1654', hp: 400 * diaContador, radio: 60, velocidad: 1.5, dmg: 3 }
+            ];
+            const bossType = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+            
+            let ex, ey;
+            do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; } 
+            while(Math.hypot(ex-jugador.x, ey-jugador.y) < 600);
+            
+            boss = {
+                x: ex, y: ey,
+                ...bossType,
+                maxHp: bossType.hp,
+                angle: 0, hitFlash: 0, tipo: 'boss'
+            };
+            
+            enemigos.push(boss);
+            document.getElementById('boss-hp-container').style.display = 'block';
+            document.getElementById('boss-name').textContent = `👹 ${boss.nombre}`;
+        }
+        
+        // SENIOR P SPAWN (Day 3 Special Boss)
+        function spawnSeniorP() {
+            let ex, ey;
+            do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; } 
+            while(Math.hypot(ex-jugador.x, ey-jugador.y) < 500);
+            
+            boss = {
+                x: ex, y: ey,
+                nombre: "SENIOR P",
+                color: '#800080',
+                hp: 1500,
+                maxHp: 1500,
+                radio: 50,
+                velocidad: 1.2,
+                dmg: 3,
+                angle: 0, 
+                hitFlash: 0, 
+                tipo: 'seniorP',
+                xpReward: 500
+            };
+            
+            // Reset attack state
+            seniorPAttack = { 
+                current: null, 
+                timer: 0, 
+                cooldown: 2000,
+                shield: false,
+                shieldTimer: 0,
+                lasers: [],
+                acidPools: [],
+                sineProjectiles: [],
+                tempWalls: [],
+                minions: [],
+                gaussAreas: [] // Visual warning areas for Gauss explosions
+            };
+            
+            enemigos.push(boss);
+            document.getElementById('boss-hp-container').style.display = 'block';
+            document.getElementById('boss-name').textContent = `👨‍🏫 SENIOR P`;
+        }
+        
+        // SENIOR P UPDATE LOGIC
+        function actualizarSeniorP(dt) {
+            if (!boss || boss.tipo !== 'seniorP') return;
+            
+            // Move towards player slowly
+            const angle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x);
+            boss.angle = angle;
+            
+            const dist = Math.hypot(jugador.x - boss.x, jugador.y - boss.y);
+            if (dist > 200) {
+                boss.x += Math.cos(angle) * boss.velocidad;
+                boss.y += Math.sin(angle) * boss.velocidad;
+            }
+            
+            // BOSS DESTROYS PLAYER WALLS - faster destruction rate
+            const bossRadius = 80; // Boss collision radius
+            for (let i = muros.length - 1; i >= 0; i--) {
+                const m = muros[i];
+                if (Math.hypot(boss.x - (m.x + 25), boss.y - (m.y + 25)) < bossRadius + 30) {
+                    m.vida -= 3; // Fast wall destruction (3 damage per frame)
+                    crearParticula(m.x + 25, m.y + 25, '#ff6b6b', 'golpe');
+                    if (m.vida <= 0) {
+                        muros.splice(i, 1);
+                        crearParticula(m.x + 25, m.y + 25, '#fff', 'explosion');
+                        mostrarTexto(m.x, m.y, "💥 DESTRUIDO", "#e74c3c");
+                    }
+                }
+            }
+            
+            // Also destroy torretas (turrets)
+            for (let i = torretas.length - 1; i >= 0; i--) {
+                const t = torretas[i];
+                if (Math.hypot(boss.x - (t.x + 25), boss.y - (t.y + 25)) < bossRadius + 30) {
+                    t.vida -= 5; // Even faster turret destruction
+                    crearParticula(t.x + 25, t.y + 25, '#e74c3c', 'golpe');
+                    if (t.vida <= 0) {
+                        torretas.splice(i, 1);
+                        crearParticula(t.x + 25, t.y + 25, '#f39c12', 'explosion');
+                        mostrarTexto(t.x, t.y, "💥 TORRETA", "#e74c3c");
+                    }
+                }
+            }
+            
+            // Attack cooldown
+            seniorPAttack.cooldown -= dt;
+            
+            // Shield timer
+            if (seniorPAttack.shield) {
+                seniorPAttack.shieldTimer -= dt;
+                if (seniorPAttack.shieldTimer <= 0) {
+                    seniorPAttack.shield = false;
+                }
+            }
+            
+            // Trigger new attack
+            if (seniorPAttack.cooldown <= 0 && !seniorPAttack.current) {
+                const attack = SENIOR_P_ATTACKS[Math.floor(Math.random() * SENIOR_P_ATTACKS.length)];
+                seniorPAttack.current = attack;
+                seniorPAttack.timer = 3000; // Attack duration
+                
+                // Change sprite to attack sprite
+                currentSeniorPSprite = attack.sprite;
+                
+                // Show attack name
+                const attackBanner = document.getElementById('senior-p-attack');
+                attackBanner.textContent = `📐 ${attack.nombre}`;
+                attackBanner.style.display = 'block';
+                
+                // Execute attack
+                ejecutarAtaqueSeniorP(attack.id);
+            }
+            
+            // Update current attack
+            if (seniorPAttack.current) {
+                seniorPAttack.timer -= dt;
+                if (seniorPAttack.timer <= 0) {
+                    seniorPAttack.current = null;
+                    seniorPAttack.cooldown = 2000 + Math.random() * 1500; // Faster attacks
+                    document.getElementById('senior-p-attack').style.display = 'none';
+                    // Return to base sprite
+                    currentSeniorPSprite = 'base';
+                }
+            }
+            
+            // Update attack effects
+            actualizarEfectosSeniorP(dt);
+        }
+        
+        function ejecutarAtaqueSeniorP(attackId) {
+            // Play the corresponding ability sound
+            if (seniorPSounds[attackId]) {
+                playSound(seniorPSounds[attackId]);
+            }
+            
+            switch(attackId) {
+                case 'invers': // Reflective Shield
+                    seniorPAttack.shield = true;
+                    seniorPAttack.shieldTimer = 4000;
+                    crearParticula(boss.x, boss.y, '#73eaff', 'explosion');
+                    mostrarTexto(boss.x, boss.y - 60, "🛡️ ESCUDO!", '#73eaff');
+                    break;
+                    
+                case 'escalar': // Cross Laser (8 lasers - + in red, X in blue)
+                    for (let i = 0; i < 8; i++) {
+                        const laserAngle = (Math.PI / 4) * i;
+                        // + pattern (0, 90, 180, 270 degrees) = red
+                        // X pattern (45, 135, 225, 315 degrees) = blue
+                        const isPlusPattern = (i % 2 === 0); // 0, 2, 4, 6 are + pattern
+                        seniorPAttack.lasers.push({
+                            x: boss.x, y: boss.y,
+                            angle: laserAngle,
+                            length: 0,
+                            maxLength: 1000,
+                            timer: 3000,
+                            damage: 10,
+                            isPlus: isPlusPattern // true = red (+), false = blue (X)
+                        });
+                    }
+                    break;
+                    
+                case 'gauss': // Area Explosion (Gaussian curve)
+                    for (let i = 0; i < 15; i++) {
+                        // Calculate target position for this explosion
+                        const targetX = jugador.x + (Math.random() - 0.5) * 1000;
+                        const targetY = jugador.y + (Math.random() - 0.5) * 1000;
+                        
+                        // Add warning area that shows before explosion
+                        seniorPAttack.gaussAreas.push({
+                            x: targetX,
+                            y: targetY,
+                            radio: 120,
+                            warningTime: i * 350 + 300, // Time before explosion
+                            exploded: false
+                        });
+                        
+                        setTimeout(() => {
+                            if (!boss) return;
+                            crearParticula(targetX, targetY, '#e74c3c', 'explosion');
+                            crearParticula(targetX, targetY, '#f39c12', 'explosion');
+                            for (let k = 0; k < 10; k++) {
+                                crearParticula(targetX + (Math.random() - 0.5) * 90, targetY + (Math.random() - 0.5) * 90, '#e74c3c', 'explosion');
+                            }
+                            
+                            // Check player damage
+                            if (Math.hypot(jugador.x - targetX, jugador.y - targetY) < 90) {
+                                vida -= 25;
+                                screenshake = 15;
+                                crearParticula(jugador.x, jugador.y, 'red', 'golpe');
+                            }
+                        }, i * 350 + 300);
+                    }
+                    break;
+                    
+                case 'logaritmes': // Acid Pools
+                    for (let i = 0; i < 6; i++) {
+                        const poolX = jugador.x + (Math.random() - 0.5) * 300;
+                        const poolY = jugador.y + (Math.random() - 0.5) * 300;
+                        seniorPAttack.acidPools.push({
+                            x: poolX, y: poolY,
+                            radio: 80,
+                            timer: 10000,
+                            damage: 1.0
+                        });
+                    }
+                    break;
+                    
+                case 'trigonometria': // Sine Wave Projectiles
+                    for (let i = 0; i < 32; i++) {
+                        const projAngle = (Math.PI * 2 / 16) * i;
+                        seniorPAttack.sineProjectiles.push({
+                            x: boss.x, y: boss.y,
+                            baseAngle: projAngle,
+                            phase: 0,
+                            speed: 3.5,
+                            timer: 6000,
+                            damage: 15
+                        });
+                    }
+                    break;
+                    
+                case 'rectes': // Temporary Walls - INCREASED DURABILITY
+                    for (let i = 0; i < 16; i++) {
+                        const wallAngle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x) + (Math.random() - 0.5) * 1.5;
+                        const wallDist = 120 + i * 60;
+                        seniorPAttack.tempWalls.push({
+                            x: boss.x + Math.cos(wallAngle) * wallDist,
+                            y: boss.y + Math.sin(wallAngle) * wallDist,
+                            angle: wallAngle + Math.PI/2,
+                            width: 180,
+                            timer: 12000 // Increased from 8000 for longer duration
+                        });
+                    }
+                    break;
+                    
+                case 'funcions': // Spawn X and Y minions (8 total)
+                    for (let i = 0; i < 8; i++) {
+                        const minionAngle = (Math.PI * 2 / 8) * i;
+                        const minion = {
+                            x: boss.x + Math.cos(minionAngle) * 100,
+                            y: boss.y + Math.sin(minionAngle) * 100,
+                            velocidad: 2.5,
+                            radio: 14,
+                            hp: 20,
+                            maxHp: 20,
+                            color: '#000000',
+                            tipo: 'minionXY',
+                            symbol: i % 2 === 0 ? 'X' : 'Y', // Alternate between X and Y
+                            angle: 0,
+                            xpReward: 30,
+                            dmg: 2,
+                            hitFlash: 0,
+                            armadura: 0,
+                            armorHp: 0
+                        };
+                        enemigos.push(minion);
+                        seniorPAttack.minions.push(minion);
+                        crearParticula(minion.x, minion.y, '#333333', 'explosion');
+                    }
+                    mostrarTexto(boss.x, boss.y - 60, "f(x,y) = Variables!", '#73eaff');
+                    break;
+            }
+        }
+        
+        function actualizarEfectosSeniorP(dt) {
+            // Update lasers
+            for (let i = seniorPAttack.lasers.length - 1; i >= 0; i--) {
+                const laser = seniorPAttack.lasers[i];
+                laser.timer -= dt;
+                laser.length = Math.min(laser.maxLength, laser.length + 20);
+                
+                // Check player collision with laser
+                const laserEndX = boss.x + Math.cos(laser.angle) * laser.length;
+                const laserEndY = boss.y + Math.sin(laser.angle) * laser.length;
+                
+                // Simple line-circle collision
+                const playerDist = distanceToLine(jugador.x, jugador.y, boss.x, boss.y, laserEndX, laserEndY);
+                if (playerDist < 20) {
+                    vida -= laser.damage * (dt / 1000);
+                    crearParticula(jugador.x, jugador.y, '#e74c3c', 'golpe');
+                }
+                
+                if (laser.timer <= 0) {
+                    seniorPAttack.lasers.splice(i, 1);
+                }
+            }
+            
+            // Update acid pools
+            for (let i = seniorPAttack.acidPools.length - 1; i >= 0; i--) {
+                const pool = seniorPAttack.acidPools[i];
+                pool.timer -= dt;
+                
+                // Damage player in pool
+                if (Math.hypot(jugador.x - pool.x, jugador.y - pool.y) < pool.radio) {
+                    vida -= pool.damage * (dt / 100);
+                    if (Math.random() < 0.1) crearParticula(jugador.x, jugador.y, '#8e44ad', 'golpe');
+                }
+                
+                if (pool.timer <= 0) {
+                    seniorPAttack.acidPools.splice(i, 1);
+                }
+            }
+            
+            // Update sine projectiles
+            for (let i = seniorPAttack.sineProjectiles.length - 1; i >= 0; i--) {
+                const proj = seniorPAttack.sineProjectiles[i];
+                proj.timer -= dt;
+                proj.phase += 0.15;
+                
+                // Move in sine wave pattern
+                const waveOffset = Math.sin(proj.phase) * 50;
+                const perpAngle = proj.baseAngle + Math.PI/2;
+                proj.x += Math.cos(proj.baseAngle) * proj.speed;
+                proj.y += Math.sin(proj.baseAngle) * proj.speed;
+                
+                const displayX = proj.x + Math.cos(perpAngle) * waveOffset;
+                const displayY = proj.y + Math.sin(perpAngle) * waveOffset;
+                
+                // Check player collision
+                if (Math.hypot(jugador.x - displayX, jugador.y - displayY) < 20) {
+                    vida -= proj.damage;
+                    screenshake = 5;
+                    crearParticula(jugador.x, jugador.y, '#e74c3c', 'explosion');
+                    seniorPAttack.sineProjectiles.splice(i, 1);
+                    continue;
+                }
+                
+                if (proj.timer <= 0) {
+                    seniorPAttack.sineProjectiles.splice(i, 1);
+                }
+            }
+            
+            // Update temp walls timer
+            for (let i = seniorPAttack.tempWalls.length - 1; i >= 0; i--) {
+                const wall = seniorPAttack.tempWalls[i];
+                wall.timer -= dt;
+                
+                // Block player movement
+                const halfWidth = wall.width / 2;
+                const wallStartX = wall.x - Math.cos(wall.angle) * halfWidth;
+                const wallStartY = wall.y - Math.sin(wall.angle) * halfWidth;
+                const wallEndX = wall.x + Math.cos(wall.angle) * halfWidth;
+                const wallEndY = wall.y + Math.sin(wall.angle) * halfWidth;
+                
+                const playerDist = distanceToLine(jugador.x, jugador.y, wallStartX, wallStartY, wallEndX, wallEndY);
+                if (playerDist < 20) {
+                    // Push player away
+                    const pushAngle = Math.atan2(jugador.y - wall.y, jugador.x - wall.x);
+                    jugador.x += Math.cos(pushAngle) * 5;
+                    jugador.y += Math.sin(pushAngle) * 5;
+                }
+                
+                if (wall.timer <= 0) {
+                    seniorPAttack.tempWalls.splice(i, 1);
+                }
+            }
+            
+            // Update Gauss warning areas
+            if (seniorPAttack.gaussAreas) {
+                for (let i = seniorPAttack.gaussAreas.length - 1; i >= 0; i--) {
+                    const area = seniorPAttack.gaussAreas[i];
+                    area.warningTime -= dt;
+                    
+                    if (area.warningTime <= 0) {
+                        area.exploded = true;
+                        seniorPAttack.gaussAreas.splice(i, 1);
+                    }
+                }
+            }
+        }
+        
+        // ============ B-TOR BOSS SPAWN AND UPDATE ============
+        function spawnBTor() {
+            let ex, ey;
+            do { ex = Math.random()*BTOR_MUNDO_ANCHO; ey = Math.random()*BTOR_MUNDO_ALTO; } 
+            while(Math.hypot(ex-jugador.x, ey-jugador.y) < 400);
+            
+            boss = {
+                x: ex, y: ey,
+                nombre: "B-TOR",
+                color: '#ff9800',
+                hp: 800,
+                maxHp: 800,
+                radio: 40,
+                velocidad: 1.8, // Faster than Senior P
+                dmg: 8, // Higher melee damage
+                angle: 0, 
+                hitFlash: 0, 
+                tipo: 'btor',
+                xpReward: 300,
+                attackCooldown: 0,
+                attackDuration: 0,
+                isAttacking: false
+            };
+            
+            enemigos.push(boss);
+            document.getElementById('boss-hp-container').style.display = 'block';
+            document.getElementById('boss-name').textContent = `🔧 B-TOR`;
+            // Change boss HP bar color to orange
+            document.getElementById('boss-hp-bar').style.borderColor = '#ff9800';
+            document.getElementById('boss-hp-fill').style.background = 'linear-gradient(90deg, #ff9800, #ffc107)';
+            document.getElementById('boss-name').style.color = '#ff9800';
+        }
+        
+        // B-TOR UPDATE LOGIC - Simple melee boss that follows and attacks
+        function actualizarBTor(dt) {
+            if (!boss || boss.tipo !== 'btor') return;
+            
+            // Move towards player
+            const angle = Math.atan2(jugador.y - boss.y, jugador.x - boss.x);
+            boss.angle = angle;
+            
+            const dist = Math.hypot(jugador.x - boss.x, jugador.y - boss.y);
+            
+            // Move towards player if not close enough for melee
+            if (dist > 80) {
+                boss.x += Math.cos(angle) * boss.velocidad;
+                boss.y += Math.sin(angle) * boss.velocidad;
+            }
+            
+            // Clamp to B-Tor arena bounds
+            boss.x = Math.max(50, Math.min(BTOR_MUNDO_ANCHO - 50, boss.x));
+            boss.y = Math.max(50, Math.min(BTOR_MUNDO_ALTO - 50, boss.y));
+            
+            // Melee attack cooldown
+            boss.attackCooldown -= dt;
+            
+            // Melee attack when close
+            if (dist < 100 && boss.attackCooldown <= 0) {
+                boss.isAttacking = true;
+                boss.attackDuration = 300; // 300ms attack animation
+                boss.attackCooldown = 1200; // Attack every 1.2 seconds
+                
+                // Deal damage to player
+                let damage = boss.dmg;
+                if (hasPerk('armadura')) damage *= 0.75;
+                vida -= damage;
+                screenshake = 8;
+                crearParticula(jugador.x, jugador.y, '#ff9800', 'explosion');
+                mostrarTexto(jugador.x, jugador.y - 30, `-${Math.floor(damage)}`, '#ff9800');
+                
+                if (vida <= 0) {
+                    // Inmortal perk - survive one fatal hit
+                    if (hasPerk('inmortal') && !usedInmortal) {
+                        vida = 1;
+                        usedInmortal = true;
+                        mostrarNotificacion("💀 ¡INMORTAL ACTIVADO!");
+                        crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+                    } else {
+                        vida = 0;
+                        gameOver = true;
+                        gamePhase = 'defeat';
+                        bossMusic.pause();
+                        document.getElementById('gameOverScreen').style.display = 'block';
+                    }
+                }
+            }
+            
+            // Update attack animation
+            if (boss.attackDuration > 0) {
+                boss.attackDuration -= dt;
+                if (boss.attackDuration <= 0) {
+                    boss.isAttacking = false;
+                }
+            }
+            
+            // B-Tor destroys player walls on contact
+            const bossRadius = 60;
+            for (let i = muros.length - 1; i >= 0; i--) {
+                const m = muros[i];
+                if (Math.hypot(boss.x - (m.x + 25), boss.y - (m.y + 25)) < bossRadius + 30) {
+                    m.vida -= 5;
+                    crearParticula(m.x + 25, m.y + 25, '#ff9800', 'golpe');
+                    if (m.vida <= 0) {
+                        muros.splice(i, 1);
+                        crearParticula(m.x + 25, m.y + 25, '#fff', 'explosion');
+                        mostrarTexto(m.x, m.y, "💥 DESTRUIDO", "#ff9800");
+                    }
+                }
+            }
+            
+            // Also destroy turrets
+            for (let i = torretas.length - 1; i >= 0; i--) {
+                const t = torretas[i];
+                if (Math.hypot(boss.x - (t.x + 25), boss.y - (t.y + 25)) < bossRadius + 30) {
+                    t.vida -= 8;
+                    crearParticula(t.x + 25, t.y + 25, '#ff9800', 'golpe');
+                    if (t.vida <= 0) {
+                        torretas.splice(i, 1);
+                        crearParticula(t.x + 25, t.y + 25, '#fff', 'explosion');
+                        mostrarTexto(t.x, t.y, "💥 DESTRUIDO", "#ff9800");
+                    }
+                }
+            }
+            
+            // Update boss HP bar
+            const hpPercent = (boss.hp / boss.maxHp) * 100;
+            document.getElementById('boss-hp-fill').style.width = hpPercent + '%';
+            
+            // Check for victory
+            if (boss.hp <= 0) {
+                gamePhase = 'victory';
+                bossMusic.pause();
+                document.getElementById('boss-hp-container').style.display = 'none';
+                document.getElementById('victory-screen').style.display = 'block';
+                document.getElementById('victory-stats').textContent = `Has derrotado a B-Tor`;
+                crearParticula(boss.x, boss.y, '#ff9800', 'explosion');
+                crearParticula(boss.x, boss.y, '#ffc107', 'explosion');
+                
+                // Remove boss from enemies
+                const bossIdx = enemigos.findIndex(e => e === boss);
+                if (bossIdx !== -1) enemigos.splice(bossIdx, 1);
+                boss = null;
+            }
+        }
+        
+        // Helper function for line-point distance
+        function distanceToLine(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = lenSq !== 0 ? dot / lenSq : -1;
+            
+            let xx, yy;
+            if (param < 0) { xx = x1; yy = y1; }
+            else if (param > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + param * C; yy = y1 + param * D; }
+            
+            return Math.hypot(px - xx, py - yy);
+        }
+        
+        // RECOLECTOR AUTOMÁTICO
+        function actualizarRecolectores(dt) {
+            recolectores.forEach(rec => {
+                if (!rec.target || !rec.target.activo || rec.target.recursos <= 0) {
+                    // Find new target
+                    rec.target = [...arboles, ...rocas].find(r => 
+                        r.activo && r.recursos > 0 && Math.hypot(rec.x - r.x, rec.y - r.y) < 50
+                    );
+                }
+                
+                if (rec.target && rec.target.recursos > 0) {
+                    rec.cooldown -= dt;
+                    if (rec.cooldown <= 0) {
+                        rec.cooldown = 1000; // 1 resource per second
+                        rec.target.recursos--;
+                        
+                        if (rec.target.radio) { // Es árbol
+                            madera += 1;
+                        } else { // Es roca
+                            piedra += 1;
+                        }
+                        
+                        crearParticula(rec.x + 25, rec.y + 15, rec.target.radio ? '#2ecc71' : '#95a5a6', 'golpe');
+                        
+                        if (rec.target.recursos <= 0) {
+                            rec.target.activo = false;
+                            rec.target.respawnDia = diaContador + DIAS_PARA_REGENERAR;
+                        }
+                    }
+                }
+            });
+        }
+
+        function usarPico() {
+            const hitPos = { x: jugador.x + Math.cos(jugador.angle)*25, y: jugador.y + Math.sin(jugador.angle)*25 };
+            crearParticula(hitPos.x, hitPos.y, 'rgba(255,255,255,0.5)', 'golpe');
+            
+            // Play pico sound
+            playSound(picoSound);
+            
+            // Check for collector placement first
+            if (pendingCollector) {
+                for (const a of arboles) {
+                    if (a.activo && a.recursos > 0 && Math.hypot(a.x - ratonMundo.x, a.y - ratonMundo.y) < a.radio + 20) {
+                        const gx = Math.floor(a.x/TILE_SIZE)*TILE_SIZE;
+                        const gy = Math.floor(a.y/TILE_SIZE)*TILE_SIZE;
+                        recolectores.push({ x: gx, y: gy, target: a, cooldown: 0 });
+                        pendingCollector = false;
+                        mostrarTexto(gx + 25, gy + 25, "RECOLECTOR", "#f1c40f");
+                        crearParticula(gx + 25, gy + 25, '#f1c40f', 'explosion');
+                        return;
+                    }
+                }
+                for (const r of rocas) {
+                    if (r.activo && r.recursos > 0 && Math.hypot(r.x - ratonMundo.x, r.y - ratonMundo.y) < r.ancho + 20) {
+                        const gx = Math.floor(r.x/TILE_SIZE)*TILE_SIZE;
+                        const gy = Math.floor(r.y/TILE_SIZE)*TILE_SIZE;
+                        recolectores.push({ x: gx, y: gy, target: r, cooldown: 0 });
+                        pendingCollector = false;
+                        mostrarTexto(gx + 25, gy + 25, "RECOLECTOR", "#f1c40f");
+                        crearParticula(gx + 25, gy + 25, '#f1c40f', 'explosion');
+                        return;
+                    }
+                }
+                mostrarTexto(ratonMundo.x, ratonMundo.y, "Sin recurso", "#e74c3c");
+                return;
+            }
+            
+            const check = (obj, tipo) => {
+                if (!obj.activo) return false;
+                const distJugador = Math.hypot(jugador.x - obj.x, jugador.y - obj.y);
+                const radioObj = obj.radio || obj.ancho;
+                // Hitbox Mouse + Distancia Jugador
+                if (Math.hypot(obj.x - ratonMundo.x, obj.y - ratonMundo.y) < radioObj + 20) {
+                    if (distJugador < ALCANCE_PICO + radioObj) {
+                        obj.vida -= stats.picoDmg;
+                        crearParticula(obj.x, obj.y, tipo === 'arbol' ? '#2ecc71' : '#bdc3c7', 'explosion');
+                        screenshake = 1;
+                        if (obj.vida <= 0) {
+                            obj.activo = false; obj.respawnDia = diaContador + DIAS_PARA_REGENERAR;
+                            let qty = Math.floor(30 * stats.recoleccion);
+                            if (tipo === 'arbol') { madera += qty; mostrarTexto(obj.x, obj.y, `+${qty}`, '#2ecc71'); } 
+                            else { piedra += qty; mostrarTexto(obj.x, obj.y, `+${qty}`, '#95a5a6'); }
+                            ganarXP(10);
+                        }
+                        return true;
+                    }
+                } return false;
+            };
+
+            for (const a of arboles) if (check(a, 'arbol')) return;
+            for (const r of rocas) if (check(r, 'roca')) return;
+            
+            // Melee zombies
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const en = enemigos[i];
+                if (Math.hypot(en.x - ratonMundo.x, en.y - ratonMundo.y) < en.radio + 30) {
+                    if (Math.hypot(jugador.x - en.x, jugador.y - en.y) < ALCANCE_PICO + en.radio) { 
+                        // Calculate melee damage with perks
+                        let meleeDmg = stats.picoDmg * 5;
+                        
+                        // Critical hit perk
+                        if (hasPerk('critico') && Math.random() < 0.2) {
+                            meleeDmg *= 2;
+                            mostrarTexto(en.x, en.y - 40, "¡CRÍTICO!", "#f1c40f");
+                        }
+                        
+                        // Berserker perk - +100% damage when low HP
+                        if (hasPerk('berserker') && vida < vidaMax * 0.3) {
+                            meleeDmg *= 2;
+                        }
+                        
+                        dañarEnemigo(en, i, meleeDmg, 'player'); 
+                        return; 
+                    }
+                }
+            }
+        }
+
+        function intentarDemoler() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) { mostrarTexto(gx, gy, "Lejos", "#e74c3c"); return; }
+            
+            const mIdx = muros.findIndex(m => m.x === gx && m.y === gy);
+            if (mIdx !== -1) {
+                const m = muros[mIdx];
+                if (m.tipo === 'madera') madera += 10; else piedra += 10;
+                muros.splice(mIdx, 1); crearParticula(gx+25, gy+25, '#fff', 'explosion'); mostrarTexto(gx, gy, "DEMOLIDO", "#e74c3c"); return;
+            }
+            const tIdx = torretas.findIndex(t => t.x === gx && t.y === gy);
+            if (tIdx !== -1) {
+                madera += 50; piedra += 25;
+                torretas.splice(tIdx, 1); crearParticula(gx+25, gy+25, '#f1c40f', 'explosion'); mostrarTexto(gx, gy, "DEMOLIDO", "#e74c3c"); return;
+            }
+        }
+
+        function construirOReperarMuro() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) { mostrarTexto(gx, gy, "Lejos", "#e74c3c"); return; }
+            
+            const m = muros.find(m => m.x === gx && m.y === gy);
+            if (m) {
+                if (m.vida < m.vidaMax) {
+                    let cost = 10;
+                    if (m.tipo === 'madera' && madera >= cost) { madera -= cost; m.vida = m.vidaMax; crearParticula(gx+25,gy+25,'#2ecc71','golpe'); mostrarTexto(gx,gy,"Reparado","#2ecc71"); }
+                    else if (m.tipo === 'piedra' && piedra >= cost) { piedra -= cost; m.vida = m.vidaMax; crearParticula(gx+25,gy+25,'#bdc3c7','golpe'); mostrarTexto(gx,gy,"Reparado","#bdc3c7"); }
+                } return;
+            }
+            let costo = 20, esMadera = materialMuro === 'madera';
+            if ((esMadera && madera < costo) || (!esMadera && piedra < costo)) { mostrarTexto(gx, gy, "Sin recursos", "#e74c3c"); return; }
+            if (torretas.some(t => t.x === gx && t.y === gy)) return;
+            if (jugador.x > gx && jugador.x < gx+50 && jugador.y > gy && jugador.y < gy+50) return;
+            let hp = (esMadera ? 120 : 500) * stats.muroHpMult;
+            muros.push({ x: gx, y: gy, vida: hp, vidaMax: hp, tipo: materialMuro });
+            if (esMadera) madera -= costo; else piedra -= costo;
+            crearParticula(gx+25, gy+25, '#fff', 'explosion');
+        }
+
+        function construirTorreta() {
+            const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+            if (madera < 100 || piedra < 50) { mostrarTexto(gx, gy, "100🌲 50🪨", "#e74c3c"); return; }
+            if (Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) > ALCANCE_CONSTRUCCION) return;
+            if (muros.some(m => m.x === gx && m.y === gy) || torretas.some(t => t.x === gx && t.y === gy)) return;
+            torretas.push({ x: gx, y: gy, cooldown: 0, alcance: stats.turretRange, vida: 100 });
+            madera -= 100; piedra -= 50; crearParticula(gx+25, gy+25, '#f1c40f', 'explosion');
+        }
+
+        function spawnEnemigo() {
+            // SOLO SPAWNEAR DE NOCHE
+            if (!esNoche) return;
+            
+            // Limit max enemies to prevent performance issues
+            if (enemigos.length >= 100) return;
+
+            let ex, ey, dist, att = 0;
+            do { ex = Math.random()*MUNDO_ANCHO; ey = Math.random()*MUNDO_ALTO; dist = Math.hypot(ex-jugador.x, ey-jugador.y); att++; } while(dist < 500 && att < 10);
+            
+            // AGGRESSIVE SCALING
+            const hpScale = Math.pow(1.4, diaContador - 1);
+            const dmgScale = 1 + (diaContador - 1) * 0.2;
+            const velScale = currentEvent?.efecto === 'frenesi' ? 1.3 : 1;
+            
+            // Variantes
+            let r = Math.random();
+            let tipo = 'caminante', col = '#779977', rad = 18, vel = 1.2 * velScale, hp = Math.floor((5 + diaContador * 3) * hpScale), xpR = 15, dmg = 0.5 * dmgScale;
+            let armadura = 0; // Damage reduction
+            
+            if (diaContador >= 2 && r < 0.20) { // Runner
+                tipo = 'corredor'; col = '#c0392b'; vel = 3.5 * velScale; hp = Math.floor(hp * 0.5); rad = 14; xpR = 25; dmg *= 0.8;
+            } else if (diaContador >= 3 && r >= 0.20 && r < 0.30) { // Tank
+                tipo = 'tanque'; col = '#2c3e50'; vel = 0.5 * velScale; hp = Math.floor(hp * 6); rad = 35; xpR = 70; dmg *= 2;
+            } else if (diaContador >= 3 && r >= 0.30 && r < 0.40) { // Tóxico
+                tipo = 'toxico'; col = '#00ff00'; vel = 1.0 * velScale; hp = Math.floor(hp * 1.3); rad = 20; xpR = 30;
+            } else if (diaContador >= 4 && r >= 0.40 && r < 0.50) { // Explosivo
+                tipo = 'explosivo'; col = '#f39c12'; vel = 2.0 * velScale; hp = Math.floor(hp * 0.4); rad = 18; xpR = 40; dmg *= 3;
+            } else if (diaContador >= 5 && r >= 0.50 && r < 0.60) { // ICE GOLEM - NEW
+                tipo = 'hielo'; col = '#00bcd4'; vel = 0.7 * velScale; hp = Math.floor(hp * 4); rad = 30; xpR = 60; dmg *= 1.2;
+            } else if (diaContador >= 6 && r >= 0.60 && r < 0.70) { // ARMORED KNIGHT - NEW
+                tipo = 'armado'; col = '#607d8b'; vel = 1.0 * velScale; hp = Math.floor(hp * 2); rad = 22; xpR = 50; dmg *= 1.5;
+                armadura = 0.5; // 50% damage reduction until armor breaks
+            }
+            
+            enemigos.push({ 
+                x: ex, y: ey, velocidad: vel, radio: rad, hp: hp, maxHp: hp, 
+                color: col, tipo: tipo, angle: 0, xpReward: xpR, dmg: dmg, 
+                hitFlash: 0, armadura: armadura, armorHp: armadura > 0 ? hp * 0.3 : 0 
+            });
+        }
+
+        function actualizarEntidades(dt) {
+            // Limit projectiles to prevent memory issues
+            if (proyectiles.length > 100) proyectiles.splice(0, 30);
+            
+            // UPDATE TRAPS - damage enemies walking over them
+            trampas.forEach(trap => {
+                trap.cooldown -= dt;
+                if (trap.cooldown <= 0) {
+                    enemigos.forEach(e => {
+                        if (e.x > trap.x && e.x < trap.x + 50 && e.y > trap.y && e.y < trap.y + 50) {
+                            e.hp -= trap.damage;
+                            e.hitFlash = 100;
+                            crearParticula(e.x, e.y, '#95a5a6', 'golpe');
+                            trap.cooldown = 500; // Damage every 0.5s
+                        }
+                    });
+                }
+            });
+            
+            // UPDATE MINES - explode on contact
+            for (let i = minas.length - 1; i >= 0; i--) {
+                const mina = minas[i];
+                for (const e of enemigos) {
+                    if (Math.hypot(e.x - (mina.x + 25), e.y - (mina.y + 25)) < 40) {
+                        // BOOM!
+                        crearParticula(mina.x + 25, mina.y + 25, '#e74c3c', 'explosion');
+                        crearParticula(mina.x + 25, mina.y + 25, '#f39c12', 'explosion');
+                        screenshake = 10;
+                        
+                        // Damage all enemies in radius
+                        enemigos.forEach(en => {
+                            const dist = Math.hypot(en.x - (mina.x + 25), en.y - (mina.y + 25));
+                            if (dist < mina.radio) {
+                                const dmg = mina.damage * (1 - dist / mina.radio);
+                                en.hp -= dmg;
+                                en.hitFlash = 150;
+                                mostrarTexto(en.x, en.y - 20, Math.floor(dmg), 'orange');
+                            }
+                        });
+                        
+                        minas.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+            
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const e = enemigos[i];
+                if (!e) continue;
+                e.angle = Math.atan2(jugador.y - e.y, jugador.x - e.x);
+                let vx = Math.cos(e.angle) * e.velocidad, vy = Math.sin(e.angle) * e.velocidad;
+                
+                // Efecto Tóxico (Partículas)
+                if (e.tipo === 'toxico' && Math.random() < 0.1) crearParticula(e.x, e.y, '#00ff00', 'golpe');
+                
+                // Ice effect particles
+                if (e.tipo === 'hielo' && Math.random() < 0.1) crearParticula(e.x, e.y, '#00bcd4', 'golpe');
+
+                // Colisiones
+                let col = false;
+                if (e.x > camara.x - 100 && e.x < camara.x + canvas.width + 100) {
+                    const check = (arr) => {
+                        for (let j = arr.length - 1; j >= 0; j--) {
+                            const o = arr[j];
+                            if (e.x+e.radio > o.x && e.x-e.radio < o.x+50 && e.y+e.radio > o.y && e.y-e.radio < o.y+50) {
+                                e.x -= vx*2; e.y -= vy*2;
+                                let dmg = e.tipo === 'tanque' ? 2 : 0.5;
+                                if (e.tipo === 'explosivo') { dmg = 20; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); }
+                                o.vida -= dmg; crearParticula(o.x+25, o.y+25, '#fff', 'golpe');
+                                if (o.vida <= 0) arr.splice(j, 1);
+                                return true;
+                            }
+                        } return false;
+                    };
+                    if (check(muros) || check(torretas)) col = true;
+                }
+                
+                if (!col) { e.x += vx; e.y += vy; }
+                
+                // Separación
+                for (let k = i - 1; k >= 0; k--) {
+                    const o = enemigos[k];
+                    if (Math.hypot(e.x-o.x, e.y-o.y) < e.radio+o.radio) { const a = Math.atan2(e.y-o.y, e.x-o.x); e.x += Math.cos(a); e.y += Math.sin(a); }
+                }
+
+                if (Math.hypot(jugador.x - e.x, jugador.y - e.y) < jugador.radio + e.radio) {
+                    let playerDmg = e.dmg || 0.5;
+                    if (e.tipo === 'tanque') playerDmg = 1.5;
+                    if (e.tipo === 'explosivo') { playerDmg = 15; e.hp = 0; crearParticula(e.x, e.y, 'orange', 'explosion'); }
+                    
+                    // ICE GOLEM slows player - use slowed timer instead of modifying velocity directly
+                    if (e.tipo === 'hielo' && jugador.slowed <= 0) {
+                        jugador.slowed = 2000; // 2 seconds slow - visual indicator only
+                    }
+                    
+                    // Armor perk reduces damage
+                    if (hasPerk('armadura')) playerDmg *= 0.75;
+                    
+                    vida -= playerDmg; screenshake = 5; crearParticula(jugador.x, jugador.y, 'red', 'golpe');
+                    if (vida <= 0) { 
+                        // Inmortal perk - survive one fatal hit
+                        if (hasPerk('inmortal') && !usedInmortal) {
+                            vida = 1;
+                            usedInmortal = true;
+                            mostrarNotificacion("💀 ¡INMORTAL ACTIVADO!");
+                            crearParticula(jugador.x, jugador.y, '#f1c40f', 'explosion');
+                        } else {
+                            vida = 0;
+                            gameOver = true; 
+                            gamePhase = 'defeat';
+                            bossMusic.pause(); // Stop boss music on defeat
+                            document.getElementById('death-stats').textContent = `${selectedBoss === 'btor' ? 'B-Tor' : 'Senior P'} te ha derrotado. (Nivel ${nivel})`;
+                            document.getElementById('gameOverScreen').style.display = 'block'; 
+                        }
+                    }
+                }
+            }
+            
+            // Update boss HP bar
+            if (boss && boss.hp > 0) {
+                document.getElementById('boss-hp-fill').style.width = (boss.hp / boss.maxHp * 100) + '%';
+            }
+            
+            // Process explosive deaths separately to avoid array mutation issues
+            const explosivesToProcess = [];
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const e = enemigos[i];
+                if (e.hp <= 0 && e.tipo === 'explosivo') {
+                    explosivesToProcess.push({ x: e.x, y: e.y, index: i });
+                }
+            }
+            
+            // Apply area damage from explosives
+            explosivesToProcess.forEach(exp => {
+                enemigos.forEach(other => {
+                    if (other.hp > 0 && Math.hypot(exp.x - other.x, exp.y - other.y) < 100) {
+                        other.hp -= 10;
+                        other.hitFlash = 150;
+                        mostrarTexto(other.x, other.y - 20, '10', 'orange');
+                    }
+                });
+            });
+            
+            // Clean up dead enemies
+            for (let i = enemigos.length - 1; i >= 0; i--) {
+                const e = enemigos[i];
+                if (e.hp <= 0) {
+                    crearParticula(e.x, e.y, e.color, 'explosion');
+                    crearParticula(e.x, e.y, 'red', 'explosion');
+                    ganarXP(e.xpReward || 15);
+                    actualizarCombo();
+                    
+                    // Check if Senior P died - VICTORY!
+                    if (e.tipo === 'seniorP') {
+                        boss = null;
+                        seniorPActive = false;
+                        seniorPDefeated = true;
+                        gamePhase = 'victory';
+                        document.getElementById('boss-hp-container').style.display = 'none';
+                        document.getElementById('senior-p-attack').style.display = 'none';
+                        
+                        // Stop boss music
+                        bossMusic.pause();
+                        
+                        // Clear all Senior P attack effects
+                        seniorPAttack.lasers = [];
+                        seniorPAttack.acidPools = [];
+                        seniorPAttack.sineProjectiles = [];
+                        seniorPAttack.tempWalls = [];
+                        
+                        // Show victory screen
+                        document.getElementById('victory-stats').textContent = `¡Has derrotado a Senior P! - Nivel: ${nivel}`;
+                        document.getElementById('victory-screen').style.display = 'block';
+                    }
+                    // Check if regular boss died
+                    else if (e === boss) {
+                        boss = null;
+                        document.getElementById('boss-hp-container').style.display = 'none';
+                        mostrarNotificacion("¡JEFE DERROTADO!");
+                        // Bonus loot for boss
+                        for (let l = 0; l < 5; l++) {
+                            lootDrops.push({ x: e.x + (Math.random()-0.5)*50, y: e.y + (Math.random()-0.5)*50, type: Math.random() < 0.5 ? 'health' : 'ammo', timer: 15000 });
+                        }
+                    }
+                    
+                    // LOOT DROP CHANCE
+                    if (Math.random() < 0.15 && e.tipo !== 'seniorP' && e !== boss) {
+                        const lootType = Math.random() < 0.6 ? 'health' : 'ammo';
+                        lootDrops.push({ x: e.x, y: e.y, type: lootType, timer: 10000 });
+                    }
+                    
+                    enemigos.splice(i, 1);
+                }
+            }
+
+            // Engineer perk - turrets auto-repair
+            if (hasPerk('ingeniero')) {
+                torretas.forEach(t => {
+                    if (t.vida < 100) t.vida = Math.min(100, t.vida + dt / 100);
+                });
+            }
+
+            torretas.forEach(t => {
+                t.cooldown -= dt;
+                if (t.cooldown <= 0) {
+                    let target = null, min = t.alcance;
+                    enemigos.forEach(e => { const d = Math.hypot(e.x-(t.x+25), e.y-(t.y+25)); if(d < min) { min = d; target = e; } });
+                    if (target) {
+                        proyectiles.push({ x: t.x+25, y: t.y+25, vx: (target.x-(t.x+25))/min*12, vy: (target.y-(t.y+25))/min*12, vida: 50, dmg: stats.turretDmg, tipo: 'bala', source: 'turret' });
+                        t.cooldown = 800;
+                    }
+                }
+            });
+
+            for (let i = proyectiles.length-1; i >= 0; i--) {
+                const p = proyectiles[i]; p.x += p.vx; p.y += p.vy; p.vida--;
+                let hit = false;
+                
+                // Check collision with Senior P temp walls (Rectes en el Pla)
+                if (seniorPAttack && seniorPAttack.tempWalls) {
+                    for (const wall of seniorPAttack.tempWalls) {
+                        // Transform projectile position to wall's local coordinates
+                        const dx = p.x - wall.x;
+                        const dy = p.y - wall.y;
+                        const cos = Math.cos(-wall.angle);
+                        const sin = Math.sin(-wall.angle);
+                        const localX = dx * cos - dy * sin;
+                        const localY = dx * sin + dy * cos;
+                        
+                        // Check if projectile is within wall bounds
+                        const halfWidth = wall.width / 2;
+                        if (Math.abs(localX) < halfWidth && Math.abs(localY) < 15) {
+                            hit = true;
+                            crearParticula(p.x, p.y, '#9b59b6', 'explosion');
+                            mostrarTexto(p.x, p.y - 10, "¡BLOQUEADO!", "#9b59b6");
+                            break;
+                        }
+                    }
+                }
+                
+                if (!hit) {
+                    for (let j = enemigos.length-1; j >= 0; j--) {
+                        const e = enemigos[j];
+                        if (Math.hypot(e.x-p.x, e.y-p.y) < e.radio) { 
+                            // Pass source from projectile (turret or player)
+                            dañarEnemigo(e, j, p.dmg, p.source || 'player'); 
+                            crearParticula(e.x, e.y, '#f1c40f', 'explosion'); 
+                            
+                            // Explosive bullets perk
+                            if (p.explosive) {
+                                enemigos.forEach(other => {
+                                    if (other !== e && Math.hypot(other.x - e.x, other.y - e.y) < 60) {
+                                        dañarEnemigo(other, -1, p.dmg * 0.5, p.source || 'player');
+                                        crearParticula(other.x, other.y, '#f39c12', 'explosion');
+                                    }
+                                });
+                                screenshake = 5;
+                            }
+                            
+                            hit = true; 
+                            break; 
+                        }
+                    }
+                }
+                if (hit || p.vida <= 0) proyectiles.splice(i, 1);
+            }
+
+            if (particulas.length > 200) particulas.splice(0, 50);
+            for (let i = particulas.length-1; i >= 0; i--) {
+                const p = particulas[i]; p.x += p.vx||0; p.y += p.vy||0; p.vida -= 0.03; if (p.vida <= 0) particulas.splice(i, 1);
+            }
+        }
+
+        // Source types: 'player' (pico, SCAR), 'turret', 'trap', 'mine', 'explosive'
+        function dañarEnemigo(e, index, daño, source = 'player') {
+            if (!e || e.hp <= 0) return;
+            
+            // Senior P shield - ONLY reflect damage from player attacks (pico, SCAR)
+            // Turrets, traps, and mines should NOT be reflected
+            if (e.tipo === 'seniorP' && seniorPAttack.shield && source === 'player') {
+                vida -= daño * 0.5; // Reflect half damage to player
+                screenshake = 3;
+                crearParticula(e.x, e.y, '#73eaff', 'explosion');
+                mostrarTexto(e.x, e.y - 30, "¡REFLEJADO!", "#73eaff");
+                crearParticula(jugador.x, jugador.y, '#e74c3c', 'golpe');
+                return; // No damage to boss
+            }
+            
+            // Armored knight damage reduction
+            if (e.armadura > 0 && e.armorHp > 0) {
+                e.armorHp -= daño;
+                daño *= (1 - e.armadura); // Reduce damage
+                if (e.armorHp <= 0) {
+                    e.armadura = 0;
+                    mostrarTexto(e.x, e.y - 30, "¡ARMADURA ROTA!", "#607d8b");
+                    crearParticula(e.x, e.y, '#607d8b', 'explosion');
+                }
+            }
+            
+            // Note: Critical hit, berserker, francotirador perks are applied in dispararSCAR() 
+            // for projectile damage, and in usarPico() for melee damage to avoid double application
+            
+            e.hp -= daño; 
+            e.hitFlash = 150;
+            mostrarTexto(e.x, e.y-20, Math.floor(daño), 'white');
+            e.x -= Math.cos(e.angle || 0)*5; 
+            e.y -= Math.sin(e.angle || 0)*5;
+            // Death is handled in the cleanup phase of actualizarEntidades
+        }
+        
+        function actualizarLoot(dt) {
+            // Limit loot drops to prevent memory issues
+            if (lootDrops.length > 50) lootDrops.splice(0, 20);
+            
+            for (let i = lootDrops.length - 1; i >= 0; i--) {
+                const loot = lootDrops[i];
+                loot.timer -= dt;
+                if (loot.timer <= 0) { lootDrops.splice(i, 1); continue; }
+                
+                // IMANTADO perk - loot attracted to player
+                if (hasPerk('imantado')) {
+                    const dist = Math.hypot(jugador.x - loot.x, jugador.y - loot.y);
+                    if (dist < 200) {
+                        const angle = Math.atan2(jugador.y - loot.y, jugador.x - loot.x);
+                        loot.x += Math.cos(angle) * 3;
+                        loot.y += Math.sin(angle) * 3;
+                    }
+                }
+                
+                // Check pickup
+                if (Math.hypot(jugador.x - loot.x, jugador.y - loot.y) < 30) {
+                    if (loot.type === 'health') {
+                        vida = Math.min(vidaMax, vida + 20);
+                        mostrarTexto(jugador.x, jugador.y - 30, "+20 HP", "#2ecc71");
+                    } else {
+                        scar.balas = Math.min(scar.maxBalas, scar.balas + 10);
+                        mostrarTexto(jugador.x, jugador.y - 30, "+10 BALAS", "#f1c40f");
+                    }
+                    crearParticula(loot.x, loot.y, loot.type === 'health' ? '#2ecc71' : '#f1c40f', 'explosion');
+                    lootDrops.splice(i, 1);
+                }
+            }
+        }
+
+        function crearParticula(x, y, color, tipo) {
+            // Limit particle creation when too many exist
+            if (particulas.length > 300) return;
+            
+            if (tipo === 'explosion') for(let i=0; i<6; i++) particulas.push({ x, y, color, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, vida: 1, tipo: 'circulo', size: Math.random()*5 });
+            else particulas.push({ x, y, color, vx: 0, vy: -1, vida: 0.5, tipo: 'circulo', size: 3 });
+        }
+        function mostrarTexto(x, y, texto, color) { 
+            if (particulas.length > 300) return;
+            particulas.push({ x, y, color, texto, vida: 1.2, tipo: 'texto', vy: -0.8 }); 
+        }
+        function mostrarNotificacion(txt) { const n = document.getElementById('wave-warning'); n.textContent = txt; n.style.opacity = 1; setTimeout(() => n.style.opacity = 0, 3000); }
+
+        // --- B-TOR ARENA DIBUJADO ---
+        function dibujarArenaBTor() {
+            // Dark background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
+            
+            // Draw the sala-steam.png background image
+            if (btorArenaImage.complete && btorArenaImage.naturalWidth > 0) {
+                // Scale and tile the image to fit the arena
+                const imgSize = Math.min(btorArenaImage.naturalWidth, BTOR_MUNDO_ANCHO);
+                ctx.drawImage(btorArenaImage, 0, 0, BTOR_MUNDO_ANCHO, BTOR_MUNDO_ALTO);
+            } else {
+                // Fallback: draw a simple grid floor
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(0, 0, BTOR_MUNDO_ANCHO, BTOR_MUNDO_ALTO);
+                
+                // Grid pattern
+                ctx.strokeStyle = 'rgba(255, 152, 0, 0.2)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x <= BTOR_MUNDO_ANCHO; x += 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, BTOR_MUNDO_ALTO);
+                    ctx.stroke();
+                }
+                for (let y = 0; y <= BTOR_MUNDO_ALTO; y += 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(BTOR_MUNDO_ANCHO, y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Arena boundary
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(10, 10, BTOR_MUNDO_ANCHO - 20, BTOR_MUNDO_ALTO - 20);
+            
+            const isVis = (o, p) => !(o.x+p < camara.x || o.x-p > camara.x+canvas.width || o.y+p < camara.y || o.y-p > camara.y+canvas.height);
+            
+            // Draw wooden chairs (arboles in B-Tor = chairs for wood)
+            arboles.forEach(a => {
+                if (!isVis(a, 40) || !a.activo) return;
+                // Draw wooden chair
+                // Seat (brown square)
+                ctx.fillStyle = '#8B4513'; // Saddle brown
+                ctx.fillRect(a.x - 12, a.y - 5, 24, 20);
+                
+                // Chair back (vertical)
+                ctx.fillStyle = '#654321'; // Dark brown
+                ctx.fillRect(a.x - 12, a.y - 30, 4, 35);
+                ctx.fillRect(a.x + 8, a.y - 30, 4, 35);
+                
+                // Back rest (horizontal bar)
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(a.x - 12, a.y - 28, 24, 6);
+                
+                // Chair legs
+                ctx.fillStyle = '#5D4037';
+                ctx.fillRect(a.x - 10, a.y + 15, 4, 12);
+                ctx.fillRect(a.x + 6, a.y + 15, 4, 12);
+            });
+            
+            // Draw white tables (rocas in B-Tor = tables for stone)
+            // Tables are horizontally short and vertically long
+            rocas.forEach(r => {
+                if (!r.activo || !isVis(r, 50)) return;
+                // Table top - white/light gray
+                ctx.fillStyle = '#ECEFF1'; // Light gray white
+                ctx.fillRect(r.x - r.ancho/2, r.y - r.alto/2, r.ancho, r.alto);
+                
+                // Table border
+                ctx.strokeStyle = '#B0BEC5';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(r.x - r.ancho/2, r.y - r.alto/2, r.ancho, r.alto);
+                
+                // Table legs (4 corners)
+                ctx.fillStyle = '#78909C';
+                ctx.fillRect(r.x - r.ancho/2 + 2, r.y + r.alto/2, 4, 8);
+                ctx.fillRect(r.x + r.ancho/2 - 6, r.y + r.alto/2, 4, 8);
+            });
+            
+            // Draw walls
+            muros.forEach(m => {
+                if (!isVis(m, 50)) return;
+                ctx.fillStyle = m.tipo === 'madera' ? '#6d4c41' : '#546e7a';
+                ctx.fillRect(m.x, m.y, TILE_SIZE, TILE_SIZE);
+            });
+            
+            // Draw turrets
+            torretas.forEach(t => {
+                if (!isVis(t, 50)) return;
+                ctx.fillStyle = '#95a5a6';
+                ctx.fillRect(t.x + 10, t.y + 10, 30, 30);
+                ctx.fillStyle = '#333';
+                ctx.beginPath(); ctx.arc(t.x + 25, t.y + 25, 12, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw traps
+            trampas.forEach(t => {
+                if (!isVis(t, 50)) return;
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(t.x + 5, t.y + 5, 40, 40);
+            });
+            
+            // Draw mines
+            minas.forEach(m => {
+                if (!isVis(m, 50)) return;
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(m.x + 25, m.y + 25, 15, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw projectiles
+            proyectiles.forEach(p => {
+                ctx.fillStyle = p.color || '#f1c40f';
+                ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            // Draw enemies (including B-Tor boss)
+            enemigos.forEach(e => {
+                if (!isVis(e, 100)) return;
+                
+                if (e.tipo === 'btor') {
+                    // Draw B-Tor boss
+                    const sprite = btorSprites['base'];
+                    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+                        ctx.save();
+                        ctx.translate(e.x, e.y);
+                        
+                        // Flash when hit
+                        if (e.hitFlash > 0) {
+                            ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 30) * 0.3;
+                        }
+                        
+                        // Attack animation - scale up briefly
+                        let scale = 1;
+                        if (e.isAttacking) {
+                            scale = 1.2;
+                            ctx.fillStyle = 'rgba(255, 152, 0, 0.3)';
+                            ctx.beginPath();
+                            ctx.arc(0, 0, 100, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        
+                        ctx.drawImage(sprite, -BTOR_FIXED_WIDTH * scale / 2, -BTOR_FIXED_HEIGHT * scale / 2, BTOR_FIXED_WIDTH * scale, BTOR_FIXED_HEIGHT * scale);
+                        ctx.restore();
+                    } else {
+                        // Fallback to colored rectangle
+                        ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.color;
+                        ctx.fillRect(e.x - 40, e.y - 50, 80, 100);
+                        ctx.fillStyle = '#000';
+                        ctx.textAlign = 'center';
+                        ctx.font = 'bold 20px Poppins';
+                        ctx.fillText('B-TOR', e.x, e.y);
+                    }
+                } else {
+                    // Regular enemy
+                    ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.color;
+                    ctx.beginPath(); ctx.arc(e.x, e.y, e.radio, 0, Math.PI * 2); ctx.fill();
+                }
+            });
+            
+            // Draw player with body sprite
+            const currentBodyImage = bodyImages[slotActivo];
+            if (bodyImagesLoaded && currentBodyImage && currentBodyImage.complete && currentBodyImage.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(jugador.x, jugador.y);
+                // Rotate to face mouse direction (+90 degrees because sprites face up by default)
+                ctx.rotate(jugador.angle + Math.PI / 2);
+                // Draw body sprite centered - LARGER SIZE
+                const bodyWidth = 80;
+                const bodyHeight = 96;
+                // Add dash effect (flash white)
+                if (jugador.dash.active) {
+                    ctx.globalAlpha = 0.7;
+                }
+                ctx.drawImage(currentBodyImage, -bodyWidth / 2, -bodyHeight / 2, bodyWidth, bodyHeight);
+                ctx.restore();
+            } else {
+                // Fallback to circle if body image not loaded
+                ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color;
+                ctx.beginPath(); ctx.arc(jugador.x, jugador.y, jugador.radio, 0, Math.PI * 2); ctx.fill();
+                
+                // Player direction indicator (fallback only)
+                ctx.fillStyle = '#c0392b';
+                const dirX = jugador.x + Math.cos(jugador.angle) * 20;
+                const dirY = jugador.y + Math.sin(jugador.angle) * 20;
+                ctx.beginPath(); ctx.arc(dirX, dirY, 5, 0, Math.PI * 2); ctx.fill();
+            }
+            
+            // Draw particles
+            particulas.forEach(p => {
+                if (p.tipo === 'texto') {
+                    ctx.fillStyle = p.color;
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(p.texto, p.x, p.y);
+                } else {
+                    ctx.globalAlpha = p.vida;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            });
+            
+            // Draw loot
+            lootDrops.forEach(l => {
+                ctx.fillStyle = l.type === 'health' ? '#2ecc71' : '#f1c40f';
+                ctx.beginPath(); ctx.arc(l.x, l.y, 8, 0, Math.PI * 2); ctx.fill();
+            });
+            
+            ctx.restore();
+            
+            // Draw HUD
+            dibujarHUD();
+        }
+
+        // --- DIBUJADO DETALLADO ---
+        function dibujar() {
+            // Check if we're in B-Tor arena
+            if (selectedBoss === 'btor' && gameStarted) {
+                dibujarArenaBTor();
+                return;
+            }
+            
+            // MAGICAL CLASSROOM BACKGROUND (Senior P - Pixelated style)
+            // Dark wooden floor with blue-green tones like an old magic classroom
+            const baseColor = '#2a3a4a'; // Dark slate blue-green (pizarra)
+            ctx.fillStyle = baseColor; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
+            
+            // Wooden floor planks pattern
+            const plankWidth = 80;
+            const plankHeight = 30;
+            for (let px = Math.floor(camara.x / plankWidth) * plankWidth - plankWidth; 
+                 px < camara.x + canvas.width + plankWidth; px += plankWidth) {
+                for (let py = Math.floor(camara.y / plankHeight) * plankHeight - plankHeight; 
+                     py < camara.y + canvas.height + plankHeight; py += plankHeight) {
+                    // Alternate wood colors for planks
+                    const shade = ((Math.floor(px/plankWidth) + Math.floor(py/plankHeight)) % 2) === 0 ? 0 : 15;
+                    ctx.fillStyle = `rgb(${60 + shade}, ${50 + shade}, ${40 + shade})`;
+                    ctx.fillRect(px, py, plankWidth - 2, plankHeight - 2);
+                    // Wood grain lines
+                    ctx.strokeStyle = `rgba(40, 30, 20, 0.3)`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(px + 10, py + 5);
+                    ctx.lineTo(px + plankWidth - 15, py + 5);
+                    ctx.moveTo(px + 5, py + 15);
+                    ctx.lineTo(px + plankWidth - 10, py + 15);
+                    ctx.moveTo(px + 15, py + 25);
+                    ctx.lineTo(px + plankWidth - 5, py + 25);
+                    ctx.stroke();
+                }
+            }
+            
+            // YELLOW STAR IN CENTER (magical summoning circle)
+            const centerX = MUNDO_ANCHO / 2;
+            const centerY = MUNDO_ALTO / 2;
+            const starRadius = 200;
+            
+            // Outer magical circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, starRadius + 30, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
+            // Inner circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, starRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            // Draw 5-pointed star
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * starRadius;
+                const y = centerY + Math.sin(angle) * starRadius;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Math symbols scattered around (magical runes)
+            const mathSymbols = ['π', 'Σ', '∫', '∞', 'Δ', 'θ', 'φ', '√', '∂', 'λ', 'α', 'β', 'γ'];
+            ctx.font = 'bold 24px Georgia';
+            ctx.textAlign = 'center';
+            const runePositions = [
+                {x: centerX - 150, y: centerY - 150}, {x: centerX + 150, y: centerY - 150},
+                {x: centerX - 150, y: centerY + 150}, {x: centerX + 150, y: centerY + 150},
+                {x: centerX, y: centerY - 250}, {x: centerX, y: centerY + 250},
+                {x: centerX - 250, y: centerY}, {x: centerX + 250, y: centerY}
+            ];
+            runePositions.forEach((pos, i) => {
+                ctx.fillStyle = `rgba(100, 200, 255, ${0.4 + Math.sin(Date.now()/1000 + i) * 0.2})`;
+                ctx.fillText(mathSymbols[i % mathSymbols.length], pos.x, pos.y);
+            });
+            
+            // Wooden desks on the edges (pixelated style)
+            const deskPositions = [
+                // Top row
+                {x: 200, y: 150}, {x: 400, y: 150}, {x: 600, y: 150}, 
+                {x: 1900, y: 150}, {x: 2100, y: 150}, {x: 2300, y: 150},
+                // Bottom row  
+                {x: 200, y: 2300}, {x: 400, y: 2300}, {x: 600, y: 2300},
+                {x: 1900, y: 2300}, {x: 2100, y: 2300}, {x: 2300, y: 2300},
+                // Left side
+                {x: 150, y: 500}, {x: 150, y: 700}, {x: 150, y: 1800}, {x: 150, y: 2000},
+                // Right side
+                {x: 2300, y: 500}, {x: 2300, y: 700}, {x: 2300, y: 1800}, {x: 2300, y: 2000}
+            ];
+            deskPositions.forEach(d => {
+                // Desk top
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(d.x, d.y, 100, 60);
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(d.x + 5, d.y + 5, 90, 50);
+                // Desk legs
+                ctx.fillStyle = '#5c3317';
+                ctx.fillRect(d.x + 5, d.y + 50, 8, 20);
+                ctx.fillRect(d.x + 87, d.y + 50, 8, 20);
+            });
+            
+            // Chalkboards on edges
+            const chalkboards = [
+                {x: 800, y: 50, w: 400, h: 120},
+                {x: 1300, y: 50, w: 400, h: 120}
+            ];
+            chalkboards.forEach(cb => {
+                // Frame
+                ctx.fillStyle = '#4a3c2a';
+                ctx.fillRect(cb.x - 10, cb.y - 10, cb.w + 20, cb.h + 20);
+                // Board
+                ctx.fillStyle = '#2f4f4f';
+                ctx.fillRect(cb.x, cb.y, cb.w, cb.h);
+                // Chalk formulas
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '16px Georgia';
+                ctx.fillText('y = mx + b', cb.x + cb.w/4, cb.y + 40);
+                ctx.fillText('E = mc²', cb.x + cb.w*3/4, cb.y + 40);
+                ctx.fillText('∫f(x)dx', cb.x + cb.w/4, cb.y + 80);
+                ctx.fillText('Σn=1→∞', cb.x + cb.w*3/4, cb.y + 80);
+            });
+            
+            // Floating magical particles
+            const particleTime = Date.now() / 1000;
+            for (let i = 0; i < 20; i++) {
+                const px = centerX + Math.cos(particleTime + i * 0.5) * (100 + i * 15);
+                const py = centerY + Math.sin(particleTime * 0.7 + i * 0.3) * (100 + i * 15);
+                const alpha = 0.3 + Math.sin(particleTime * 2 + i) * 0.2;
+                ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            ctx.save(); ctx.translate(Math.floor(-camara.x), Math.floor(-camara.y));
+            
+            // Grid (lighter for classroom feel)
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1; ctx.beginPath();
+            const sx = Math.max(0, Math.floor(camara.x/TILE_SIZE)*TILE_SIZE), ex = Math.min(MUNDO_ANCHO, sx+canvas.width+TILE_SIZE);
+            const sy = Math.max(0, Math.floor(camara.y/TILE_SIZE)*TILE_SIZE), ey = Math.min(MUNDO_ALTO, sy+canvas.height+TILE_SIZE);
+            for(let x=sx; x<=ex; x+=TILE_SIZE) { ctx.moveTo(x, sy); ctx.lineTo(x, ey); }
+            for(let y=sy; y<=ey; y+=TILE_SIZE) { ctx.moveTo(sx, y); ctx.lineTo(ex, y); }
+            ctx.stroke();
+
+            const isVis = (o, p) => !(o.x+p < camara.x || o.x-p > camara.x+canvas.width || o.y+p < camara.y || o.y-p > camara.y+canvas.height);
+
+            muros.forEach(m => {
+                if(!isVis(m, 50)) return;
+                ctx.fillStyle = m.tipo === 'madera' ? '#6d4c41' : '#546e7a'; ctx.fillRect(m.x, m.y, TILE_SIZE, TILE_SIZE);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(m.x+40, m.y, 10, 50); ctx.fillRect(m.x, m.y+40, 50, 10);
+                if(m.vida < m.vidaMax) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(m.x+10, m.y+10, 30*(1-m.vida/m.vidaMax), 30); }
+            });
+
+            torretas.forEach(t => { if(!isVis(t, 50)) return; ctx.fillStyle = '#95a5a6'; ctx.fillRect(t.x+10, t.y+10, 30, 30); ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(t.x+25, t.y+25, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(t.x+25, t.y+25, 6, 0, Math.PI*2); ctx.fill(); });
+            
+            // --- SPIKE TRAPS ---
+            trampas.forEach(t => {
+                if(!isVis(t, 50)) return;
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(t.x + 5, t.y + 5, 40, 40);
+                // Spikes
+                ctx.fillStyle = '#888';
+                for (let sx = 0; sx < 3; sx++) {
+                    for (let sy = 0; sy < 3; sy++) {
+                        ctx.beginPath();
+                        ctx.moveTo(t.x + 12 + sx * 13, t.y + 10 + sy * 13);
+                        ctx.lineTo(t.x + 15 + sx * 13, t.y + 5 + sy * 13);
+                        ctx.lineTo(t.x + 18 + sx * 13, t.y + 10 + sy * 13);
+                        ctx.fill();
+                    }
+                }
+            });
+            
+            // --- PROXIMITY MINES ---
+            minas.forEach(m => {
+                if(!isVis(m, 50)) return;
+                const pulse = 1 + Math.sin(Date.now() / 300) * 0.1;
+                ctx.save();
+                ctx.translate(m.x + 25, m.y + 25);
+                ctx.scale(pulse, pulse);
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
+                // Blinking light
+                if (Date.now() % 1000 < 500) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+            });
+            
+            // --- RECOLECTORES AUTOMÁTICOS ---
+            recolectores.forEach(rec => {
+                if(!isVis(rec, 50)) return;
+                ctx.fillStyle = '#795548';
+                ctx.fillRect(rec.x + 10, rec.y + 10, 30, 30);
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath(); ctx.arc(rec.x + 25, rec.y + 25, 10, 0, Math.PI * 2); ctx.fill();
+                // Rotating arm animation
+                const angle = Date.now() / 500;
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(rec.x + 25, rec.y + 25);
+                ctx.lineTo(rec.x + 25 + Math.cos(angle) * 12, rec.y + 25 + Math.sin(angle) * 12);
+                ctx.stroke();
+            });
+
+            arboles.forEach(a => {
+                if(!isVis(a, 30)) return;
+                if (a.activo) { ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(a.x, a.y, a.radio, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#27ae60'; ctx.beginPath(); ctx.arc(a.x, a.y, a.radio*0.7, 0, Math.PI*2); ctx.fill(); } 
+                else { ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.arc(a.x, a.y, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#2ecc71'; ctx.beginPath(); ctx.ellipse(a.x+2, a.y-2, 3, 6, Math.PI/4, 0, Math.PI*2); ctx.fill(); }
+            });
+            rocas.forEach(r => {
+                if(!isVis(r, 30)) return;
+                if (r.activo) { ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.ellipse(r.x, r.y, r.ancho, r.alto, 0, 0, Math.PI*2); ctx.fill(); } 
+                else { ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.arc(r.x-5, r.y+5, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(r.x+5, r.y, 3, 0, Math.PI*2); ctx.fill(); }
+            });
+            
+            // --- LOOT DROPS ---
+            lootDrops.forEach(loot => {
+                if(!isVis(loot, 20)) return;
+                const pulse = 1 + Math.sin(Date.now() / 200) * 0.2;
+                ctx.save();
+                ctx.translate(loot.x, loot.y);
+                ctx.scale(pulse, pulse);
+                
+                if (loot.type === 'health') {
+                    // Health pack - green cross
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#2ecc71';
+                    ctx.fillRect(-12, -4, 24, 8);
+                    ctx.fillRect(-4, -12, 8, 24);
+                } else {
+                    // Ammo pack - yellow box
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#f1c40f';
+                    ctx.fillRect(-10, -8, 20, 16);
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(-6, -4, 12, 8);
+                }
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            });
+
+            // --- ZOMBIES DETALLADOS ---
+            enemigos.forEach(e => {
+                if(!isVis(e, e.tipo === 'boss' || e.tipo === 'seniorP' ? 150 : 50)) return;
+                
+                // Decay hit flash
+                if (e.hitFlash > 0) e.hitFlash -= 16;
+                
+                // SENIOR P - Draw with dynamic sprite based on current attack
+                if (e.tipo === 'seniorP') {
+                    ctx.save();
+                    ctx.translate(e.x, e.y);
+                    
+                    // Draw shield effect if active
+                    if (seniorPAttack.shield) {
+                        ctx.beginPath();
+                        ctx.arc(0, 0, e.radio + 20, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${0.5 + Math.sin(Date.now()/200) * 0.3})`;
+                        ctx.lineWidth = 5;
+                        ctx.stroke();
+                        ctx.shadowBlur = 30;
+                        ctx.shadowColor = '#73eaff';
+                    }
+                    
+                    // Get current sprite based on attack state OR hit state
+                    // Use 'hit' sprite when taking damage (hitFlash > 0)
+                    let spriteKey = currentSeniorPSprite;
+                    if (e.hitFlash > 0 && seniorPSprites['hit'] && seniorPSprites['hit'].complete) {
+                        spriteKey = 'hit';
+                    }
+                    const spriteToUse = seniorPSprites[spriteKey] || seniorPSprites['base'];
+                    const spriteLoaded = spriteToUse && spriteToUse.complete && spriteToUse.naturalWidth > 0;
+                    
+                    // Draw sprite or fallback - FIXED SIZE for all sprites
+                    if (spriteLoaded) {
+                        // Use fixed dimensions so all sprites appear the same size
+                        ctx.drawImage(spriteToUse, -SENIOR_P_FIXED_WIDTH/2, -SENIOR_P_FIXED_HEIGHT/2, SENIOR_P_FIXED_WIDTH, SENIOR_P_FIXED_HEIGHT);
+                    } else {
+                        // Fallback: Light blue square with glasses if image fails
+                        ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : '#73eaff';
+                        ctx.shadowBlur = 30;
+                        ctx.shadowColor = '#73eaff';
+                        ctx.fillRect(-e.radio, -e.radio, e.radio * 2, e.radio * 2);
+                        
+                        // Draw glasses
+                        ctx.fillStyle = '#333';
+                        ctx.fillRect(-20, -10, 15, 8);
+                        ctx.fillRect(5, -10, 15, 8);
+                        ctx.fillRect(-5, -8, 10, 4);
+                    }
+                    
+                    ctx.shadowBlur = 0;
+                    ctx.restore();
+                    
+                    // HP bar for Senior P - light blue
+                    if (e.hp < e.maxHp) {
+                        ctx.fillStyle = '#333'; ctx.fillRect(e.x - 50, e.y - e.radio - 20, 100, 10);
+                        ctx.fillStyle = '#73eaff'; ctx.fillRect(e.x - 50, e.y - e.radio - 20, 100 * (e.hp / e.maxHp), 10);
+                    }
+                    return;
+                }
+                
+                // Draw X/Y Minions (Funcions ability) - Black squares with X or Y symbol
+                if (e.tipo === 'minionXY') {
+                    ctx.save();
+                    ctx.translate(e.x, e.y);
+                    
+                    // Black square
+                    if (e.hitFlash > 0) {
+                        ctx.fillStyle = '#ffffff';
+                    } else {
+                        ctx.fillStyle = '#000000';
+                    }
+                    ctx.fillRect(-e.radio, -e.radio, e.radio * 2, e.radio * 2);
+                    
+                    // White letter X or Y
+                    ctx.fillStyle = e.hitFlash > 0 ? '#000000' : '#ffffff';
+                    ctx.font = `bold ${e.radio * 1.5}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(e.symbol || 'X', 0, 2);
+                    
+                    ctx.restore();
+                    return;
+                }
+                
+                ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.angle);
+                
+                // HIT FLASH - White overlay when damaged
+                let baseColor = e.color;
+                if (e.hitFlash > 0) {
+                    baseColor = '#ffffff';
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#ffffff';
+                }
+                
+                // Special effects for new enemy types
+                ctx.fillStyle = baseColor; 
+                if (e.tipo === 'toxico') { ctx.shadowBlur = 10; ctx.shadowColor = '#00ff00'; }
+                if (e.tipo === 'explosivo') { baseColor = `hsl(${Date.now()%360}, 70%, 50%)`; ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : baseColor; }
+                if (e.tipo === 'hielo') { ctx.shadowBlur = 15; ctx.shadowColor = '#00bcd4'; }
+                if (e.tipo === 'boss') { ctx.shadowBlur = 30; ctx.shadowColor = e.color; }
+
+                ctx.beginPath(); 
+                if (e.tipo === 'tanque' || e.tipo === 'boss') ctx.rect(-e.radio, -e.radio, e.radio*2, e.radio*2);
+                else ctx.arc(0, 0, e.radio, 0, Math.PI*2); 
+                ctx.fill(); ctx.shadowBlur = 0;
+
+                // Clothes/Dirt details
+                if (e.hitFlash <= 0) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                    ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.7, 0, Math.PI*2); ctx.fill();
+                    
+                    // ICE GOLEM - ice crystals
+                    if (e.tipo === 'hielo') {
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        for (let i = 0; i < 5; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(Math.cos(i*1.2)*e.radio*0.8, Math.sin(i*1.2)*e.radio*0.8);
+                            ctx.lineTo(Math.cos(i*1.2+0.3)*e.radio*0.5, Math.sin(i*1.2+0.3)*e.radio*0.5);
+                            ctx.lineTo(Math.cos(i*1.2-0.3)*e.radio*0.5, Math.sin(i*1.2-0.3)*e.radio*0.5);
+                            ctx.fill();
+                        }
+                    }
+                    
+                    // ARMORED KNIGHT - armor plates
+                    if (e.tipo === 'armado') {
+                        if (e.armadura > 0) {
+                            ctx.strokeStyle = '#90a4ae';
+                            ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.9, 0, Math.PI*2); ctx.stroke();
+                            // Helmet
+                            ctx.fillStyle = '#78909c';
+                            ctx.fillRect(-8, -e.radio * 0.6, 16, 8);
+                        }
+                    }
+                    
+                    // BOSS - special details
+                    if (e.tipo === 'boss') {
+                        ctx.fillStyle = 'rgba(200,0,0,0.3)';
+                        ctx.beginPath(); ctx.arc(0, 0, e.radio * 0.5, 0, Math.PI*2); ctx.fill();
+                        // Horns
+                        ctx.fillStyle = '#333';
+                        ctx.beginPath();
+                        ctx.moveTo(-e.radio*0.5, -e.radio);
+                        ctx.lineTo(-e.radio*0.3, -e.radio*1.4);
+                        ctx.lineTo(-e.radio*0.1, -e.radio);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(e.radio*0.5, -e.radio);
+                        ctx.lineTo(e.radio*0.3, -e.radio*1.4);
+                        ctx.lineTo(e.radio*0.1, -e.radio);
+                        ctx.fill();
+                    }
+                    
+                    // Torn clothes effect
+                    if (!['hielo', 'armado', 'boss'].includes(e.tipo)) {
+                        ctx.fillStyle = 'rgba(80,60,40,0.3)';
+                        ctx.beginPath(); ctx.arc(-3, 5, e.radio * 0.3, 0, Math.PI*2); ctx.fill();
+                    }
+                }
+
+                // Brazos
+                ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : e.color;
+                ctx.beginPath(); ctx.ellipse(e.radio, 10, 8, 4, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(e.radio, -10, 8, 4, 0, 0, Math.PI*2); ctx.fill();
+
+                // Ojos
+                if (e.hitFlash <= 0) {
+                    ctx.fillStyle = e.tipo === 'hielo' ? '#00bcd4' : 'white'; 
+                    ctx.beginPath(); ctx.arc(5, 5, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(5, -5, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = e.tipo === 'hielo' ? '#fff' : 'red';
+                    ctx.beginPath(); ctx.arc(6, 5, 1.5, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(6, -5, 1.5, 0, Math.PI*2); ctx.fill();
+                }
+
+                // Placas Tanque
+                if (e.tipo === 'tanque' && e.hitFlash <= 0) {
+                    ctx.fillStyle = '#555'; ctx.fillRect(-10, -25, 20, 5); ctx.fillRect(-10, 20, 20, 5);
+                }
+
+                ctx.restore();
+                
+                // Vida
+                const hpBarWidth = e.tipo === 'boss' ? 80 : 30;
+                if(e.hp < e.maxHp && e.tipo !== 'boss') { 
+                    ctx.fillStyle = 'red'; ctx.fillRect(e.x-hpBarWidth/2, e.y-35, hpBarWidth, 4); 
+                    ctx.fillStyle = '#2ecc71'; ctx.fillRect(e.x-hpBarWidth/2, e.y-35, hpBarWidth*(e.hp/e.maxHp), 4); 
+                }
+                
+                // Armor bar for armored knight
+                if (e.tipo === 'armado' && e.armadura > 0 && e.armorHp > 0) {
+                    ctx.fillStyle = '#607d8b'; ctx.fillRect(e.x-15, e.y-40, 30, 3);
+                    ctx.fillStyle = '#90a4ae'; ctx.fillRect(e.x-15, e.y-40, 30*(e.armorHp/(e.maxHp*0.3)), 3);
+                }
+            });
+
+            ctx.fillStyle = '#f39c12'; proyectiles.forEach(p => { if(isVis(p, 10)) { ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); } });
+
+            // Draw player with body sprite (same as B-Tor arena)
+            const currentBodyImageSeniorP = bodyImages[slotActivo];
+            if (bodyImagesLoaded && currentBodyImageSeniorP && currentBodyImageSeniorP.complete && currentBodyImageSeniorP.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(jugador.x, jugador.y);
+                
+                // Alcances (range indicators)
+                ctx.setLineDash([5,5]);
+                if (slotActivo === 0) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_PICO, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.stroke(); }
+                if ([1,2,4].includes(slotActivo)) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_CONSTRUCCION, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.setLineDash([2,10]); ctx.stroke(); }
+                ctx.setLineDash([]);
+                
+                // Rotate to face mouse direction (+90 degrees because sprites face up by default)
+                ctx.rotate(jugador.angle + Math.PI / 2);
+                // Draw body sprite centered - LARGER SIZE
+                const bodyWidthSP = 80;
+                const bodyHeightSP = 96;
+                // Add dash effect (flash white)
+                if (jugador.dash.active) {
+                    ctx.globalAlpha = 0.7;
+                }
+                ctx.drawImage(currentBodyImageSeniorP, -bodyWidthSP / 2, -bodyHeightSP / 2, bodyWidthSP, bodyHeightSP);
+                ctx.restore();
+            } else {
+                // Fallback to old circle-based player (if images fail to load)
+                ctx.save(); ctx.translate(jugador.x, jugador.y);
+                // Alcances
+                if (slotActivo === 0) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_PICO, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.setLineDash([5,5]); ctx.stroke(); }
+                if ([1,2,4].includes(slotActivo)) { ctx.beginPath(); ctx.arc(0, 0, ALCANCE_CONSTRUCCION, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.setLineDash([2,10]); ctx.stroke(); }
+                
+                ctx.rotate(jugador.angle);
+                // Cuerpo Jugador
+                ctx.fillStyle = jugador.dash.active ? '#ffffff' : jugador.color; ctx.beginPath(); ctx.arc(0, 0, jugador.radio, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                // Mochila
+                ctx.fillStyle = '#d35400'; ctx.fillRect(-12, -8, 6, 16);
+                // Manos
+                ctx.fillStyle = jugador.color; ctx.beginPath(); ctx.arc(12, 12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(12, -12, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                
+                // Armas
+                if (slotActivo === 0) { ctx.fillStyle = '#95a5a6'; ctx.fillRect(15, -15, 20, 5); ctx.fillRect(30, -25, 5, 25); }
+                else if (slotActivo === 3) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(15, -8, 30, 8); ctx.fillStyle = '#111'; ctx.fillRect(45, -8, 5, 8); ctx.fillStyle = '#7f8c8d'; ctx.fillRect(20, -12, 10, 4); }
+                else if (slotActivo === 4) { ctx.fillStyle = '#e74c3c'; ctx.fillRect(15, -5, 15, 10); ctx.fillRect(25, -10, 5, 20); } 
+                else { ctx.fillStyle = '#e67e22'; ctx.fillRect(15, -5, 10, 10); }
+                ctx.restore();
+            }
+
+            // Cursor Construcción/Demolición
+            if ([1, 2, 4, 5, 6].includes(slotActivo)) {
+                const gx = Math.floor(ratonMundo.x/TILE_SIZE)*TILE_SIZE, gy = Math.floor(ratonMundo.y/TILE_SIZE)*TILE_SIZE;
+                const distOk = Math.hypot(jugador.x-(gx+25), jugador.y-(gy+25)) <= ALCANCE_CONSTRUCCION;
+                
+                if (slotActivo === 4) { // Martillo demoler
+                    if (muros.some(m=>m.x===gx&&m.y===gy) || torretas.some(t=>t.x===gx&&t.y===gy) || trampas.some(t=>t.x===gx&&t.y===gy) || minas.some(m=>m.x===gx&&m.y===gy)) {
+                        ctx.strokeStyle = 'red'; ctx.lineWidth=3; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                        ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx+50, gy+50); ctx.moveTo(gx+50, gy); ctx.lineTo(gx, gy+50); ctx.stroke();
+                    } else if (distOk) {
+                         ctx.strokeStyle = 'rgba(255,0,0,0.3)'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                    }
+                } else if (slotActivo === 5) { // Trampa
+                    ctx.fillStyle = distOk ? 'rgba(150,150,150,0.5)' : 'rgba(200,50,50,0.5)';
+                    ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#888'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                } else if (slotActivo === 6) { // Mina
+                    ctx.fillStyle = distOk ? 'rgba(200,50,50,0.5)' : 'rgba(100,50,50,0.3)';
+                    ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#e74c3c'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                } else { // Muro o Torreta
+                    ctx.fillStyle = distOk ? (slotActivo===1?'rgba(100,200,100,0.5)':'rgba(255,200,0,0.5)') : 'rgba(200,50,50,0.5)';
+                    ctx.fillRect(gx, gy, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = 'white'; ctx.strokeRect(gx, gy, TILE_SIZE, TILE_SIZE);
+                }
+            }
+
+            // --- SENIOR P ATTACK EFFECTS ---
+            if (seniorPActive) {
+                // Draw Lasers (Producte Escalar)
+                seniorPAttack.lasers.forEach(laser => {
+                    if (!boss) return;
+                    const endX = boss.x + Math.cos(laser.angle) * laser.length;
+                    const endY = boss.y + Math.sin(laser.angle) * laser.length;
+                    
+                    // + pattern = red, X pattern = blue (#73eaff)
+                    const laserColor = laser.isPlus ? '#e74c3c' : '#73eaff';
+                    ctx.strokeStyle = laserColor;
+                    ctx.lineWidth = 8;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = laserColor;
+                    ctx.beginPath();
+                    ctx.moveTo(boss.x, boss.y);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+                    
+                    // Inner bright line
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(boss.x, boss.y);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                });
+                
+                // Draw Acid Pools (Logaritmes + pH) - GREEN POISON color
+                seniorPAttack.acidPools.forEach(pool => {
+                    const alpha = Math.min(1, pool.timer / 2000);
+                    ctx.fillStyle = `rgba(46, 204, 113, ${alpha * 0.5})`;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#00ff6c';
+                    ctx.beginPath();
+                    ctx.arc(pool.x, pool.y, pool.radio, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Bubbles - poison green
+                    ctx.fillStyle = `rgba(39, 174, 96, ${alpha * 0.8})`;
+                    for (let i = 0; i < 5; i++) {
+                        const bx = pool.x + Math.cos(Date.now()/500 + i) * pool.radio * 0.5;
+                        const by = pool.y + Math.sin(Date.now()/500 + i) * pool.radio * 0.5;
+                        ctx.beginPath();
+                        ctx.arc(bx, by, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.shadowBlur = 0;
+                });
+                
+                // Draw Gauss Warning Areas (La Campana de Gauss) - LIGHT BLUE
+                if (seniorPAttack.gaussAreas) {
+                    seniorPAttack.gaussAreas.forEach(area => {
+                        const alpha = 0.3 + 0.3 * Math.sin(Date.now() / 100); // Pulsing effect
+                        const warningProgress = 1 - (area.warningTime / 500);
+                        
+                        // Warning circle - light blue pulsing ring
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${alpha})`;
+                        ctx.fillStyle = `rgba(115, 234, 255, ${alpha * 0.3})`;
+                        ctx.lineWidth = 4;
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#73eaff';
+                        
+                        ctx.beginPath();
+                        ctx.arc(area.x, area.y, area.radio, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Target crosshair - light blue
+                        ctx.strokeStyle = `rgba(115, 234, 255, ${alpha + 0.2})`;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(area.x - 20, area.y);
+                        ctx.lineTo(area.x + 20, area.y);
+                        ctx.moveTo(area.x, area.y - 20);
+                        ctx.lineTo(area.x, area.y + 20);
+                        ctx.stroke();
+                        
+                        // Draw math symbol
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('σ', area.x, area.y + 5);
+                        
+                        ctx.shadowBlur = 0;
+                    });
+                }
+                
+                // Draw Sine Projectiles (Trigonometria) - LIGHT BLUE
+                seniorPAttack.sineProjectiles.forEach(proj => {
+                    const waveOffset = Math.sin(proj.phase) * 50;
+                    const perpAngle = proj.baseAngle + Math.PI/2;
+                    const displayX = proj.x + Math.cos(perpAngle) * waveOffset;
+                    const displayY = proj.y + Math.sin(perpAngle) * waveOffset;
+                    
+                    ctx.fillStyle = '#73eaff';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#73eaff';
+                    ctx.beginPath();
+                    ctx.arc(displayX, displayY, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Math symbol inside
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('∿', displayX, displayY + 4);
+                    ctx.shadowBlur = 0;
+                });
+                
+                // Draw Temp Walls (Rectes en el Pla) - LIGHT BLUE
+                seniorPAttack.tempWalls.forEach(wall => {
+                    const halfWidth = wall.width / 2;
+                    ctx.save();
+                    ctx.translate(wall.x, wall.y);
+                    ctx.rotate(wall.angle);
+                    
+                    const alpha = Math.min(1, wall.timer / 1000);
+                    ctx.fillStyle = `rgba(52, 73, 94, ${alpha * 0.9})`;
+                    ctx.strokeStyle = `rgba(115, 234, 255, ${alpha})`;
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#73eaff';
+                    
+                    ctx.fillRect(-halfWidth, -10, wall.width, 20);
+                    ctx.strokeRect(-halfWidth, -10, wall.width, 20);
+                    
+                    // Math symbols
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('y = mx + b', 0, 5);
+                    
+                    ctx.restore();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            particulas.forEach(p => {
+                if(!isVis(p, 20)) return;
+                ctx.globalAlpha = Math.max(0, p.vida);
+                if(p.tipo === 'texto') { ctx.font = "bold 16px Arial"; ctx.fillStyle = p.color; ctx.fillText(p.texto, p.x, p.y); }
+                else { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); }
+                ctx.globalAlpha = 1;
+            });
+
+            ctx.restore();
+
+            // IMPROVED Night Overlay with stronger vignette
+            if (esNoche) {
+                // Darker vignette
+                const grd = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width/6, canvas.width/2, canvas.height/2, canvas.width * 0.8);
+                grd.addColorStop(0, "rgba(0,0,15,0.1)"); 
+                grd.addColorStop(0.5, "rgba(0,0,20,0.4)"); 
+                grd.addColorStop(1, "rgba(0,0,10,0.92)");
+                ctx.fillStyle = grd; ctx.fillRect(0,0,canvas.width, canvas.height);
+                
+                // Light around player (flashlight effect)
+                const playerScreenX = jugador.x - camara.x;
+                const playerScreenY = jugador.y - camara.y;
+                const lightGrd = ctx.createRadialGradient(playerScreenX, playerScreenY, 10, playerScreenX, playerScreenY, 150);
+                lightGrd.addColorStop(0, "rgba(255,200,100,0.15)");
+                lightGrd.addColorStop(1, "rgba(0,0,0,0)");
+                ctx.fillStyle = lightGrd; ctx.fillRect(0,0,canvas.width, canvas.height);
+            }
+            
+            // FOG EVENT
+            if (currentEvent?.efecto === 'niebla') {
+                ctx.fillStyle = 'rgba(200,200,200,0.4)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // DARKNESS EVENT
+            if (currentEvent?.efecto === 'oscuro' && !esNoche) {
+                ctx.fillStyle = 'rgba(0,0,20,0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            dibujarHUD();
+        }
+
+        function dibujarHUD() {
+            // ===== HEALTH BAR (BOTTOM-LEFT) =====
+            const hpW = Math.min(250, canvas.width * 0.25);
+            const hpX = 15;
+            const hpY = canvas.height - 50;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(hpX - 5, hpY - 5, hpW + 10, 35);
+            ctx.fillStyle = '#222'; ctx.fillRect(hpX, hpY, hpW, 25);
+            ctx.fillStyle = vida > 30 ? '#c0392b' : '#e74c3c'; 
+            ctx.fillRect(hpX, hpY, Math.max(0, (vida/vidaMax)*hpW), 25);
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(hpX, hpY, hpW, 25);
+            ctx.fillStyle = '#fff'; ctx.textAlign = "center"; ctx.font = "bold 14px Arial"; 
+            ctx.fillText(`❤️ ${Math.floor(vida)} / ${vidaMax}`, hpX + hpW/2, hpY + 18);
+            
+            // Game phase indicator above health bar
+            ctx.textAlign = "left";
+            ctx.font = "12px Segoe UI"; 
+            ctx.fillStyle = gamePhase === 'prep' ? "#2ecc71" : (gamePhase === 'combat' ? "#73eaff" : "#fff");
+            ctx.fillText(gamePhase === 'prep' ? "⏱️ PREPARACIÓN" : (gamePhase === 'combat' ? "⚔️ COMBATE" : ""), hpX, hpY - 15);
+            
+            // ===== TOOL SLOTS (BOTTOM-RIGHT) =====
+            const slotWidth = 50;
+            const totalWidth = slotWidth * 7 + 5 * 6;
+            const sx = canvas.width - totalWidth - 15;
+            const sy = canvas.height - 60;
+            
+            for (let i = 0; i < 7; i++) {
+                dibujarSlot(sx + i * (slotWidth + 5), sy, i, String(i + 1), slotActivo === i);
+            }
+            
+            // ===== RESOURCES (ABOVE SLOTS) =====
+            const resX = sx;
+            const resY = sy - 35;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(resX - 5, resY - 5, 150, 30);
+            ctx.fillStyle = '#fff'; ctx.font = "bold 16px Segoe UI"; ctx.textAlign = "left";
+            ctx.fillText(`🌲 ${Math.floor(madera)}`, resX + 5, resY + 15);
+            ctx.fillText(`🪨 ${Math.floor(piedra)}`, resX + 80, resY + 15);
+            
+            // SCAR ammo counter (show below slots when SCAR is selected)
+            if (slotActivo === 3) {
+                ctx.fillStyle = scar.balas > 5 ? '#f1c40f' : 'red'; ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(`${scar.balas}/${scar.maxBalas}`, sx + totalWidth/2, sy + 55);
+            }
+        }
+        
+        function dibujarSlot(x, y, i, k, a) {
+            if (a) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#f1c40f';
+            }
+            
+            ctx.fillStyle = a ? 'rgba(255,220,100,0.4)' : 'rgba(0,0,0,0.6)'; 
+            ctx.strokeStyle = a ? '#f1c40f' : '#555'; 
+            ctx.lineWidth = a ? 3 : 1;
+            ctx.fillRect(x, y, 50, 45); 
+            ctx.strokeRect(x, y, 50, 45);
+            
+            if (a) {
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x + 2, y + 2, 46, 41);
+            }
+            
+            ctx.shadowBlur = 0;
+            
+            // Try to draw slot image
+            const slotImg = slotImages[i];
+            if (slotImg && slotImg.complete && slotImg.naturalWidth > 0) {
+                ctx.drawImage(slotImg, x + 5, y + 3, 40, 30);
+            } else {
+                // Fallback to text icon if image not loaded
+                ctx.fillStyle = a ? '#f1c40f' : 'white'; 
+                ctx.textAlign = "center"; 
+                ctx.font = a ? "bold 14px Arial" : "bold 12px Arial"; 
+                ctx.fillText(k, x + 25, y + 22);
+            }
+            
+            ctx.font = "8px Arial"; 
+            ctx.fillStyle = a ? "#fff" : "#aaa";
+            const names = ["PICO", "MURO", "TORRE", "SCAR", "DEMO", "TRAP", "MINA"];
+            ctx.fillText(names[i], x + 25, y + 40);
+        }
+
+        let lastTime = 0;
+        function loop(timestamp) {
+            const dt = timestamp - lastTime; lastTime = timestamp;
+            if (gameStarted && gamePhase !== 'menu' && gamePhase !== 'victory' && gamePhase !== 'defeat' && !perkModalOpen) { 
+                actualizar(dt); 
+                dibujar(); 
+            }
+            else if (gameStarted && !gameOver && perkModalOpen) { dibujar(); } // Still draw but don't update during perk selection
+            else if (gamePhase === 'victory' || gamePhase === 'defeat') { dibujar(); } // Draw but don't update on end screens
+            requestAnimationFrame(loop);
+        }
+        
+        // Boss is pre-selected as seniorP (default option)
+        let selectedBossType = 'seniorP';
+        
+        // Boss selection function
+        function selectBoss(bossType) {
+            selectedBossType = bossType;
+            
+            // Update UI
+            document.querySelectorAll('.boss-preview').forEach(card => {
+                card.classList.remove('selected', 'selected-btor');
+            });
+            
+            if (bossType === 'seniorP') {
+                document.getElementById('boss-seniorP').classList.add('selected');
+            } else if (bossType === 'btor') {
+                document.getElementById('boss-btor').classList.add('selected-btor');
+            }
+        }
+        
+        function iniciarPartida() {
+            if (!selectedBossType) {
+                mostrarNotificacion("❌ Selecciona un oponente primero");
+                return;
+            }
+            selectedBoss = selectedBossType;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.querySelector('.navbar').style.display = 'none';
+            gameStarted = true;
+            gamePhase = 'prep';
+            prepTimer = 10000;
+            esNoche = false;
+            
+            // Adjust world size for B-Tor (smaller arena)
+            if (selectedBoss === 'btor') {
+                // Regenerate world with B-Tor's smaller arena
+                generarMundoBtor();
+            }
+            
+            // Menu music continues during prep phase, switches to boss music when combat starts
+            mostrarNotificacion("⚔️ FASE DE PREPARACIÓN - 10 SEGUNDOS");
+        }
+        
+        // Generate world for B-Tor (smaller arena with chairs and tables in CENTER)
+        function generarMundoBtor() {
+            arboles = []; rocas = []; muros = []; enemigos = []; trampas = []; minas = []; recolectores = [];
+            
+            // Define center area bounds (avoid edges and corners)
+            // Center area: from 300 to 1500 (leaving 300px margins on all sides)
+            const centerMinX = 300;
+            const centerMaxX = BTOR_MUNDO_ANCHO - 300;
+            const centerMinY = 300;
+            const centerMaxY = BTOR_MUNDO_ALTO - 300;
+            
+            // Generate wooden chairs (for wood) - spawn in center area only
+            for (let i = 0; i < 60; i++) {
+                let x, y, dist, safety = 0;
+                do {
+                    x = centerMinX + Math.random() * (centerMaxX - centerMinX);
+                    y = centerMinY + Math.random() * (centerMaxY - centerMinY);
+                    dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
+                    safety++;
+                } while (dist < 200 && safety < 50); // Keep spawn point clear for player
+                arboles.push({ 
+                    x, y, 
+                    radio: 15, // Smaller hitbox for chair
+                    vida: 3, 
+                    maxVida: 3, 
+                    activo: true, 
+                    respawnDia: 0, 
+                    recursos: 80,
+                    tipo: 'silla' // Mark as chair for B-Tor
+                });
+            }
+            
+            // Generate white tables (for stone) - spawn in center area only
+            // Tables are horizontally short (60px) and vertically long (240px)
+            for (let i = 0; i < 20; i++) { // Fewer tables since they're bigger
+                let x, y, dist, safety = 0;
+                do {
+                    x = centerMinX + Math.random() * (centerMaxX - centerMinX);
+                    y = centerMinY + Math.random() * (centerMaxY - centerMinY);
+                    dist = Math.hypot(x - BTOR_MUNDO_ANCHO/2, y - BTOR_MUNDO_ALTO/2);
+                    safety++;
+                } while (dist < 250 && safety < 50); // Larger clear zone for bigger tables
+                rocas.push({ 
+                    x, y, 
+                    ancho: 60, // Horizontally short (60px)
+                    alto: 200,  // Vertically long (200px)
+                    vida: 6, // More hits for bigger table
+                    maxVida: 6, 
+                    activo: true, 
+                    respawnDia: 0, 
+                    recursos: 120, // More resources for bigger table
+                    tipo: 'mesa' // Mark as table for B-Tor
+                });
+            }
+            
+            // Move player to center of B-Tor arena
+            jugador.x = BTOR_MUNDO_ANCHO / 2;
+            jugador.y = BTOR_MUNDO_ALTO / 2;
+        }
+        
+        function volverAlMenu() { 
+            location.reload(); 
+        }
+        
+        // Setup play button event listener
+        document.getElementById('play-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            iniciarPartida();
+        });
+        
+        generarMundo(); 
+        
+        // Show start screen and wait for user to click JUGAR
+        // The game starts when the play-btn is clicked
+        
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

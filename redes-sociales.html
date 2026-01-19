@@ -6,7 +6,7 @@
     
     <!-- 🔍 SEO - Lo que aparece en Google -->
     <title>Mis Redes Sociales - Huijie Lin</title>
-    <meta name="description" content="Encuentra todas mis redes sociales: YouTube, Twitter, Instagram, GitHub y AniList.">
+    <meta name="description" content="Encuentra todas mis redes sociales: YouTube, Twitter, Instagram, GitHub, AniList, TikTok y Duolingo.">
     <meta name="author" content="Huijie Lin">
     
     <!-- 🔤 FUENTE POPPINS DE GOOGLE FONTS -->
@@ -17,103 +17,19 @@
     <!-- 🎨 ICONOS (Font Awesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- 🎨 ESTILOS -->
+    <!-- 🎨 ESTILOS COMUNES -->
+    <link rel="stylesheet" href="css/common.css">
+    
+    <!-- 🎨 ESTILOS PÁGINA -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
-            background-color: #0a0a0a;
-            color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
-        }
-        
-        h1 {
-            font-weight: 600;
-        }
-        
-        p {
-            font-weight: 400;
-        }
-        
-        /* 🧭 NAVBAR */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .navbar-logo {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar-logo:hover {
-            color: #e63946;
-        }
-        
-        .navbar-links {
-            display: flex;
-            gap: 30px;
-            list-style: none;
-        }
-        
-        .navbar-links a {
-            color: #cccccc;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .navbar-links a:hover {
-            color: #ffffff;
-        }
-        
-        .navbar-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #e63946;
-            transition: width 0.3s ease;
-        }
-        
-        .navbar-links a:hover::after {
-            width: 100%;
-        }
-        
-        .navbar-links a.active {
-            color: #ffffff;
-        }
-        
-        .navbar-links a.active::after {
-            width: 100%;
         }
         
         /* 📦 CONTENEDOR PRINCIPAL */
@@ -195,6 +111,12 @@
         .social-card.anilist:hover i { color: #02a9ff; }
         .social-card.anilist:hover { border-color: #02a9ff; box-shadow: 0 10px 30px rgba(2, 169, 255, 0.2); }
         
+        .social-card.tiktok:hover i { color: #ff0050; }
+        .social-card.tiktok:hover { border-color: #ff0050; box-shadow: 0 10px 30px rgba(255, 0, 80, 0.2); }
+        
+        .social-card.duolingo:hover i { color: #58cc02; }
+        .social-card.duolingo:hover { border-color: #58cc02; box-shadow: 0 10px 30px rgba(88, 204, 2, 0.2); }
+        
         /* 🎬 CUSTOM IMAGE ICON FOR ANILIST */
         .social-card img.icon-img {
             width: 2.5rem;
@@ -220,22 +142,6 @@
             .social-card i {
                 font-size: 2rem;
             }
-            
-            .navbar {
-                padding: 15px 20px;
-            }
-            
-            .navbar-logo {
-                font-size: 1.1rem;
-            }
-            
-            .navbar-links {
-                gap: 20px;
-            }
-            
-            .navbar-links a {
-                font-size: 0.85rem;
-            }
         }
     </style>
 </head>
@@ -249,6 +155,9 @@
             <li><a href="redes-sociales.html" class="active">Redes Sociales</a></li>
             <li><a href="animes.html">Animes</a></li>
             <li><a href="huijiegpt.html">HuijieGPT</a></li>
+            <li><a href="pomodoro.html">Pomodoro</a></li>
+            <li><a href="lasayye.html">La Sayye</a></li>
+            <li><a href="https://huijielin.notion.site/calendar-huijie" target="_blank">Calendario</a></li>
         </ul>
     </nav>
 
@@ -286,6 +195,18 @@
             <a href="https://anilist.co/user/Granjerito/" target="_blank" class="social-card anilist">
                 <img src="https://cdn-1.webcatalog.io/catalog/anilist/anilist-icon-filled-256.png?v=1714773219581" alt="AniList" class="icon-img">
                 <span>AniList</span>
+            </a>
+            
+            <!-- 🎵 TIKTOK -->
+            <a href="https://www.tiktok.com/@lhuijie_" target="_blank" class="social-card tiktok">
+                <i class="fab fa-tiktok"></i>
+                <span>TikTok</span>
+            </a>
+            
+            <!-- 🦉 DUOLINGO -->
+            <a href="https://www.duolingo.com/profile/Granjerito20" target="_blank" class="social-card duolingo">
+                <img src="images/duolingo.jpg" alt="Duolingo" class="icon-img">
+                <span>Duolingo</span>
             </a>
             
         </div>
